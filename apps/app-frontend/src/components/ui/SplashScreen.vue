@@ -5,7 +5,7 @@
 				<div class="flex items-center gap-3 select-none pointer-events-none mb-1">
 					<ModrinthIcon class="h-9 w-9 text-brand shrink-0" />
 					<div class="flex items-baseline gap-2">
-						<span class="font-bold text-3xl text-contrast tracking-tight lowercase">macros</span>
+						<span class="font-bold text-3xl text-contrast tracking-tight lowercase">modrinth</span>
 						<span class="font-semibold text-3xl text-brand tracking-tight lowercase">app</span>
 					</div>
 				</div>

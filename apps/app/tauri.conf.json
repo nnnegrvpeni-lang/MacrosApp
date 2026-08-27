@@ -62,10 +62,10 @@
 			}
 		]
 	},
-	"productName": "Macros",
+	"productName": "Modrinth App",
 	"version": "../app-frontend/package.json",
-	"mainBinaryName": "Macros",
-	"identifier": "MacrosApp",
+	"mainBinaryName": "Modrinth App",
+	"identifier": "ModrinthApp",
 	"plugins": {
 		"deep-link": {
 			"desktop": {
@@ -86,7 +86,7 @@
 				"fullscreen": false,
 				"height": 800,
 				"resizable": true,
-				"title": "Macros",
+				"title": "Modrinth App",
 				"label": "main",
 				"width": 1280,
 				"minHeight": 700,

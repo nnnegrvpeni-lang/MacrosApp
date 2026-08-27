@@ -1,39 +1,71 @@
-# ![Modrinth Monorepo Cover](/.github/assets/monorepo_cover.png)
+# Modrinth App (Offline & Ad-Free Edition) 🎮
 
-![Issues](https://img.shields.io/github/issues-raw/Modrinth/code?color=c78aff&label=issues&style=for-the-badge)
-![Pull Requests](https://img.shields.io/github/issues-pr-raw/Modrinth/code?color=c78aff&label=PRs&style=for-the-badge)
-![Contributors](https://img.shields.io/github/contributors/Modrinth/code?color=c78aff&label=contributors&style=for-the-badge)
-![Lines of Code](https://img.shields.io/endpoint?url=https://loctopus.creeperkatze.dev/github/modrinth/code/badge?style=flat&logoColor=white&color=c78aff&style=for-the-badge)
-![Commit Activity](https://img.shields.io/github/commit-activity/m/Modrinth/code?color=c78aff&label=commits&style=for-the-badge)
-![Last Commit](https://img.shields.io/github/last-commit/Modrinth/code?color=c78aff&label=last%20commit&style=for-the-badge)
+[![GitHub Release](https://img.shields.io/github/v/release/nnnegrvpeni-lang/modrinth-offline?style=for-the-badge&color=00AF5C)](https://github.com/nnnegrvpeni-lang/modrinth-offline/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](COPYING.md)
+[![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)](https://github.com/nnnegrvpeni-lang/modrinth-offline/releases)
 
-## Modrinth Monorepo
+Неофициальный форк официального **Modrinth App** с полной поддержкой **оффлайн-аккаунтов** (игра без обязательной авторизации в Microsoft) и **полным отключением рекламы**.
 
-Welcome to the Modrinth Monorepo, the primary codebase for the Modrinth web interface and app. It contains ![Lines of code](https://img.shields.io/endpoint?url=https://loctopus.creeperkatze.dev/github/modrinth/code/badge%3Fformat%3Dhuman&logoColor=white&color=black&label=) lines of code and has ![Contributors](https://img.shields.io/github/contributors/Modrinth/code?color=black&label=) contributors!
+---
 
-If you're not a developer and you've stumbled upon this repository, you can access the web interface on the [Modrinth website](https://modrinth.com) and download the latest release of the app [here](https://modrinth.com/app).
+## 🌟 Основные особенности / Features
 
-## Development
+### 1. 🎮 Поддержка оффлайн-аккаунтов (Offline / No-Auth Mode)
+- Возможность добавлять оффлайн-аккаунты (пиратские / No-Auth) по любому никнейму.
+- Корректная генерация стандартных Minecraft Java UUID (`MD5("OfflinePlayer:" + username)` RFC 4122 v3).
+- Отключены фоновые онлайн-запросы Mojang/OAuth для оффлайн-профилей (аккаунты не «слетают» и не требуют повторного входа).
+- Оффлайн-аккаунты наглядно помечены плашкой `Offline` в списке профилей.
+- Авторизация через Microsoft также полностью сохранена и работает при желании.
 
-This repository contains two primary packages. For detailed development information, please refer to their respective guides:
+### 2. 🚫 Полное отсутствие рекламы (Ad-Free & Clean UI)
+- Вырезан рекламный видеоплеер в нижнем углу правого сайдбара.
+- Удалены навязчивые кнопки и баннеры перехода на подписку `Modrinth+`.
+- Фоновый градиент сайдбара опущен до самого низа для чистого и аккуратного интерфейса.
 
-- [Website frontend](https://docs.modrinth.com/contributing/knossos/)
-- [Desktop app](https://docs.modrinth.com/contributing/theseus/)
+### 3. ⚡ Все оригинальные возможности Modrinth сохранены
+- Установка любых модов, модпаков, шейдеров и ресурс-паков в 1 клик прямо из каталога Modrinth.
+- Удобное управление экземплярами (инстансами), версиями Fabric / Forge / NeoForge / Quilt.
+- Мгновенный импорт сборок из других лаунчеров и поддержка файлов `.mrpack`.
 
-## Contributing
+---
 
-We welcome contributions! Before submitting any contributions, please read our [contributing guidelines](https://docs.modrinth.com/contributing/getting-started/).
+## 📥 Скачать / Download
 
-If you plan to fork this repository for your own purposes, please review our [copying guidelines](COPYING.md).
+Готовый официальный установщик Windows (`.exe Setup`) доступен на странице релизов:
 
-## Security
+👉 **[Скачать Modrinth App (Offline Edition) v1.0.0](https://github.com/nnnegrvpeni-lang/modrinth-offline/releases/latest)**
 
-If you discover a security vulnerability within our codebase, please follow our [responsible disclosure guidelines](https://modrinth.com/legal/security).
+---
 
-## Support
+## 🛠️ Сборка из исходного кода / Building from Source
 
-If you need help with the Modrinth web interface or app, please visit our [support page](https://support.modrinth.com). For general inquiries, you can also join our [Discord server](https://discord.modrinth.com).
+### Требования:
+- **Node.js** (v22+)
+- **pnpm** (`npm install -g pnpm`)
+- **Rust** (stable toolchain с `rustup`)
 
-## License
+### Сборка:
+```bash
+# 1. Клонирование репозитория
+git clone https://github.com/nnnegrvpeni-lang/modrinth-offline.git
+cd modrinth-offline
 
-All packages in this repository are licensed under their respective licenses. Refer to the LICENSE file in each package for more information.
+# 2. Установка зависимостей
+pnpm install
+
+# 3. Сборка фронтенда
+pnpm --filter app-frontend build
+
+# 4. Запуск в режиме разработки
+pnpm app:dev
+
+# 5. Сборка готового установщика Windows (.exe Setup)
+pnpm --filter @modrinth/app build
+```
+
+---
+
+## 📜 Лицензия / License
+
+Этот проект основан на открытом исходном коде [Modrinth App](https://github.com/modrinth/code) и распространяется под свободной лицензией **GNU General Public License v3.0 (GPLv3)**. Подробности в файле [COPYING.md](COPYING.md).
+

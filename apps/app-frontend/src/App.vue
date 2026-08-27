@@ -1875,7 +1875,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			<div data-tauri-drag-region class="flex min-w-0 flex-1 items-center overflow-hidden p-2">
 				<div class="flex items-center gap-2 select-none pointer-events-none shrink-0 pl-1 pr-2">
 					<ModrinthIcon class="h-6 w-6 text-brand shrink-0" />
-					<span class="font-bold text-lg text-contrast tracking-tight lowercase">macros</span>
+					<span class="font-bold text-lg text-contrast tracking-tight lowercase">modrinth</span>
 				</div>
 				<div data-tauri-drag-region class="ml-2 flex shrink-0 items-center gap-2">
 					<IconButton

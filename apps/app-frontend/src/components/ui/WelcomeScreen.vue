@@ -13,7 +13,7 @@ const { formatMessage } = useVIntl()
 const messages = defineMessages({
 	welcomeTitle: {
 		id: 'app.welcome-screen.title',
-		defaultMessage: 'Welcome to Macros',
+		defaultMessage: 'Welcome to Modrinth',
 	},
 	welcomeDescription: {
 		id: 'app.welcome-screen.description',
