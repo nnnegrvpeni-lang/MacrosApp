@@ -1028,24 +1028,14 @@ pub async fn launch_minecraft(
         let caches_dir = state.directories.caches_dir();
         let _ = tokio::fs::create_dir_all(&caches_dir).await;
         let authlib_path = caches_dir.join("authlib-injector.jar");
-        if !authlib_path.exists() {
-            let urls = [
-                "https://authlib-injector.yushi.moe/artifact/latest/authlib-injector.jar",
-                "https://github.com/yushijinhun/authlib-injector/releases/download/v1.2.5/authlib-injector-1.2.5.jar",
-            ];
-            for url in urls {
-                let client = reqwest::Client::builder()
-                    .timeout(std::time::Duration::from_secs(4))
-                    .build()
-                    .unwrap_or_else(|_| INSECURE_REQWEST_CLIENT.clone());
-                if let Ok(resp) = client.get(url).send().await
-                    && let Ok(bytes) = resp.bytes().await
-                    && !bytes.is_empty()
-                {
-                    let _ = tokio::fs::write(&authlib_path, bytes).await;
-                    break;
-                }
-            }
+        let is_valid = match tokio::fs::metadata(&authlib_path).await {
+            Ok(meta) => meta.len() >= 100_000,
+            Err(_) => false,
+        };
+        if !is_valid {
+            const BUNDLED_AUTHLIB: &[u8] =
+                include_bytes!("../../assets/authlib-injector.jar");
+            let _ = tokio::fs::write(&authlib_path, BUNDLED_AUTHLIB).await;
         }
 
         if authlib_path.exists() {

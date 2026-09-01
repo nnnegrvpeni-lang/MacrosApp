@@ -260,6 +260,7 @@ fn main() {
                         "instance_share_unpublish",
                         "instance_export_mrpack",
                         "instance_get_pack_export_candidates",
+                        "instance_install_curseforge_file",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,

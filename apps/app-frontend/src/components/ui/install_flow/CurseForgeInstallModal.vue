@@ -1,22 +1,38 @@
 <script setup lang="ts">
-import { CheckIcon, PlusIcon, SearchIcon, SpinnerIcon } from '@modrinth/assets'
+import {
+	CheckIcon,
+	EyeIcon,
+	EyeOffIcon,
+	PlusIcon,
+	SearchIcon,
+	SpinnerIcon,
+	TriangleAlertIcon,
+} from '@modrinth/assets'
 import {
 	Avatar,
 	Button,
+	Chips,
 	defineMessages,
+	IconButton,
 	injectNotificationManager,
+	NewModal,
 	StyledInput,
 	useVIntl,
 } from '@modrinth/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-import ModalWrapper from '@/components/ui/modal/ModalWrapper.vue'
 import {
 	type CurseForgeMod,
 	installCurseForgeMod,
 } from '@/helpers/curseforge'
-import { getInstanceIconUrl, list } from '@/helpers/instance'
+import { install_create_instance, installJobInstanceId } from '@/helpers/install'
+import {
+	get_installed_project_ids as getInstalledProjectIds,
+	getInstanceIconUrl,
+	list,
+} from '@/helpers/instance'
 import type { GameInstance } from '@/helpers/types'
 import { instanceKeys } from '@/pages/instance/query-options'
 
@@ -29,42 +45,85 @@ interface InstanceEntry extends GameInstance {
 const { handleError, addNotification } = injectNotificationManager()
 const { formatMessage } = useVIntl()
 const queryClient = useQueryClient()
+const router = useRouter()
 
-const modal = ref<InstanceType<typeof ModalWrapper> | null>(null)
+const modal = ref<InstanceType<typeof NewModal> | null>(null)
 const searchFilter = ref('')
+const hideUninstallable = ref(false)
+const tab = ref<'existing' | 'new'>('existing')
 const instances = ref<InstanceEntry[]>([])
 const currentMod = ref<CurseForgeMod | null>(null)
 const currentProjectType = ref('mod')
 
-const messages = defineMessages({
-	title: { id: 'app.curseforge.install.title', defaultMessage: 'Install from CurseForge' },
-	selectInstance: {
-		id: 'app.curseforge.install.select-instance',
-		defaultMessage: 'Select an instance to install {modName}:',
-	},
-	searchPlaceholder: {
-		id: 'app.curseforge.install.search-placeholder',
-		defaultMessage: 'Search instances...',
-	},
-	install: { id: 'app.curseforge.install.button', defaultMessage: 'Install' },
-	installing: { id: 'app.curseforge.install.installing', defaultMessage: 'Installing...' },
-	installed: { id: 'app.curseforge.install.installed', defaultMessage: 'Installed' },
-	noInstances: {
-		id: 'app.curseforge.install.no-instances',
-		defaultMessage: 'No instances found. Please create an instance first.',
-	},
-	close: { id: 'app.curseforge.install.close', defaultMessage: 'Close' },
-})
+// New instance fields
+const newInstanceName = ref('')
+const newInstanceGameVersion = ref('1.21.1')
+const newInstanceLoader = ref('fabric')
+const creatingNewInstance = ref(false)
 
-const shownInstances = computed(() => {
-	const filter = searchFilter.value.toLowerCase().trim()
-	if (!filter) return instances.value
-	return instances.value.filter(
-		(inst) =>
-			inst.name.toLowerCase().includes(filter) ||
-			inst.game_version.toLowerCase().includes(filter) ||
-			inst.loader.toLowerCase().includes(filter),
-	)
+const tabs = computed(() => [
+	{ id: 'existing', label: formatMessage(messages.existingInstanceTab) },
+	{ id: 'new', label: formatMessage(messages.newInstanceTab) },
+])
+
+const messages = defineMessages({
+	header: { id: 'app.curseforge.install.header', defaultMessage: 'Установка проекта' },
+	instanceType: { id: 'app.curseforge.install.instance_type', defaultMessage: 'Тип сборки' },
+	existingInstanceTab: {
+		id: 'app.curseforge.install.existing_tab',
+		defaultMessage: 'Существующая сборка',
+	},
+	newInstanceTab: { id: 'app.curseforge.install.new_tab', defaultMessage: 'Новая сборка' },
+	searchPlaceholder: {
+		id: 'app.curseforge.install.search_placeholder',
+		defaultMessage: 'Поиск сборки',
+	},
+	showUnavailable: {
+		id: 'app.curseforge.install.show_unavailable',
+		defaultMessage: 'Показать несовместимые сборки',
+	},
+	hideUnavailable: {
+		id: 'app.curseforge.install.hide_unavailable',
+		defaultMessage: 'Скрыть несовместимые сборки',
+	},
+	noInstances: {
+		id: 'app.curseforge.install.no_instances',
+		defaultMessage: 'Сборки не найдены',
+	},
+	installedBadge: {
+		id: 'app.curseforge.install.installed_badge',
+		defaultMessage: 'Установлено',
+	},
+	installButton: { id: 'app.curseforge.install.install_button', defaultMessage: 'Установить' },
+	installingButton: {
+		id: 'app.curseforge.install.installing_button',
+		defaultMessage: 'Установка...',
+	},
+	createAndInstall: {
+		id: 'app.curseforge.install.create_and_install',
+		defaultMessage: 'Создать и установить',
+	},
+	incompatibleTooltip: {
+		id: 'app.curseforge.install.incompatible_tooltip',
+		defaultMessage: 'Версия игры или лоадер не совпадают, но можно попробовать установить',
+	},
+	compatibleCount: {
+		id: 'app.curseforge.install.compatible_count',
+		defaultMessage: '{count} совместимых сборок',
+	},
+	cancel: { id: 'app.curseforge.install.cancel', defaultMessage: 'Отмена' },
+	newInstanceNameLabel: {
+		id: 'app.curseforge.install.new_name_label',
+		defaultMessage: 'Название сборки',
+	},
+	newInstanceVersionLabel: {
+		id: 'app.curseforge.install.new_version_label',
+		defaultMessage: 'Версия игры',
+	},
+	newInstanceLoaderLabel: {
+		id: 'app.curseforge.install.new_loader_label',
+		defaultMessage: 'Модлоадер',
+	},
 })
 
 function checkModCompatibility(mod: CurseForgeMod, instance: GameInstance): boolean {
@@ -84,20 +143,56 @@ function checkModCompatibility(mod: CurseForgeMod, instance: GameInstance): bool
 	})
 }
 
+const filteredInstances = computed(() => {
+	let list = instances.value
+	if (hideUninstallable.value) {
+		list = list.filter((inst) => inst.isCompatible)
+	}
+	const filter = searchFilter.value.toLowerCase().trim()
+	if (filter) {
+		list = list.filter(
+			(inst) =>
+				inst.name.toLowerCase().includes(filter) ||
+				inst.game_version.toLowerCase().includes(filter) ||
+				inst.loader.toLowerCase().includes(filter),
+		)
+	}
+	return list
+})
+
+const compatibleCount = computed(() => {
+	return instances.value.filter((i) => i.isCompatible).length
+})
+
 defineExpose({
 	show: async (mod: CurseForgeMod, projectType = 'mod') => {
 		currentMod.value = mod
 		currentProjectType.value = projectType
 		searchFilter.value = ''
+		tab.value = 'existing'
+		newInstanceName.value = mod.name || 'My Modpack'
 
 		try {
 			const listData = await list()
-			instances.value = listData.map((inst) => ({
-				...inst,
-				installing: false,
-				installed: false,
-				isCompatible: checkModCompatibility(mod, inst),
-			}))
+			instances.value = await Promise.all(
+				listData.map(async (inst) => {
+					let installed = false
+					try {
+						const installedIds = await getInstalledProjectIds(inst.id)
+						installed =
+							installedIds.includes(`cf-${mod.id}`) ||
+							installedIds.includes(String(mod.id))
+					} catch {
+						// ignore
+					}
+					return {
+						...inst,
+						installing: false,
+						installed,
+						isCompatible: checkModCompatibility(mod, inst),
+					}
+				}),
+			)
 		} catch (e) {
 			handleError(e)
 			instances.value = []
@@ -130,8 +225,8 @@ async function installToInstance(inst: InstanceEntry) {
 
 		addNotification({
 			type: 'success',
-			title: 'Installed successfully',
-			text: `${currentMod.value.name} has been added to ${inst.name}`,
+			title: 'Успешно установлено',
+			text: `Проект «${currentMod.value.name}» установлен в «${inst.name}»`,
 		})
 	} catch (e) {
 		handleError(e)
@@ -139,53 +234,141 @@ async function installToInstance(inst: InstanceEntry) {
 		inst.installing = false
 	}
 }
+
+async function handleCreateAndInstallNew() {
+	if (!currentMod.value || creatingNewInstance.value) return
+	creatingNewInstance.value = true
+	try {
+		const job = await install_create_instance({
+			name: newInstanceName.value.trim() || currentMod.value.name,
+			game_version: newInstanceGameVersion.value,
+			loader: newInstanceLoader.value,
+			loader_version: null,
+			icon_path: null,
+			icon_config: null,
+			link: null,
+		})
+		const instanceId = installJobInstanceId(job)
+		if (instanceId) {
+			await installCurseForgeMod(
+				instanceId,
+				currentMod.value,
+				newInstanceGameVersion.value,
+				newInstanceLoader.value,
+				currentProjectType.value,
+			)
+			addNotification({
+				type: 'success',
+				title: 'Сборка создана',
+				text: `Сборка создана с установленным модом «${currentMod.value.name}»`,
+			})
+			modal.value?.hide()
+			router.push(`/instance/${encodeURIComponent(instanceId)}`)
+		}
+	} catch (e) {
+		handleError(e)
+	} finally {
+		creatingNewInstance.value = false
+	}
+}
 </script>
 
 <template>
-	<ModalWrapper ref="modal" :header="formatMessage(messages.title)">
-		<div class="flex flex-col gap-4 min-w-[360px] max-w-[500px]">
-			<div v-if="currentMod" class="flex items-center gap-3 p-3 bg-bg-raised rounded-xl">
-				<img
-					v-if="currentMod.logo?.thumbnailUrl || currentMod.logo?.url"
-					:src="currentMod.logo.thumbnailUrl || currentMod.logo.url"
-					alt=""
-					class="size-12 rounded-lg object-cover bg-surface-4"
+	<NewModal
+		ref="modal"
+		no-padding
+		scrollable
+		max-width="560px"
+		width="560px"
+	>
+		<template #title>
+			<span class="text-2xl font-semibold text-contrast">
+				{{ formatMessage(messages.header) }}
+			</span>
+		</template>
+
+		<!-- Project banner (matching Modrinth native modal) -->
+		<div
+			v-if="currentMod"
+			class="flex items-center gap-3 rounded-[20px] bg-surface-2 mx-6 mt-6 p-3"
+		>
+			<div class="size-14 shrink-0 overflow-hidden rounded-2xl border border-solid border-surface-5">
+				<Avatar
+					:src="currentMod.logo?.thumbnailUrl || currentMod.logo?.url"
+					:alt="currentMod.name"
+					size="100%"
+					no-shadow
 				/>
-				<div class="flex flex-col overflow-hidden">
-					<span class="font-bold text-base text-contrast truncate">{{ currentMod.name }}</span>
-					<span class="text-xs text-secondary line-clamp-2">{{ currentMod.summary }}</span>
+			</div>
+			<div class="flex flex-col gap-1 overflow-hidden">
+				<span class="font-semibold text-contrast truncate">{{ currentMod.name }}</span>
+				<div v-if="currentMod.authors?.length" class="flex items-center gap-2 text-sm text-secondary truncate">
+					<span class="font-medium">{{ currentMod.authors.map((a) => a.name).join(', ') }}</span>
 				</div>
 			</div>
+		</div>
 
-			<p class="text-sm text-secondary font-medium">
-				{{ formatMessage(messages.selectInstance, { modName: currentMod?.name || '' }) }}
-			</p>
-
-			<StyledInput
-				v-model="searchFilter"
-				:icon="SearchIcon"
-				type="search"
-				:placeholder="formatMessage(messages.searchPlaceholder)"
-				autocomplete="off"
+		<!-- Tab Chips (Existing vs New Instance) -->
+		<div class="flex flex-col gap-2.5 p-6">
+			<span class="font-semibold text-contrast">
+				{{ formatMessage(messages.instanceType) }}
+			</span>
+			<Chips
+				v-model="tab"
+				:items="tabs"
+				:never-empty="true"
+				:capitalize="false"
 			/>
+		</div>
 
-			<div class="flex flex-col gap-2 max-h-[22rem] overflow-y-auto pr-1">
-				<div
-					v-if="!instances.length"
-					class="p-4 text-center text-sm text-secondary bg-bg-raised rounded-lg"
+		<div class="h-px bg-divider" />
+
+		<!-- Existing instance tab -->
+		<div
+			v-if="tab === 'existing'"
+			class="flex flex-col gap-3 bg-surface-2 py-4"
+			style="height: 360px; overflow-y: auto"
+		>
+			<div class="flex items-start gap-3 px-6">
+				<StyledInput
+					v-model="searchFilter"
+					:icon="SearchIcon"
+					:placeholder="formatMessage(messages.searchPlaceholder)"
+					class="flex-1"
+				/>
+				<IconButton
+					v-tooltip="
+						formatMessage(hideUninstallable ? messages.showUnavailable : messages.hideUnavailable)
+					"
+					type="outlined"
+					:label="
+						formatMessage(hideUninstallable ? messages.showUnavailable : messages.hideUnavailable)
+					"
+					@click="hideUninstallable = !hideUninstallable"
 				>
-					{{ formatMessage(messages.noInstances) }}
-				</div>
+					<EyeOffIcon v-if="hideUninstallable" />
+					<EyeIcon v-else />
+				</IconButton>
+			</div>
 
+			<div
+				v-if="!filteredInstances.length"
+				class="flex items-center justify-center py-12 text-secondary"
+			>
+				{{ formatMessage(messages.noInstances) }}
+			</div>
+
+			<div v-else class="flex flex-col gap-1">
 				<div
-					v-for="inst in shownInstances"
+					v-for="inst in filteredInstances"
 					:key="inst.id"
-					class="flex items-center justify-between gap-3 p-2.5 bg-bg-raised hover:bg-bg-raised-hover transition-colors rounded-xl border border-solid border-surface-4"
+					class="flex items-center justify-between px-6 py-2 transition-colors"
+					:class="inst.installed ? 'opacity-60' : 'hover:bg-surface-3'"
 				>
-					<div class="flex items-center gap-3 overflow-hidden">
-						<Avatar :src="getInstanceIconUrl(inst.icon_path)" class="size-9 shrink-0" />
+					<div class="flex min-w-0 items-center gap-3 overflow-hidden text-left">
+						<Avatar :src="getInstanceIconUrl(inst.icon_path)" size="2rem" rounded="md" />
 						<div class="flex flex-col overflow-hidden">
-							<span class="font-semibold text-sm text-contrast truncate">{{ inst.name }}</span>
+							<span class="truncate font-semibold text-contrast">{{ inst.name }}</span>
 							<div class="flex items-center gap-1.5 text-xs text-secondary">
 								<span class="capitalize">{{ inst.loader }}</span>
 								<span>•</span>
@@ -194,36 +377,82 @@ async function installToInstance(inst: InstanceEntry) {
 						</div>
 					</div>
 
+					<Button v-if="inst.installed" disabled>
+						<CheckIcon />
+						{{ formatMessage(messages.installedBadge) }}
+					</Button>
 					<Button
-						:disabled="inst.installed || inst.installing"
-						:color="inst.installed ? 'green' : 'brand'"
-						type="outlined"
-						class="shrink-0"
+						v-else
+						v-tooltip="!inst.isCompatible ? formatMessage(messages.incompatibleTooltip) : undefined"
+						:type="inst.isCompatible ? 'base' : 'outlined'"
+						:class="
+							inst.isCompatible
+								? undefined
+								: '!text-orange [&>svg]:!text-orange !shadow-[inset_0_0_0_1px_var(--color-orange)]'
+						"
+						:disabled="inst.installing"
 						@click="installToInstance(inst)"
 					>
-						<SpinnerIcon v-if="inst.installing" class="animate-spin size-4" />
-						<CheckIcon v-else-if="inst.installed" class="size-4" />
-						<PlusIcon v-else class="size-4" />
+						<SpinnerIcon v-if="inst.installing" class="animate-spin" />
+						<TriangleAlertIcon v-else-if="!inst.isCompatible" />
+						<PlusIcon v-else />
 						<span>
 							{{
-								formatMessage(
-									inst.installing
-										? messages.installing
-										: inst.installed
-											? messages.installed
-											: messages.install,
-								)
+								inst.installing
+									? formatMessage(messages.installingButton)
+									: formatMessage(messages.installButton)
 							}}
 						</span>
 					</Button>
 				</div>
 			</div>
+		</div>
 
-			<div class="flex justify-end pt-2">
-				<Button type="transparent" @click="modal?.hide()">
-					{{ formatMessage(messages.close) }}
+		<!-- New instance tab -->
+		<div v-else class="flex flex-col gap-4 bg-surface-2 p-6" style="height: 360px; overflow-y: auto">
+			<div class="flex flex-col gap-2">
+				<label class="text-sm font-semibold text-contrast">
+					{{ formatMessage(messages.newInstanceNameLabel) }}
+				</label>
+				<StyledInput v-model="newInstanceName" placeholder="Название сборки" />
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label class="text-sm font-semibold text-contrast">
+					{{ formatMessage(messages.newInstanceVersionLabel) }}
+				</label>
+				<StyledInput v-model="newInstanceGameVersion" placeholder="1.21.1" />
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label class="text-sm font-semibold text-contrast">
+					{{ formatMessage(messages.newInstanceLoaderLabel) }}
+				</label>
+				<StyledInput v-model="newInstanceLoader" placeholder="fabric / forge / neoforge / quilt" />
+			</div>
+
+			<div class="pt-4">
+				<Button
+					type="base"
+					class="w-full justify-center"
+					:disabled="creatingNewInstance"
+					@click="handleCreateAndInstallNew"
+				>
+					<SpinnerIcon v-if="creatingNewInstance" class="animate-spin" />
+					<PlusIcon v-else />
+					<span>{{ formatMessage(messages.createAndInstall) }}</span>
 				</Button>
 			</div>
 		</div>
-	</ModalWrapper>
+
+		<!-- Modal footer -->
+		<div class="flex items-center justify-between p-6 border-t border-solid border-divider bg-surface-1">
+			<span class="text-sm text-secondary">
+				{{ formatMessage(messages.compatibleCount, { count: compatibleCount }) }}
+			</span>
+			<Button type="outlined" @click="modal?.hide()">
+				{{ formatMessage(messages.cancel) }}
+			</Button>
+		</div>
+	</NewModal>
 </template>
