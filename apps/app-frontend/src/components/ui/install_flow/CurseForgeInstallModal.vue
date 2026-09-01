@@ -296,19 +296,13 @@ async function handleInstallToInstance(inst: ContentInstallInstance) {
 			raw?.loader,
 			currentProjectType.value,
 		)
-		installedSet.value.add(inst.id)
+		installedSet.value = new Set(installedSet.value).add(inst.id)
 
 		await queryClient.invalidateQueries({
 			queryKey: instanceKeys.content(inst.id),
 		})
 		await queryClient.invalidateQueries({
 			queryKey: instanceKeys.installedProjectIds(inst.id, 'content'),
-		})
-
-		addNotification({
-			type: 'success',
-			title: 'Успешно установлено',
-			text: `Проект «${currentMod.value.name}» установлен в «${inst.name}»`,
 		})
 	} catch (e) {
 		handleError(e)

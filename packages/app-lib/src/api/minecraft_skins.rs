@@ -598,7 +598,7 @@ async fn add_and_equip_custom_skin_now(
 
     preserve_current_profile_skin(&state, &previous_profile).await?;
 
-    let profile = if selected_credentials.is_offline() {
+    let profile = if selected_credentials.is_offline() || selected_credentials.is_elyby() {
         let mut profile = selected_credentials.build_offline_or_elyby_profile();
         if let Some(data_url) = png_util::blob_to_data_url(&texture_blob) {
             profile.skins = vec![MinecraftSkin {
@@ -689,7 +689,7 @@ async fn add_and_equip_custom_skin_now(
         .await?;
     }
 
-    if !selected_credentials.is_offline() {
+    if !selected_credentials.is_offline() && !selected_credentials.is_elyby() {
         if let Err(error) = sync_cape(selected_credentials, &profile, cape_id).await
         {
             refresh_profile_cache(selected_credentials).await;
@@ -743,7 +743,7 @@ async fn equip_skin_now(
         })
         .await?;
 
-    let profile = if selected_credentials.is_offline() {
+    let profile = if selected_credentials.is_offline() || selected_credentials.is_elyby() {
         let mut profile = selected_credentials.build_offline_or_elyby_profile();
         profile.skins = vec![MinecraftSkin {
             id: Uuid::new_v4(),
@@ -780,7 +780,7 @@ async fn equip_skin_now(
         return Err(error);
     }
 
-    if !selected_credentials.is_offline() {
+    if !selected_credentials.is_offline() && !selected_credentials.is_elyby() {
         if let Err(error) =
             sync_cape(selected_credentials, &profile, skin.cape_id).await
         {

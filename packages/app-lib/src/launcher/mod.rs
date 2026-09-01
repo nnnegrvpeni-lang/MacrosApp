@@ -1044,7 +1044,6 @@ pub async fn launch_minecraft(
                 authlib_path.to_string_lossy(),
                 "https://authserver.ely.by/api/authlib-injector"
             ));
-            command.arg("-Dauthlibinjector.side=client");
         }
     }
 

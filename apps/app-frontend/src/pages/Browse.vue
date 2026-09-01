@@ -1,3 +1,8 @@
+<script lang="ts">
+import { ref as vueRef } from 'vue'
+const persistentSearchSource = vueRef<'modrinth' | 'curseforge'>('modrinth')
+</script>
+
 <script setup lang="ts">
 import type { Labrinth } from '@modrinth/api-client'
 import {
@@ -1122,7 +1127,7 @@ function onSearchResultsInstalled(ids: string[]) {
 	newlyInstalled.value = Array.from(new Set([...newlyInstalled.value, ...ids]))
 }
 
-const searchSource = ref<'modrinth' | 'curseforge'>('modrinth')
+const searchSource = persistentSearchSource
 
 function switchSearchSource(source: 'modrinth' | 'curseforge') {
 	searchSource.value = source

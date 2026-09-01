@@ -740,6 +740,9 @@ async function fetchProjectData() {
 					])
 				}
 				rawCfMod.value = cfMod
+				isServerProject.value = false
+				serverStatusOnline.value = false
+				organization.value = null
 				return
 			}
 		} catch (e) {
@@ -750,11 +753,15 @@ async function fetchProjectData() {
 	let project = null
 	let projectV3Result = null
 	try {
-		;[project, projectV3Result] = await Promise.all([
-			get_project(requestedId, 'must_revalidate'),
+		const [p, pv3] = await Promise.all([
+			get_project(requestedId, 'must_revalidate').catch(() => null),
 			get_project_v3(requestedId, 'must_revalidate').catch(() => null),
 		])
-	} catch {
+		project = p
+		projectV3Result = pv3
+	} catch {}
+
+	if (!project && !requestedId.startsWith('cf-')) {
 		try {
 			const cfRes = await searchCurseForge({ query: requestedId, pageSize: 1 })
 			if (cfRes.hits.length > 0 && cfRes.hits[0].cf_raw) {
@@ -777,6 +784,9 @@ async function fetchProjectData() {
 					])
 				}
 				rawCfMod.value = cfMod
+				isServerProject.value = false
+				serverStatusOnline.value = false
+				organization.value = null
 				return
 			}
 		} catch {}
@@ -797,25 +807,25 @@ async function fetchProjectData() {
 	projectBreadcrumbLabel.value = project.title
 	;[versions.value, members.value, categories.value, instance.value, instanceProjects.value] =
 		await Promise.all([
-			get_version_many(project.versions, 'must_revalidate').catch(handleError),
-			get_team(project.team).catch(handleError),
-			get_categories().catch(handleError),
-			route.query.i ? getInstance(route.query.i).catch(handleError) : Promise.resolve(),
-			route.query.i ? getInstanceProjects(route.query.i).catch(handleError) : Promise.resolve(),
+			project.versions?.length ? get_version_many(project.versions, 'must_revalidate').catch(() => []) : Promise.resolve([]),
+			project.team ? get_team(project.team).catch(() => null) : Promise.resolve(null),
+			get_categories().catch(() => []),
+			route.query.i ? getInstance(route.query.i).catch(() => null) : Promise.resolve(null),
+			route.query.i ? getInstanceProjects(route.query.i).catch(() => []) : Promise.resolve([]),
 		])
 	if (String(route.params.id ?? '') !== requestedId) {
 		return
 	}
 
 	for (const member of members.value ?? []) {
-		for (const identifier of [member.user.id, member.user.username]) {
+		for (const identifier of [member?.user?.id, member?.user?.username]) {
 			if (identifier) {
 				queryClient.setQueryData(['users', 'summary', identifier], member.user)
 			}
 		}
 	}
 
-	versions.value = versions.value.sort((a, b) => dayjs(b.date_published) - dayjs(a.date_published))
+	versions.value = (versions.value || []).sort((a, b) => dayjs(b.date_published) - dayjs(a.date_published))
 
 	const installedFile = instanceProjects.value
 		? Object.values(instanceProjects.value).find(
@@ -826,7 +836,7 @@ async function fetchProjectData() {
 	installedVersion.value = installedFile?.metadata.version_id ?? null
 
 	if (project.organization) {
-		organization.value = await get_organization(project.organization).catch(handleError)
+		organization.value = await get_organization(project.organization).catch(() => null)
 	} else {
 		organization.value = null
 	}
