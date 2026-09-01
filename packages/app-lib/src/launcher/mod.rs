@@ -1025,7 +1025,9 @@ pub async fn launch_minecraft(
     }
 
     if credentials.is_elyby() {
-        let authlib_path = state.directories.caches_dir().join("authlib-injector.jar");
+        let caches_dir = state.directories.caches_dir();
+        let _ = tokio::fs::create_dir_all(&caches_dir).await;
+        let authlib_path = caches_dir.join("authlib-injector.jar");
         if !authlib_path.exists() {
             let urls = [
                 "https://authlib-injector.yushi.moe/artifact/latest/authlib-injector.jar",
@@ -1049,7 +1051,7 @@ pub async fn launch_minecraft(
         if authlib_path.exists() {
             command.arg(format!(
                 "-javaagent:{}={}",
-                authlib_path.display(),
+                authlib_path.to_string_lossy(),
                 "https://authserver.ely.by/api/authlib-injector"
             ));
             command.arg("-Dauthlibinjector.side=client");

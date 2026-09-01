@@ -41,6 +41,7 @@ import type { LocationQuery } from 'vue-router'
 import { useRoute, useRouter } from 'vue-router'
 
 import ContextMenu from '@/components/ui/context-menu/index.vue'
+import CurseForgeInstallModal from '@/components/ui/install_flow/CurseForgeInstallModal.vue'
 import { useAppServerBrowse } from '@/composables/browse/use-app-server-browse'
 import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
@@ -170,6 +171,7 @@ const linkedInstanceProjectQuery = useQuery(
 	})),
 )
 const installedProjectIds: Ref<string[] | null> = ref(null)
+const curseForgeInstallModalRef = ref<InstanceType<typeof CurseForgeInstallModal> | null>(null)
 const instanceHideInstalled = ref(route.query.ai === 'true')
 const newlyInstalled = ref<string[]>([])
 const hiddenInstanceProjectIds = ref<Set<string>>(new Set())
@@ -915,9 +917,7 @@ function getCardActions(
 				type: 'outlined',
 				onClick: async () => {
 					if (!instance.value) {
-						if (cfMod?.links?.websiteUrl) {
-							await openUrl(cfMod.links.websiteUrl)
-						}
+						curseForgeInstallModalRef.value?.show(cfMod, currentProjectType)
 						return
 					}
 					setProjectInstalling(projectResult.project_id, true)
@@ -1484,6 +1484,7 @@ provideBrowseManager({
 			@browse-modpacks="() => {}"
 			@create="handleServerModpackFlowCreate"
 		/>
+		<CurseForgeInstallModal ref="curseForgeInstallModalRef" />
 		<Teleport v-if="browseRouteActive" to="#sidebar-teleport-target">
 			<BrowseSidebar />
 		</Teleport>

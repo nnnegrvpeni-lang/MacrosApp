@@ -754,6 +754,15 @@ pub async fn instance_install_curseforge_file(
         .await
         .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
 
+    if !response.status().is_success() {
+        return Err(theseus::Error::from(theseus::ErrorKind::OtherError(format!(
+            "Failed to download CurseForge file (HTTP {}): {}",
+            response.status(),
+            download_url
+        )))
+        .into());
+    }
+
     let bytes = response
         .bytes()
         .await

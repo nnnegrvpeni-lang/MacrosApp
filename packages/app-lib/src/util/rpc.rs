@@ -136,10 +136,16 @@ impl RpcServer {
         }
 
         tracing::debug!("Waiting on result for {id}");
-        let Ok(result) = recv.await else {
+        let recv_result = tokio::time::timeout(
+            std::time::Duration::from_secs(20),
+            recv,
+        )
+        .await;
+
+        let Ok(Ok(result)) = recv_result else {
             self.waiting_responses.lock().unwrap().remove(&id);
             return Err(ErrorKind::RpcError(
-                "RPC connection closed while waiting for response".to_string(),
+                "RPC connection closed or timed out while waiting for response".to_string(),
             )
             .into());
         };
@@ -161,7 +167,21 @@ struct RunningRpcServer {
 
 impl RunningRpcServer {
     async fn run(&mut self, listener: TcpListener) -> Result<()> {
-        let (socket, _) = listener.accept().await?;
+        let socket = match tokio::time::timeout(
+            std::time::Duration::from_secs(30),
+            listener.accept(),
+        )
+        .await
+        {
+            Ok(Ok((socket, _))) => socket,
+            Ok(Err(e)) => return Err(e.into()),
+            Err(_) => {
+                return Err(ErrorKind::RpcError(
+                    "Timed out waiting for Minecraft process to connect".to_string(),
+                )
+                .into());
+            }
+        };
         drop(listener);
 
         let mut socket = LinesCodec::new().framed(socket);

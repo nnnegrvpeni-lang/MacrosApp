@@ -463,11 +463,15 @@ impl OnlineProfileCacheIntent {
 
 impl Credentials {
     pub fn is_offline(&self) -> bool {
-        self.refresh_token == "offline" || self.access_token == "offline" || self.is_elyby()
+        self.refresh_token == "offline" || self.access_token == "offline"
     }
 
     pub fn is_elyby(&self) -> bool {
         self.refresh_token.starts_with("elyby:")
+    }
+
+    pub fn is_custom_auth(&self) -> bool {
+        self.is_offline() || self.is_elyby()
     }
 
     pub fn build_offline_or_elyby_profile(&self) -> MinecraftProfile {
@@ -523,7 +527,7 @@ impl Credentials {
         &mut self,
         exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite> + Copy,
     ) -> crate::Result<()> {
-        if self.is_offline() {
+        if self.is_offline() || self.is_elyby() {
             return Ok(());
         }
 
@@ -581,9 +585,6 @@ impl Credentials {
     }
 
     /// Returns profile data recent enough for skin and cape state.
-    ///
-    /// Reuses a profile read from the last few seconds so opening the skins page
-    /// does not send several identical Mojang requests.
     #[tracing::instrument(skip(self))]
     pub async fn online_profile_fresh(&self) -> Option<Arc<MinecraftProfile>> {
         self.online_profile_with_cache_intent(
@@ -607,7 +608,7 @@ impl Credentials {
         &self,
         cache_intent: OnlineProfileCacheIntent,
     ) -> Option<Arc<MinecraftProfile>> {
-        if self.is_offline() {
+        if self.is_offline() || self.is_elyby() {
             return Some(Arc::new(self.build_offline_or_elyby_profile()));
         }
 
@@ -803,7 +804,7 @@ impl Credentials {
                         .unwrap_or_else(Utc::now),
                     active: x.active == 1,
                 };
-                if credentials.is_offline() {
+                if credentials.is_offline() || credentials.is_elyby() {
                     credentials.offline_profile = credentials.build_offline_or_elyby_profile();
                 }
                 credentials.refresh(exec).await.ok();
@@ -840,7 +841,7 @@ impl Credentials {
                     .unwrap_or_else(Utc::now),
                 active: x.active == 1,
             };
-            if credentials.is_offline() {
+            if credentials.is_offline() || credentials.is_elyby() {
                 credentials.offline_profile = credentials.build_offline_or_elyby_profile();
             }
 
@@ -948,13 +949,14 @@ impl Serialize for Credentials {
                 ),
         };
 
-        let mut ser = serializer.serialize_struct("Credentials", 6)?;
+        let mut ser = serializer.serialize_struct("Credentials", 7)?;
         ser.serialize_field("profile", &*profile)?;
         ser.serialize_field("access_token", &self.access_token)?;
         ser.serialize_field("refresh_token", &self.refresh_token)?;
         ser.serialize_field("expires", &self.expires)?;
         ser.serialize_field("active", &self.active)?;
         ser.serialize_field("is_offline", &self.is_offline())?;
+        ser.serialize_field("is_elyby", &self.is_elyby())?;
         ser.end()
     }
 }
