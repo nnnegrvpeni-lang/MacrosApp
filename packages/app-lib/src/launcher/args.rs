@@ -348,16 +348,29 @@ fn parse_minecraft_argument(
     is_offline: bool,
     is_elyby: bool,
 ) -> crate::Result<String> {
+    let safe_username = if username.chars().count() > 16 {
+        username.chars().take(16).collect::<String>()
+    } else {
+        username.to_string()
+    };
+
     Ok(argument
         .replace("${accessToken}", access_token)
         .replace("${auth_access_token}", access_token)
         .replace("${auth_session}", access_token)
-        .replace("${auth_player_name}", username)
+        .replace("${auth_player_name}", &safe_username)
         // TODO: add auth xuid eventually
-        .replace("${auth_xuid}", "0")
+        .replace("${auth_xuid}", if is_offline || is_elyby { "" } else { "0" })
         .replace("${auth_uuid}", &uuid.simple().to_string())
         .replace("${uuid}", &uuid.simple().to_string())
-        .replace("${clientid}", "c4502edb-87c6-40cb-b595-64a280cf8906")
+        .replace(
+            "${clientid}",
+            if is_offline || is_elyby {
+                ""
+            } else {
+                "c4502edb-87c6-40cb-b595-64a280cf8906"
+            },
+        )
         .replace("${user_properties}", "{}")
         .replace(
             "${user_type}",
