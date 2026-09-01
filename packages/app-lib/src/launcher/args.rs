@@ -270,6 +270,7 @@ pub async fn get_minecraft_arguments(
     let access_token = credentials.access_token.clone();
     let profile = credentials.maybe_online_profile().await;
     let is_offline = credentials.is_offline();
+    let is_elyby = credentials.is_elyby();
     let mut parsed_arguments = Vec::new();
 
     if let Some(arguments) = arguments {
@@ -290,6 +291,7 @@ pub async fn get_minecraft_arguments(
                     resolution,
                     quick_play_type,
                     is_offline,
+                    is_elyby,
                 )
             },
             java_arch,
@@ -310,6 +312,7 @@ pub async fn get_minecraft_arguments(
                 resolution,
                 quick_play_type,
                 is_offline,
+                is_elyby,
             )?);
         }
     }
@@ -343,6 +346,7 @@ fn parse_minecraft_argument(
     resolution: WindowSize,
     quick_play_type: &QuickPlayType,
     is_offline: bool,
+    is_elyby: bool,
 ) -> crate::Result<String> {
     Ok(argument
         .replace("${accessToken}", access_token)
@@ -355,7 +359,16 @@ fn parse_minecraft_argument(
         .replace("${uuid}", &uuid.simple().to_string())
         .replace("${clientid}", "c4502edb-87c6-40cb-b595-64a280cf8906")
         .replace("${user_properties}", "{}")
-        .replace("${user_type}", if is_offline { "legacy" } else { "msa" })
+        .replace(
+            "${user_type}",
+            if is_offline {
+                "legacy"
+            } else if is_elyby {
+                "mojang"
+            } else {
+                "msa"
+            },
+        )
         .replace("${version_name}", version)
         .replace("${assets_index_name}", asset_index_name)
         .replace(

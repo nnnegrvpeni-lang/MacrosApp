@@ -17,6 +17,15 @@ export interface CurseForgeFile {
 	fileLength: number
 }
 
+export interface CurseForgeFileIndex {
+	gameVersion: string
+	fileId: number
+	filename: string
+	releaseType: number
+	gameVersionTypeId?: number
+	modLoader?: number
+}
+
 export interface CurseForgeMod {
 	id: number
 	gameId: number
@@ -29,6 +38,7 @@ export interface CurseForgeMod {
 	authors: { id: number; name: string; url: string; avatarUrl?: string }[]
 	logo?: { thumbnailUrl?: string; url?: string }
 	latestFiles: CurseForgeFile[]
+	latestFilesIndexes?: CurseForgeFileIndex[]
 	dateCreated: string
 	dateModified: string
 	dateReleased: string
@@ -62,6 +72,16 @@ export const CF_LOADER_IDS: Record<string, number> = {
 	fabric: 4,
 	quilt: 5,
 	neoforge: 6,
+}
+
+export const CF_LOADER_NAMES: Record<number, string> = {
+	0: 'any',
+	1: 'forge',
+	2: 'cauldron',
+	3: 'liteloader',
+	4: 'fabric',
+	5: 'quilt',
+	6: 'neoforge',
 }
 
 export async function searchCurseForge(options: {
@@ -120,13 +140,11 @@ export async function searchCurseForge(options: {
 			installed?: boolean
 		} = {
 			project_id: `cf-${mod.id}`,
-			project_type: (projectType as Labrinth.Projects.v2.ProjectType) || 'mod',
+			project_type: projectType as any,
 			slug: mod.slug,
 			author: authorName,
 			title: mod.name,
-			name: mod.name,
-			description: mod.summary || '',
-			summary: mod.summary || '',
+			description: mod.summary,
 			categories: mod.categories?.map((c) => c.name) || [],
 			display_categories: mod.categories?.map((c) => c.name) || [],
 			versions: (mod.latestFiles || []).map((f) => String(f.id)),
@@ -181,39 +199,49 @@ export async function findBestCurseForgeFileForInstance(
 	gameVersion?: string,
 	loader?: string,
 ): Promise<{ file: CurseForgeFile; downloadUrl: string } | null> {
-	let files = mod.latestFiles || []
-	if (!files.length) {
-		files = await getCurseForgeModFiles(mod.id)
+	const files = mod.latestFiles || []
+	const loaderLower = (loader || '').toLowerCase().trim()
+	const gvLower = (gameVersion || '').toLowerCase().trim()
+
+	const findMatch = (fileList: CurseForgeFile[]) => {
+		if (gvLower && loaderLower) {
+			const match = fileList.find((f) => {
+				const versions = (f.gameVersions || []).map((v) => v.toLowerCase().trim())
+				const matchesGv = versions.includes(gvLower)
+				const matchesLoader =
+					versions.includes(loaderLower) ||
+					(loaderLower === 'quilt' && versions.includes('fabric')) ||
+					(loaderLower === 'fabric' && versions.includes('quilt')) ||
+					(loaderLower === 'neoforge' && versions.includes('forge')) ||
+					(loaderLower === 'forge' && versions.includes('neoforge'))
+				return matchesGv && matchesLoader
+			})
+			if (match) return match
+		}
+		if (gvLower) {
+			const match = fileList.find((f) =>
+				(f.gameVersions || []).some((v) => v.toLowerCase().trim() === gvLower),
+			)
+			if (match) return match
+		}
+		return null
 	}
 
-	const loaderLower = loader?.toLowerCase()
-
-	if (gameVersion && loaderLower) {
-		const match = files.find((f) => {
-			const versions = (f.gameVersions || []).map((v) => v.toLowerCase())
-			const matchesGv = versions.includes(gameVersion.toLowerCase())
-			const matchesLoader =
-				versions.includes(loaderLower) ||
-				(loaderLower === 'quilt' && versions.includes('fabric'))
-			return matchesGv && matchesLoader
-		})
-		if (match) {
-			return { file: match, downloadUrl: resolveCurseForgeDownloadUrl(match) }
+	let bestMatch = findMatch(files)
+	if (!bestMatch) {
+		const allFiles = await getCurseForgeModFiles(mod.id)
+		bestMatch = findMatch(allFiles)
+		if (!bestMatch && allFiles.length > 0) {
+			bestMatch = allFiles[0]
 		}
 	}
 
-	if (gameVersion) {
-		const match = files.find((f) =>
-			(f.gameVersions || []).some((v) => v.toLowerCase() === gameVersion.toLowerCase()),
-		)
-		if (match) {
-			return { file: match, downloadUrl: resolveCurseForgeDownloadUrl(match) }
-		}
+	if (!bestMatch && files.length > 0) {
+		bestMatch = files[0]
 	}
 
-	const first = files[0]
-	if (first) {
-		return { file: first, downloadUrl: resolveCurseForgeDownloadUrl(first) }
+	if (bestMatch) {
+		return { file: bestMatch, downloadUrl: resolveCurseForgeDownloadUrl(bestMatch) }
 	}
 
 	return null
@@ -238,26 +266,45 @@ export async function installCurseForgeMod(
 	)
 }
 
-function extractLoaders(mod: CurseForgeMod): string[] {
+export function extractLoaders(mod: CurseForgeMod): string[] {
 	const loaders = new Set<string>()
 	const recognized = ['fabric', 'forge', 'neoforge', 'quilt']
 	for (const file of mod.latestFiles || []) {
 		for (const gv of file.gameVersions || []) {
-			const gvLower = gv.toLowerCase()
+			const gvLower = gv.toLowerCase().trim()
 			if (recognized.includes(gvLower)) {
 				loaders.add(gvLower)
+			}
+		}
+	}
+	if (mod.latestFilesIndexes?.length) {
+		for (const idx of mod.latestFilesIndexes) {
+			if (idx.modLoader !== undefined && CF_LOADER_NAMES[idx.modLoader]) {
+				const name = CF_LOADER_NAMES[idx.modLoader]
+				if (recognized.includes(name)) {
+					loaders.add(name)
+				}
 			}
 		}
 	}
 	return Array.from(loaders)
 }
 
-function extractGameVersions(mod: CurseForgeMod): string[] {
+export function extractGameVersions(mod: CurseForgeMod): string[] {
 	const gvs = new Set<string>()
 	for (const file of mod.latestFiles || []) {
 		for (const gv of file.gameVersions || []) {
-			if (/^\d+\.\d+(\.\d+)?$/.test(gv)) {
-				gvs.add(gv)
+			const trimmed = gv.trim()
+			if (/^\d+(\.\d+)+$/.test(trimmed)) {
+				gvs.add(trimmed)
+			}
+		}
+	}
+	if (mod.latestFilesIndexes?.length) {
+		for (const idx of mod.latestFilesIndexes) {
+			const trimmed = (idx.gameVersion || '').trim()
+			if (/^\d+(\.\d+)+$/.test(trimmed)) {
+				gvs.add(trimmed)
 			}
 		}
 	}

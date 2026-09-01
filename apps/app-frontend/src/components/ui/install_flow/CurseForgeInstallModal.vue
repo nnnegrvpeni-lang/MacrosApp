@@ -24,7 +24,9 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import {
+	CF_LOADER_NAMES,
 	type CurseForgeMod,
+	getCurseForgeModFiles,
 	installCurseForgeMod,
 } from '@/helpers/curseforge'
 import { install_create_instance, installJobInstanceId } from '@/helpers/install'
@@ -50,21 +52,18 @@ const router = useRouter()
 const modal = ref<InstanceType<typeof NewModal> | null>(null)
 const searchFilter = ref('')
 const hideUninstallable = ref(false)
-const tab = ref<'existing' | 'new'>('existing')
+type Tab = 'existing' | 'new'
+const tabs: Tab[] = ['existing', 'new']
+const tab = ref<Tab>('existing')
 const instances = ref<InstanceEntry[]>([])
 const currentMod = ref<CurseForgeMod | null>(null)
 const currentProjectType = ref('mod')
 
 // New instance fields
 const newInstanceName = ref('')
-const newInstanceGameVersion = ref('1.21.1')
+const newInstanceGameVersion = ref('1.21.11')
 const newInstanceLoader = ref('fabric')
 const creatingNewInstance = ref(false)
-
-const tabs = computed(() => [
-	{ id: 'existing', label: formatMessage(messages.existingInstanceTab) },
-	{ id: 'new', label: formatMessage(messages.newInstanceTab) },
-])
 
 const messages = defineMessages({
 	header: { id: 'app.curseforge.install.header', defaultMessage: 'Установка проекта' },
@@ -126,21 +125,60 @@ const messages = defineMessages({
 	},
 })
 
-function checkModCompatibility(mod: CurseForgeMod, instance: GameInstance): boolean {
-	const files = mod.latestFiles || []
-	if (!files.length) return true
-	const loaderLower = instance.loader?.toLowerCase()
-	const gvLower = instance.game_version?.toLowerCase()
+function formatTabLabel(item: string) {
+	if (item === 'existing') {
+		return formatMessage(messages.existingInstanceTab)
+	}
+	if (item === 'new') {
+		return formatMessage(messages.newInstanceTab)
+	}
+	return item
+}
 
-	return files.some((f) => {
-		const vLower = (f.gameVersions || []).map((v) => v.toLowerCase())
-		const matchesGv = !gvLower || vLower.includes(gvLower)
-		const matchesLoader =
-			!loaderLower ||
-			vLower.includes(loaderLower) ||
-			(loaderLower === 'quilt' && vLower.includes('fabric'))
-		return matchesGv && matchesLoader
-	})
+function checkModCompatibility(mod: CurseForgeMod, instance: GameInstance): boolean {
+	const loaderLower = (instance.loader || '').toLowerCase().trim()
+	const gvLower = (instance.game_version || '').toLowerCase().trim()
+
+	// 1. Check latestFilesIndexes
+	if (mod.latestFilesIndexes?.length) {
+		const match = mod.latestFilesIndexes.some((idx) => {
+			const indexGv = (idx.gameVersion || '').toLowerCase().trim()
+			const matchesGv = !gvLower || indexGv === gvLower
+			let matchesLoader = !loaderLower
+			if (loaderLower && idx.modLoader !== undefined) {
+				const name = CF_LOADER_NAMES[idx.modLoader]
+				matchesLoader =
+					idx.modLoader === 0 ||
+					name === loaderLower ||
+					(loaderLower === 'quilt' && name === 'fabric') ||
+					(loaderLower === 'fabric' && name === 'quilt') ||
+					(loaderLower === 'neoforge' && name === 'forge') ||
+					(loaderLower === 'forge' && name === 'neoforge')
+			}
+			return matchesGv && matchesLoader
+		})
+		if (match) return true
+	}
+
+	// 2. Check latestFiles
+	const files = mod.latestFiles || []
+	if (files.length) {
+		const match = files.some((f) => {
+			const vLower = (f.gameVersions || []).map((v) => v.toLowerCase().trim())
+			const matchesGv = !gvLower || vLower.includes(gvLower)
+			const matchesLoader =
+				!loaderLower ||
+				vLower.includes(loaderLower) ||
+				(loaderLower === 'quilt' && vLower.includes('fabric')) ||
+				(loaderLower === 'fabric' && vLower.includes('quilt')) ||
+				(loaderLower === 'neoforge' && vLower.includes('forge')) ||
+				(loaderLower === 'forge' && vLower.includes('neoforge'))
+			return matchesGv && matchesLoader
+		})
+		if (match) return true
+	}
+
+	return false
 }
 
 const filteredInstances = computed(() => {
@@ -193,6 +231,19 @@ defineExpose({
 					}
 				}),
 			)
+
+			// If any instance is marked incompatible and mod didn't have latestFilesIndexes, fetch files in background to re-check
+			if (!mod.latestFilesIndexes?.length && instances.value.some((i) => !i.isCompatible)) {
+				getCurseForgeModFiles(mod.id).then((files) => {
+					if (files.length) {
+						const enrichedMod = { ...mod, latestFiles: files }
+						instances.value = instances.value.map((i) => ({
+							...i,
+							isCompatible: checkModCompatibility(enrichedMod, i),
+						}))
+					}
+				}).catch(() => {})
+			}
 		} catch (e) {
 			handleError(e)
 			instances.value = []
@@ -220,7 +271,10 @@ async function installToInstance(inst: InstanceEntry) {
 		inst.installed = true
 
 		await queryClient.invalidateQueries({
-			queryKey: instanceKeys.projects(inst.id),
+			queryKey: instanceKeys.content(inst.id),
+		})
+		await queryClient.invalidateQueries({
+			queryKey: instanceKeys.installedProjectIds(inst.id, 'content'),
 		})
 
 		addNotification({
@@ -316,6 +370,7 @@ async function handleCreateAndInstallNew() {
 			<Chips
 				v-model="tab"
 				:items="tabs"
+				:format-label="formatTabLabel"
 				:never-empty="true"
 				:capitalize="false"
 			/>
@@ -421,7 +476,7 @@ async function handleCreateAndInstallNew() {
 				<label class="text-sm font-semibold text-contrast">
 					{{ formatMessage(messages.newInstanceVersionLabel) }}
 				</label>
-				<StyledInput v-model="newInstanceGameVersion" placeholder="1.21.1" />
+				<StyledInput v-model="newInstanceGameVersion" placeholder="1.21.11" />
 			</div>
 
 			<div class="flex flex-col gap-2">
