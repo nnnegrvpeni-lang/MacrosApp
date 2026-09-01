@@ -130,7 +130,8 @@
 						:disabled="inst.installing"
 						@click="emit('install', inst)"
 					>
-						<TriangleAlertIcon v-if="!inst.compatible" />
+						<SpinnerIcon v-if="inst.installing" class="animate-spin" />
+						<TriangleAlertIcon v-else-if="!inst.compatible" />
 						{{
 							inst.installing
 								? formatMessage(commonMessages.installingLabel)
@@ -447,7 +448,7 @@ const tabLabels: Record<Tab, () => string> = {
 const formatTabLabel = (item: Tab) => tabLabels[item]()
 
 const searchFilter = ref('')
-const hideUninstallable = ref(true)
+const hideUninstallable = ref(false)
 
 const filteredInstances = computed(() => {
 	let list = props.instances
@@ -456,12 +457,7 @@ const filteredInstances = computed(() => {
 		const query = searchFilter.value.toLowerCase()
 		list = list.filter((i) => i.name.toLowerCase().includes(query))
 	}
-	const score = (i: ContentInstallInstance) => (!i.compatible ? 2 : i.installed ? 1 : 0)
-	return list.slice().sort((a, b) => {
-		const diff = score(a) - score(b)
-		if (diff !== 0) return diff
-		return a.name.localeCompare(b.name)
-	})
+	return list
 })
 
 const compatibleCount = computed(() => props.instances.filter((i) => i.compatible).length)

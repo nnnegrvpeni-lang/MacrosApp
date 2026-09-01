@@ -187,6 +187,8 @@ function checkCompatibility(mod: CurseForgeMod, inst: GameInstance): boolean {
 	return false
 }
 
+const installingInstanceId = ref<string | null>(null)
+
 const contentInstallInstances = computed<ContentInstallInstance[]>(() => {
 	if (!currentMod.value) return []
 	const mod = currentMod.value
@@ -197,7 +199,7 @@ const contentInstallInstances = computed<ContentInstallInstance[]>(() => {
 			iconUrl: getInstanceIconUrl(inst.icon_path),
 			installed: installedSet.value.has(inst.id),
 			compatible: checkCompatibility(mod, inst),
-			installing: false,
+			installing: installingInstanceId.value === inst.id,
 		}
 	})
 })
@@ -286,7 +288,7 @@ defineExpose({
 async function handleInstallToInstance(inst: ContentInstallInstance) {
 	if (!currentMod.value) return
 	const raw = rawInstances.value.find((r) => r.id === inst.id)
-	inst.installing = true
+	installingInstanceId.value = inst.id
 
 	try {
 		await installCurseForgeMod(
@@ -307,7 +309,7 @@ async function handleInstallToInstance(inst: ContentInstallInstance) {
 	} catch (e) {
 		handleError(e)
 	} finally {
-		inst.installing = false
+		installingInstanceId.value = null
 	}
 }
 

@@ -1039,9 +1039,10 @@ pub async fn launch_minecraft(
         }
 
         if authlib_path.exists() {
+            let normalized_path = authlib_path.to_string_lossy().replace('\\', "/");
             command.arg(format!(
                 "-javaagent:{}={}",
-                authlib_path.to_string_lossy(),
+                normalized_path,
                 "https://authserver.ely.by/api/authlib-injector"
             ));
         }

@@ -57,22 +57,29 @@ hljs.registerAliases(['html', 'htm', 'xhtml', 'mcui', 'fxml'], { languageName: '
 
 export { hljs }
 
-export const renderHighlightedString = (string) =>
-	configuredXss.process(
-		md({
-			highlight(str, lang) {
-				if (lang && hljs.getLanguage(lang)) {
-					try {
-						return hljs.highlight(str, { language: lang }).value
-					} catch {
-						/* empty */
+export const renderHighlightedString = (string) => {
+	if (!string) return ''
+	try {
+		return configuredXss.process(
+			md({
+				html: true,
+				highlight(str, lang) {
+					if (lang && hljs.getLanguage(lang)) {
+						try {
+							return hljs.highlight(str, { language: lang }).value
+						} catch {
+							/* empty */
+						}
 					}
-				}
 
-				return ''
-			},
-		}).render(string),
-	)
+					return ''
+				},
+			}).render(string),
+		)
+	} catch {
+		return string || ''
+	}
+}
 
 export const highlightCodeLines = (code: string, language: string): string[] => {
 	if (!code) return []

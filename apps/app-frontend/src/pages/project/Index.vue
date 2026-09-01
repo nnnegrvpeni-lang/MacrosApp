@@ -825,7 +825,9 @@ async function fetchProjectData() {
 		}
 	}
 
-	versions.value = (versions.value || []).sort((a, b) => dayjs(b.date_published) - dayjs(a.date_published))
+	versions.value = (versions.value || []).sort(
+		(a, b) => dayjs(b.date_published).valueOf() - dayjs(a.date_published).valueOf(),
+	)
 
 	const installedFile = instanceProjects.value
 		? Object.values(instanceProjects.value).find(

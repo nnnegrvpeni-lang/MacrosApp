@@ -346,11 +346,9 @@ fn parse_minecraft_argument(
     resolution: WindowSize,
     quick_play_type: &QuickPlayType,
     is_offline: bool,
-    is_elyby: bool,
+    _is_elyby: bool,
 ) -> crate::Result<String> {
-    let safe_username = if is_elyby {
-        username.to_string()
-    } else if username.chars().count() > 16 {
+    let safe_username = if username.chars().count() > 16 {
         username.chars().take(16).collect::<String>()
     } else {
         username.to_string()
