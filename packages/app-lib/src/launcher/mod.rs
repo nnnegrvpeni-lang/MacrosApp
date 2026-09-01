@@ -18,7 +18,7 @@ use crate::state::{
     Credentials, InstanceInstallStage, InstanceLaunchContext, InstanceLink,
     JavaVersion, MemorySettings, ProcessMetadata, WindowSize,
 };
-use crate::util::fetch::INSECURE_REQWEST_CLIENT;
+
 use crate::util::io;
 use crate::util::rpc::RpcServerBuilder;
 use crate::{State, get_resource_file, process};

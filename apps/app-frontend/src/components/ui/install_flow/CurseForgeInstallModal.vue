@@ -48,6 +48,30 @@ const preferredGameVersion = ref<string | null>(null)
 const defaultTab = ref<'existing' | 'new'>('existing')
 
 function extractLoadersAndVersions(mod: CurseForgeMod, allGameVersions: any[]) {
+	const isUniversal =
+		currentProjectType.value === 'shader' ||
+		currentProjectType.value === 'shaders' ||
+		currentProjectType.value === 'resourcepack' ||
+		currentProjectType.value === 'resourcepacks' ||
+		currentProjectType.value === 'datapack' ||
+		currentProjectType.value === 'datapacks' ||
+		mod.classId === 6552 ||
+		mod.classId === 12
+
+	if (isUniversal) {
+		compatibleLoaders.value = ['fabric', 'neoforge', 'forge', 'quilt']
+		preferredLoader.value = 'fabric'
+		const orderedVersions = allGameVersions.map((v) => v.id || v.version)
+		const releases = new Set<string>(
+			allGameVersions.filter((v) => v.version_type === 'release').map((v) => v.id || v.version),
+		)
+		gameVersions.value = orderedVersions.length > 0 ? orderedVersions : ['1.21.11', '1.21.1', '1.20.1']
+		releaseGameVersions.value = releases
+		preferredGameVersion.value =
+			orderedVersions.find((v) => releases.has(v)) ?? orderedVersions[0] ?? null
+		return
+	}
+
 	const recognizedLoaders = ['fabric', 'forge', 'neoforge', 'quilt']
 	const loaderSet = new Set<string>()
 	const versionSet = new Set<string>()
@@ -106,6 +130,20 @@ function extractLoadersAndVersions(mod: CurseForgeMod, allGameVersions: any[]) {
 }
 
 function checkCompatibility(mod: CurseForgeMod, inst: GameInstance): boolean {
+	const isUniversal =
+		currentProjectType.value === 'shader' ||
+		currentProjectType.value === 'shaders' ||
+		currentProjectType.value === 'resourcepack' ||
+		currentProjectType.value === 'resourcepacks' ||
+		currentProjectType.value === 'datapack' ||
+		currentProjectType.value === 'datapacks' ||
+		mod.classId === 6552 ||
+		mod.classId === 12
+
+	if (isUniversal) {
+		return true
+	}
+
 	const gv = (inst.game_version || '').trim().toLowerCase()
 	const loader = (inst.loader || '').trim().toLowerCase()
 

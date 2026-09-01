@@ -416,6 +416,8 @@ fn main() {
                     .commands(&[
                         "search",
                         "get_files",
+                        "get_mod",
+                        "get_mod_description",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,

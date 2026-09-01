@@ -237,6 +237,7 @@
 			@browse-modpacks="() => {}"
 			@create="serverInstallContent.handleServerModpackFlowCreate"
 		/>
+		<CurseForgeInstallModal ref="curseForgeInstallModalRef" />
 	</div>
 </template>
 
@@ -316,13 +317,24 @@ import { get_categories, get_game_versions, get_loaders } from '@/helpers/tags'
 import { getServerAddress } from '@/helpers/worlds'
 import { provideBreadcrumbParent, useBreadcrumb } from '@/providers/breadcrumbs'
 import { injectContentInstall } from '@/providers/content-install'
-import { injectServerInstall } from '@/providers/server-install'
+import CurseForgeInstallModal from '@/components/ui/install_flow/CurseForgeInstallModal.vue'
+import {
+	curseForgeFilesToModrinthVersions,
+	curseForgeModToModrinthProject,
+	getCurseForgeMod,
+	getCurseForgeModDescription,
+	getCurseForgeModFiles,
+	installCurseForgeMod,
+	searchCurseForge,
+} from '@/helpers/curseforge'
 import { createServerInstallContent } from '@/providers/setup/server-install-content'
 
 dayjs.extend(relativeTime)
 
 const { handleError } = injectNotificationManager()
 const { install: installVersion } = injectContentInstall()
+const curseForgeInstallModalRef = ref(null)
+const rawCfMod = ref(null)
 const route = useRoute()
 const router = useRouter()
 const displayedProjectRoute = shallowRef(router.currentRoute.value)
@@ -704,10 +716,72 @@ function reportProject() {
 async function fetchProjectData() {
 	const requestedId = String(route.params.id ?? '')
 	projectBreadcrumbLabel.value = getProjectBreadcrumbLabel(requestedId)
-	const [project, projectV3Result] = await Promise.all([
-		get_project(requestedId, 'must_revalidate').catch(handleError),
-		get_project_v3(requestedId, 'must_revalidate').catch(handleError),
-	])
+
+	if (requestedId.startsWith('cf-') || /^\d+$/.test(requestedId)) {
+		const modId = parseInt(requestedId.replace('cf-', ''), 10)
+		try {
+			const [cfMod, descHtml, cfFiles] = await Promise.all([
+				getCurseForgeMod(modId),
+				getCurseForgeModDescription(modId).catch(() => ''),
+				getCurseForgeModFiles(modId).catch(() => []),
+			])
+			if (cfMod) {
+				const project = curseForgeModToModrinthProject(cfMod, descHtml, cfFiles)
+				data.value = project
+				projectV3.value = null
+				projectBreadcrumbLabel.value = project.title
+				versions.value = curseForgeFilesToModrinthVersions(cfMod, cfFiles)
+				members.value = project.members
+				categories.value = await get_categories().catch(() => [])
+				if (route.query.i) {
+					;[instance.value, instanceProjects.value] = await Promise.all([
+						getInstance(route.query.i).catch(() => null),
+						getInstanceProjects(route.query.i).catch(() => []),
+					])
+				}
+				rawCfMod.value = cfMod
+				return
+			}
+		} catch (e) {
+			console.error('Failed to load CurseForge project by ID', e)
+		}
+	}
+
+	let project = null
+	let projectV3Result = null
+	try {
+		;[project, projectV3Result] = await Promise.all([
+			get_project(requestedId, 'must_revalidate'),
+			get_project_v3(requestedId, 'must_revalidate').catch(() => null),
+		])
+	} catch {
+		try {
+			const cfRes = await searchCurseForge({ query: requestedId, pageSize: 1 })
+			if (cfRes.hits.length > 0 && cfRes.hits[0].cf_raw) {
+				const cfMod = cfRes.hits[0].cf_raw
+				const [descHtml, cfFiles] = await Promise.all([
+					getCurseForgeModDescription(cfMod.id).catch(() => ''),
+					getCurseForgeModFiles(cfMod.id).catch(() => []),
+				])
+				project = curseForgeModToModrinthProject(cfMod, descHtml, cfFiles)
+				data.value = project
+				projectV3.value = null
+				projectBreadcrumbLabel.value = project.title
+				versions.value = curseForgeFilesToModrinthVersions(cfMod, cfFiles)
+				members.value = project.members
+				categories.value = await get_categories().catch(() => [])
+				if (route.query.i) {
+					;[instance.value, instanceProjects.value] = await Promise.all([
+						getInstance(route.query.i).catch(() => null),
+						getInstanceProjects(route.query.i).catch(() => []),
+					])
+				}
+				rawCfMod.value = cfMod
+				return
+			}
+		} catch {}
+	}
+
 	if (String(route.params.id ?? '') !== requestedId) {
 		return
 	}
@@ -899,6 +973,29 @@ async function install(version) {
 			handleError(err)
 		} finally {
 			installing.value = false
+		}
+		return
+	}
+
+	if (data.value?.id?.startsWith('cf-') && rawCfMod.value) {
+		if (instance.value) {
+			installing.value = true
+			try {
+				await installCurseForgeMod(
+					instance.value.id,
+					rawCfMod.value,
+					instance.value.game_version,
+					instance.value.loader,
+					data.value.project_type,
+				)
+				installed.value = true
+			} catch (e) {
+				handleError(e)
+			} finally {
+				installing.value = false
+			}
+		} else {
+			curseForgeInstallModalRef.value?.show(rawCfMod.value, data.value.project_type)
 		}
 		return
 	}

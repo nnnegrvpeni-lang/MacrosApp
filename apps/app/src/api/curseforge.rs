@@ -1,4 +1,4 @@
-﻿use crate::api::Result;
+use crate::api::Result;
 use serde::Deserialize;
 
 const CF_API_KEY: &str = "$2a$10$bL4bIL5pUWqfcO7KQtnMReakwtfHbNKh6v1uTpKlzhwoueEJQnPnm";
@@ -9,6 +9,8 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
         .invoke_handler(tauri::generate_handler![
             search,
             get_files,
+            get_mod,
+            get_mod_description,
         ])
         .build()
 }
@@ -89,6 +91,54 @@ pub async fn get_files(mod_id: u32) -> Result<serde_json::Value> {
         .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
 
     let url = format!("{CF_API_BASE}/mods/{mod_id}/files?pageSize=50");
+    let resp = client
+        .get(&url)
+        .header("x-api-key", CF_API_KEY)
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    let val = resp
+        .json::<serde_json::Value>()
+        .await
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    Ok(val)
+}
+
+#[tauri::command]
+pub async fn get_mod(mod_id: u32) -> Result<serde_json::Value> {
+    let client = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+        .build()
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    let url = format!("{CF_API_BASE}/mods/{mod_id}");
+    let resp = client
+        .get(&url)
+        .header("x-api-key", CF_API_KEY)
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    let val = resp
+        .json::<serde_json::Value>()
+        .await
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    Ok(val)
+}
+
+#[tauri::command]
+pub async fn get_mod_description(mod_id: u32) -> Result<serde_json::Value> {
+    let client = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+        .build()
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    let url = format!("{CF_API_BASE}/mods/{mod_id}/description");
     let resp = client
         .get(&url)
         .header("x-api-key", CF_API_KEY)

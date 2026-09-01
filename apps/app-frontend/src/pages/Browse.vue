@@ -910,7 +910,7 @@ function getCardActions(
 				label: formatMessage(
 					isInstalled
 						? commonMessages.installedLabel
-						: instance.value
+						: instance.value || currentProjectType === 'modpack'
 							? commonMessages.installButton
 							: messages.addToAnInstance,
 				),
