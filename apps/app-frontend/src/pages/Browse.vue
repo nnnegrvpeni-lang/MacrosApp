@@ -908,7 +908,11 @@ function getCardActions(
 			{
 				key: 'install',
 				label: formatMessage(
-					isInstalled ? commonMessages.installedLabel : commonMessages.installButton,
+					isInstalled
+						? commonMessages.installedLabel
+						: instance.value
+							? commonMessages.installButton
+							: messages.addToAnInstance,
 				),
 				icon: isInstalling ? SpinnerIcon : isInstalled ? CheckIcon : PlusIcon,
 				iconClass: isInstalling ? 'animate-spin' : undefined,

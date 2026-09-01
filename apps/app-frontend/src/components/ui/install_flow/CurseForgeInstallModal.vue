@@ -2,13 +2,14 @@
 import {
 	ContentInstallModal,
 	type ContentInstallInstance,
-	type ContentInstallProjectInfo,
 	injectNotificationManager,
 } from '@modrinth/ui'
 import { useQueryClient } from '@tanstack/vue-query'
+import { convertFileSrc } from '@tauri-apps/api/core'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import IconEditorModal from '@/components/ui/instance_settings/icon-editor-modal/index.vue'
 import {
 	CF_LOADER_NAMES,
 	type CurseForgeMod,
@@ -30,51 +31,79 @@ const queryClient = useQueryClient()
 const router = useRouter()
 
 const modal = ref<InstanceType<typeof ContentInstallModal> | null>(null)
+const iconEditorModal = ref<InstanceType<typeof IconEditorModal> | null>(null)
+const generatedIconConfig = ref<any>(null)
+
 const currentMod = ref<CurseForgeMod | null>(null)
 const currentProjectType = ref('mod')
 const loading = ref(false)
 const rawInstances = ref<GameInstance[]>([])
 const installedSet = ref<Set<string>>(new Set())
+
+const compatibleLoaders = ref<string[]>([])
 const gameVersions = ref<string[]>([])
 const releaseGameVersions = ref<Set<string>>(new Set())
+const preferredLoader = ref<string | null>(null)
+const preferredGameVersion = ref<string | null>(null)
+const defaultTab = ref<'existing' | 'new'>('existing')
 
-const compatibleLoaders = computed(() => {
-	if (!currentMod.value) return ['fabric', 'forge', 'neoforge', 'quilt']
-	const recognized = ['fabric', 'forge', 'neoforge', 'quilt']
-	const list = new Set<string>()
-	for (const file of currentMod.value.latestFiles || []) {
+function extractLoadersAndVersions(mod: CurseForgeMod, allGameVersions: any[]) {
+	const recognizedLoaders = ['fabric', 'forge', 'neoforge', 'quilt']
+	const loaderSet = new Set<string>()
+	const versionSet = new Set<string>()
+
+	for (const file of mod.latestFiles || []) {
 		for (const gv of file.gameVersions || []) {
-			const l = gv.toLowerCase().trim()
-			if (recognized.includes(l)) list.add(l)
+			const lower = gv.toLowerCase().trim()
+			if (recognizedLoaders.includes(lower)) {
+				loaderSet.add(lower)
+			} else if (/^\d+\.\d+(\.\d+)?$/.test(lower) || /^\d{2}w\d{2}[a-z]$/.test(lower)) {
+				versionSet.add(lower)
+			}
 		}
 	}
-	for (const idx of currentMod.value.latestFilesIndexes || []) {
+
+	for (const idx of mod.latestFilesIndexes || []) {
 		if (idx.modLoader && CF_LOADER_NAMES[idx.modLoader]) {
 			const name = CF_LOADER_NAMES[idx.modLoader]
-			if (recognized.includes(name)) list.add(name)
+			if (recognizedLoaders.includes(name)) {
+				loaderSet.add(name)
+			}
+		}
+		if (idx.gameVersion) {
+			const gvLower = idx.gameVersion.toLowerCase().trim()
+			if (/^\d+\.\d+(\.\d+)?$/.test(gvLower) || /^\d{2}w\d{2}[a-z]$/.test(gvLower)) {
+				versionSet.add(gvLower)
+			}
 		}
 	}
-	return list.size > 0 ? Array.from(list) : recognized
-})
 
-const projectInfo = computed<ContentInstallProjectInfo | null>(() => {
-	if (!currentMod.value) return null
-	const mod = currentMod.value
-	const authorName = mod.authors?.map((a) => a.name).join(', ') || 'CurseForge'
-	return {
-		title: mod.name,
-		iconUrl: mod.logo?.thumbnailUrl || mod.logo?.url || null,
-		link: mod.links?.websiteUrl || `https://www.curseforge.com/minecraft/mc-mods/${mod.slug}`,
-		owner: mod.authors?.[0]
-			? {
-					name: authorName,
-					iconUrl: mod.authors[0].avatarUrl,
-					circle: true,
-					link: mod.authors[0].url || '',
-				}
-			: null,
+	const sortedLoaders = Array.from(loaderSet).sort((a, b) => {
+		const order = ['fabric', 'neoforge', 'forge', 'quilt']
+		const ia = order.indexOf(a)
+		const ib = order.indexOf(b)
+		return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+	})
+	compatibleLoaders.value = sortedLoaders.length > 0 ? sortedLoaders : recognizedLoaders
+	preferredLoader.value = compatibleLoaders.value[0] ?? 'fabric'
+
+	const orderedVersions: string[] = []
+	const releases = new Set<string>()
+	for (const gv of allGameVersions) {
+		const vName = (gv.id || gv.version || '').toLowerCase().trim()
+		if (versionSet.size === 0 || versionSet.has(vName)) {
+			orderedVersions.push(gv.id || gv.version)
+			if (gv.version_type === 'release') {
+				releases.add(gv.id || gv.version)
+			}
+		}
 	}
-})
+
+	gameVersions.value = orderedVersions.length > 0 ? orderedVersions : ['1.21.11', '1.21.1', '1.20.1']
+	releaseGameVersions.value = releases
+	preferredGameVersion.value =
+		orderedVersions.find((v) => releases.has(v)) ?? orderedVersions[0] ?? null
+}
 
 function checkCompatibility(mod: CurseForgeMod, inst: GameInstance): boolean {
 	const gv = (inst.game_version || '').trim().toLowerCase()
@@ -135,6 +164,25 @@ const contentInstallInstances = computed<ContentInstallInstance[]>(() => {
 	})
 })
 
+async function randomizeIcon() {
+	const gen = await iconEditorModal.value?.randomizeAndSave()
+	if (!gen) return null
+	generatedIconConfig.value = gen.config
+	return {
+		path: gen.iconPath,
+		previewUrl: convertFileSrc(gen.iconPath),
+	}
+}
+
+function customizeIcon() {
+	iconEditorModal.value?.show()
+}
+
+function onIconSaved(iconPath: string, config: any) {
+	generatedIconConfig.value = config
+	modal.value?.setIcon(iconPath, convertFileSrc(iconPath))
+}
+
 defineExpose({
 	show: async (mod: CurseForgeMod, projectType = 'mod') => {
 		currentMod.value = mod
@@ -142,17 +190,13 @@ defineExpose({
 		loading.value = true
 
 		try {
-			if (!gameVersions.value.length) {
-				try {
-					const gvData = (await get_game_versions()) as any[]
-					gameVersions.value = gvData.map((v) => v.id || v.version)
-					releaseGameVersions.value = new Set(
-						gvData.filter((v) => v.version_type === 'release').map((v) => v.id || v.version),
-					)
-				} catch {
-					gameVersions.value = ['1.21.11', '1.21.1', '1.20.1']
-				}
+			let allGv: any[] = []
+			try {
+				allGv = (await get_game_versions()) as any[]
+			} catch {
+				allGv = []
 			}
+			extractLoadersAndVersions(mod, allGv)
 
 			const listData = await list()
 			rawInstances.value = listData
@@ -175,10 +219,16 @@ defineExpose({
 			)
 			installedSet.value = installed
 
+			const compatibleAvailable = listData.some(
+				(inst) => checkCompatibility(mod, inst) && !installed.has(inst.id),
+			)
+			defaultTab.value = compatibleAvailable ? 'existing' : 'new'
+
 			if (!mod.latestFilesIndexes?.length) {
 				getCurseForgeModFiles(mod.id).then((files) => {
 					if (files.length) {
 						currentMod.value = { ...mod, latestFiles: files }
+						extractLoadersAndVersions({ ...mod, latestFiles: files }, allGv)
 					}
 				}).catch(() => {})
 			}
@@ -244,7 +294,7 @@ async function handleCreateAndInstall(data: {
 			loader: data.loader,
 			loader_version: null,
 			icon_path: data.iconPath,
-			icon_config: null,
+			icon_config: generatedIconConfig.value,
 			link: null,
 		})
 		const instanceId = installJobInstanceId(job)
@@ -286,10 +336,20 @@ function handleCancel() {
 		:game-versions="gameVersions"
 		:release-game-versions="releaseGameVersions"
 		:loading="loading"
-		:project-info="projectInfo"
+		:default-tab="defaultTab"
+		:preferred-loader="preferredLoader"
+		:preferred-game-version="preferredGameVersion"
+		:project-info="null"
+		:randomize-icon="randomizeIcon"
+		:customize-icon="customizeIcon"
 		@install="handleInstallToInstance"
 		@create-and-install="handleCreateAndInstall"
 		@navigate="handleNavigate"
 		@cancel="handleCancel"
+	/>
+	<IconEditorModal
+		ref="iconEditorModal"
+		:config="generatedIconConfig"
+		@saved="onIconSaved"
 	/>
 </template>
