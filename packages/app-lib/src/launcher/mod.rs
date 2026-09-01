@@ -1045,6 +1045,8 @@ pub async fn launch_minecraft(
                 normalized_path,
                 "https://authserver.ely.by/api/authlib-injector"
             ));
+            command.arg("-Dauthlibinjector.noMojangNamespace=true");
+            command.arg("-Dauthlibinjector.side=client");
         }
     }
 

@@ -53,6 +53,14 @@ export async function login_elyby(username, password) {
 }
 
 /**
+ * Begin web login with Ely.by.
+ * @returns {Promise<Credential|null>}
+ */
+export async function login_elyby_web() {
+	return await invoke('plugin:auth|login_elyby_web')
+}
+
+/**
  * Retrieves the default user
  * @return {Promise<UUID | undefined>}
  */

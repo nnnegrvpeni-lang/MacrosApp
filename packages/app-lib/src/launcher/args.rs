@@ -360,12 +360,12 @@ fn parse_minecraft_argument(
         .replace("${auth_session}", access_token)
         .replace("${auth_player_name}", &safe_username)
         // TODO: add auth xuid eventually
-        .replace("${auth_xuid}", if is_offline { "" } else { "0" })
+        .replace("${auth_xuid}", if is_offline || _is_elyby { "" } else { "0" })
         .replace("${auth_uuid}", &uuid.simple().to_string())
         .replace("${uuid}", &uuid.simple().to_string())
         .replace(
             "${clientid}",
-            if is_offline {
+            if is_offline || _is_elyby {
                 ""
             } else {
                 "c4502edb-87c6-40cb-b595-64a280cf8906"
@@ -376,6 +376,8 @@ fn parse_minecraft_argument(
             "${user_type}",
             if is_offline {
                 "legacy"
+            } else if _is_elyby {
+                "mojang"
             } else {
                 "msa"
             },

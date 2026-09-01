@@ -11,6 +11,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             login,
             login_offline,
             login_elyby,
+            login_elyby_web,
             remove_user,
             get_default_user,
             set_default_user,
@@ -99,6 +100,52 @@ pub async fn login_elyby(
     password: String,
 ) -> Result<Credentials> {
     Ok(minecraft_auth::login_elyby(&username, &password).await?)
+}
+
+#[tauri::command]
+pub async fn login_elyby_web<R: Runtime>(
+    app: tauri::AppHandle<R>,
+) -> Result<Option<Credentials>> {
+    let start = Utc::now();
+
+    if let Some(window) = app.get_webview_window("signin-elyby") {
+        window.close()?;
+    }
+
+    let window = tauri::WebviewWindowBuilder::new(
+        &app,
+        "signin-elyby",
+        tauri::WebviewUrl::External(
+            "https://account.ely.by/login"
+                .parse()
+                .map_err(|_| {
+                    theseus::ErrorKind::OtherError(
+                        "Error parsing Ely.by login URL".to_string(),
+                    )
+                    .as_error()
+                })?,
+        ),
+    )
+    .title("Sign into Ely.by")
+    .always_on_top(true)
+    .min_inner_size(500.0, 500.0)
+    .inner_size(900.0, 650.0)
+    .focused(true)
+    .center()
+    .build()?;
+
+    window.request_user_attention(Some(UserAttentionType::Critical))?;
+
+    while (Utc::now() - start) < Duration::minutes(10) {
+        if window.title().is_err() {
+            return Ok(None);
+        }
+
+        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    }
+
+    window.close()?;
+    Ok(None)
 }
 
 #[tauri::command]

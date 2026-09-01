@@ -221,6 +221,20 @@
 			<p class="text-xs text-secondary m-0">
 				{{ formatMessage(messages.elybyHint) }}
 			</p>
+			<div class="flex items-center gap-2 my-1">
+				<div class="flex-1 h-px bg-surface-5" />
+				<span class="text-xs text-secondary">или</span>
+				<div class="flex-1 h-px bg-surface-5" />
+			</div>
+			<Button
+				class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary"
+				type="button"
+				:disabled="isSubmittingElyby"
+				@click="startElybyWebLogin()"
+			>
+				<SparklesIcon class="w-4 h-4 mr-1.5" />
+				<span>Открыть вход на сайте Ely.by</span>
+			</Button>
 			<div class="flex justify-end gap-2 mt-2">
 				<Button type="quiet" native-type="button" @click="elybyModalRef?.hide()">
 					{{ formatMessage(messages.cancel) }}
@@ -271,6 +285,7 @@ import {
 	get_default_user,
 	login as login_flow,
 	login_elyby,
+	login_elyby_web,
 	login_offline,
 	remove_user,
 	set_default_user,
@@ -375,6 +390,26 @@ async function submitElybyAccount() {
 			typeof err === 'string'
 				? err
 				: err?.message || err?.error || (typeof err === 'object' ? JSON.stringify(err) : 'Failed to sign in with Ely.by')
+	} finally {
+		isSubmittingElyby.value = false
+	}
+}
+
+async function startElybyWebLogin() {
+	elybyError.value = ''
+	isSubmittingElyby.value = true
+	try {
+		const newAccount = await login_elyby_web()
+		if (newAccount) {
+			elybyModalRef.value?.hide()
+			await setAccount(newAccount)
+			trackEvent('AccountLogIn', { type: 'elyby' })
+		}
+	} catch (err: any) {
+		elybyError.value =
+			typeof err === 'string'
+				? err
+				: err?.message || 'Failed to sign in via Ely.by web'
 	} finally {
 		isSubmittingElyby.value = false
 	}
