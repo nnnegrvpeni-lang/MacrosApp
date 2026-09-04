@@ -1029,29 +1029,38 @@ pub async fn launch_minecraft(
         command.arg("--add-opens=jdk.internal/jdk.internal.misc=ALL-UNNAMED");
     }
 
-    if credentials.is_elyby() && !used_ely_authlib {
-        let caches_dir = state.directories.caches_dir();
-        let _ = tokio::fs::create_dir_all(&caches_dir).await;
-        let authlib_path = caches_dir.join("authlib-injector.jar");
-        let is_valid = match tokio::fs::metadata(&authlib_path).await {
-            Ok(meta) => meta.len() >= 100_000,
-            Err(_) => false,
-        };
-        if !is_valid {
-            const BUNDLED_AUTHLIB: &[u8] =
-                include_bytes!("../../assets/authlib-injector.jar");
-            let _ = tokio::fs::write(&authlib_path, BUNDLED_AUTHLIB).await;
-        }
+    if credentials.is_elyby() {
+        if used_ely_authlib {
+            command.arg("-Dminecraft.api.env=ELY");
+            command.arg("-Dely.authlib.fetchMissingSkinsByUsername=true");
+            command.arg("-Dely.authlib.skipValidatePropertySignature=true");
+            command.arg("-Dely.authlib.skipFetchBlockList=true");
+            command.arg("-Dely.authlib.skipFetchPrivileges=true");
+            command.arg("-Dely.authlib.disableReports=true");
+        } else {
+            let caches_dir = state.directories.caches_dir();
+            let _ = tokio::fs::create_dir_all(&caches_dir).await;
+            let authlib_path = caches_dir.join("authlib-injector.jar");
+            let is_valid = match tokio::fs::metadata(&authlib_path).await {
+                Ok(meta) => meta.len() >= 100_000,
+                Err(_) => false,
+            };
+            if !is_valid {
+                const BUNDLED_AUTHLIB: &[u8] =
+                    include_bytes!("../../assets/authlib-injector.jar");
+                let _ = tokio::fs::write(&authlib_path, BUNDLED_AUTHLIB).await;
+            }
 
-        if authlib_path.exists() {
-            let normalized_path = authlib_path.to_string_lossy().replace('\\', "/");
-            command.arg(format!(
-                "-javaagent:{}={}",
-                normalized_path,
-                "https://authserver.ely.by/api/authlib-injector"
-            ));
-            command.arg("-Dauthlibinjector.noMojangNamespace=true");
-            command.arg("-Dauthlibinjector.side=client");
+            if authlib_path.exists() {
+                let normalized_path = authlib_path.to_string_lossy().replace('\\', "/");
+                command.arg(format!(
+                    "-javaagent:{}={}",
+                    normalized_path,
+                    "https://authserver.ely.by/api/authlib-injector"
+                ));
+                command.arg("-Dauthlibinjector.noMojangNamespace=true");
+                command.arg("-Dauthlibinjector.side=client");
+            }
         }
     }
 
@@ -1336,8 +1345,8 @@ pub async fn patch_libraries_for_elyby(
 
 	if target_jar.exists() {
 		tracing::info!("Successfully patched authlib to {}", ely_lib_info.name);
-		libraries.remove(mojang_lib_idx);
-		libraries.push(daedalus::minecraft::Library {
+		libraries.retain(|l| !l.name.starts_with("com.mojang:authlib:"));
+		libraries.insert(0, daedalus::minecraft::Library {
 			downloads: None,
 			extract: None,
 			name: ely_lib_info.name,

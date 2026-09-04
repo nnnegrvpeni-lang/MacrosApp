@@ -110,11 +110,7 @@ pub async fn start_elyby_device_code<R: Runtime>(
     app: tauri::AppHandle<R>,
 ) -> Result<minecraft_auth::ElyByDeviceCodeInfo> {
     let info = minecraft_auth::start_elyby_device_code().await?;
-    let open_url = if info.verification_uri.contains('?') {
-        format!("{}&otc={}", info.verification_uri, info.user_code)
-    } else {
-        format!("{}?otc={}", info.verification_uri, info.user_code)
-    };
+    let open_url = format!("https://account.ely.by/code?user_code={}", info.user_code);
     let _ = app.opener().open_url(&open_url, None::<&str>);
     Ok(info)
 }
@@ -131,11 +127,7 @@ pub async fn login_elyby_web<R: Runtime>(
     app: tauri::AppHandle<R>,
 ) -> Result<Option<Credentials>> {
     let info = minecraft_auth::start_elyby_device_code().await?;
-    let open_url = if info.verification_uri.contains('?') {
-        format!("{}&otc={}", info.verification_uri, info.user_code)
-    } else {
-        format!("{}?otc={}", info.verification_uri, info.user_code)
-    };
+    let open_url = format!("https://account.ely.by/code?user_code={}", info.user_code);
     let _ = app.opener().open_url(&open_url, None::<&str>);
     let start = Utc::now();
     let interval = std::cmp::max(info.interval, 3);

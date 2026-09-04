@@ -545,12 +545,8 @@ async function copyElybyCode() {
 }
 
 async function reopenElybyBrowser() {
-	if (elybyDeviceCode.value?.verification_uri) {
-		const uri = elybyDeviceCode.value.verification_uri
-		const url = uri.includes('?')
-			? `${uri}&otc=${elybyDeviceCode.value.user_code}`
-			: `${uri}?otc=${elybyDeviceCode.value.user_code}`
-		await openUrl(url)
+	if (elybyDeviceCode.value?.user_code) {
+		await openUrl(`https://account.ely.by/code?user_code=${elybyDeviceCode.value.user_code}`)
 	}
 }
 
