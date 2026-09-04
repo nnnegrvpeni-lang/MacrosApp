@@ -166,12 +166,15 @@ fn main() {
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             for arg in &args {
                 let clean = arg.trim_matches('"').trim_matches('\'').trim();
-                if clean.starts_with("modrinth:") || clean.starts_with("macros:") || clean.contains("mra_") || clean.ends_with(".mrpack") {
-                    tracing::info!("Handling command-line deep link: {clean}");
+                if clean.contains("mra_") || clean.contains("code=") {
+                    tracing::info!("Handling auth token deep link");
                     let code = api::oauth_utils::auth_code_reply::extract_auth_code(clean);
                     if !code.is_empty() {
                         api::oauth_utils::auth_code_reply::submit_auth_code(code);
                     }
+                    break;
+                } else if clean.starts_with("modrinth:") || clean.starts_with("macros:") || clean.ends_with(".mrpack") {
+                    tracing::info!("Handling command-line deep link: {clean}");
                     let payload = clean.to_string();
                     tauri::async_runtime::spawn(api::utils::handle_command(
                         payload,
@@ -206,7 +209,7 @@ fn main() {
         .plugin(
             tauri_plugin_window_state::Builder::default()
                 .with_filename("app-window-state.json")
-                .with_denylist(&["signin"])
+                .with_denylist(&["signin", "modrinth_signin"])
                 // Use *only* POSITION and SIZE state flags, because saving VISIBLE causes the `visible: false` to not take effect
                 .with_state_flags(
                     tauri_plugin_window_state::StateFlags::POSITION
@@ -237,11 +240,13 @@ fn main() {
 
             for arg in std::env::args().skip(1) {
                 let clean = arg.trim_matches('"').trim_matches('\'').trim().to_string();
-                if clean.starts_with("modrinth:") || clean.starts_with("macros:") || clean.contains("mra_") || clean.ends_with(".mrpack") {
+                if clean.contains("mra_") || clean.contains("code=") {
                     let code = api::oauth_utils::auth_code_reply::extract_auth_code(&clean);
                     if !code.is_empty() {
                         api::oauth_utils::auth_code_reply::submit_auth_code(code);
                     }
+                    break;
+                } else if clean.starts_with("modrinth:") || clean.starts_with("macros:") || clean.ends_with(".mrpack") {
                     tauri::async_runtime::spawn(api::utils::handle_command(clean));
                     break;
                 }

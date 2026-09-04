@@ -152,7 +152,7 @@ pub async fn modrinth_login<R: Runtime>(
     flow: mr_auth::ModrinthAuthFlow,
 ) -> Result<ModrinthCredentials> {
     let (auth_code_recv_socket_tx, auth_code_recv_socket) = oneshot::channel();
-    let auth_code = tokio::spawn(oauth_utils::auth_code_reply::listen(
+    let auth_code_task = tokio::spawn(oauth_utils::auth_code_reply::listen(
         auth_code_recv_socket_tx,
     ));
 
@@ -166,6 +166,7 @@ pub async fn modrinth_login<R: Runtime>(
         }
     };
 
+    let loopback_port = auth_code_recv_socket.port();
     let auth_request_uri = format!(
         "{}?launcher=true&ipver={}&port={}",
         mr_auth::authenticate_begin_flow(flow),
@@ -174,16 +175,160 @@ pub async fn modrinth_login<R: Runtime>(
         } else {
             "6"
         },
-        auth_code_recv_socket.port()
+        loopback_port
     );
 
-    let _ = app.opener().open_url(auth_request_uri.clone(), None::<&str>);
+    if let Some(existing) = app.get_webview_window("modrinth_signin") {
+        let _ = existing.close();
+    }
 
-    let auth_code = match auth_code.await {
+    let parsed_url = match auth_request_uri.parse() {
+        Ok(u) => u,
+        Err(_) => {
+            return Err(TheseusSerializableError::Theseus(
+                theseus::ErrorKind::OtherError("Error parsing auth redirect URL".into()).into(),
+            ));
+        }
+    };
+
+    let injection_script = format!(
+        r#"
+(function() {{
+    var port = {};
+    var intercepted = false;
+
+    function notifyCode(code) {{
+        if (intercepted || !code) return;
+        intercepted = true;
+        try {{
+            window.location.href = 'http://127.0.0.1:' + port + '/?code=' + encodeURIComponent(code);
+        }} catch(e) {{}}
+    }}
+
+    function scan() {{
+        if (intercepted) return;
+        try {{
+            var iframes = document.querySelectorAll('iframe');
+            for (var i = 0; i < iframes.length; i++) {{
+                var src = iframes[i].src || '';
+                if (src.indexOf('code=') !== -1) {{
+                    var match = src.match(/code=([^&]+)/);
+                    if (match && match[1]) {{
+                        notifyCode(decodeURIComponent(match[1]));
+                        return;
+                    }}
+                }}
+            }}
+
+            var cookies = document.cookie.split(';');
+            for (var j = 0; j < cookies.length; j++) {{
+                var parts = cookies[j].trim().split('=');
+                if (parts[0] === 'auth-token' && parts[1]) {{
+                    var token = decodeURIComponent(parts[1]);
+                    if (token.indexOf('mra_') === 0) {{
+                        notifyCode(token);
+                        return;
+                    }}
+                }}
+            }}
+
+            for (var k = 0; k < localStorage.length; k++) {{
+                var key = localStorage.key(k);
+                var val = localStorage.getItem(key) || '';
+                if (val.indexOf('mra_') !== -1) {{
+                    var match = val.match(/(mra_[a-zA-Z0-9_\-]+)/);
+                    if (match && match[1]) {{
+                        notifyCode(match[1]);
+                        return;
+                    }}
+                }}
+            }}
+        }} catch(e) {{}}
+    }}
+
+    try {{
+        var observer = new MutationObserver(scan);
+        observer.observe(document.documentElement || document.body, {{
+            childList: true,
+            subtree: true,
+            attributes: true
+        }});
+    }} catch(e) {{}}
+
+    setInterval(scan, 200);
+}})();
+"#,
+        loopback_port
+    );
+
+    let window_res = tauri::WebviewWindowBuilder::new(
+        &app,
+        "modrinth_signin",
+        tauri::WebviewUrl::External(parsed_url),
+    )
+    .title("Вход в Modrinth - Macros")
+    .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0")
+    .min_inner_size(480.0, 580.0)
+    .inner_size(540.0, 720.0)
+    .focused(true)
+    .center()
+    .initialization_script(&injection_script)
+    .on_navigation({
+        move |url| {
+            let url_str = url.as_str();
+            if url_str.contains("code=") || url_str.contains("mra_") {
+                let code = oauth_utils::auth_code_reply::extract_auth_code(url_str);
+                if !code.is_empty() {
+                    oauth_utils::auth_code_reply::submit_auth_code(code);
+                }
+            }
+            true
+        }
+    })
+    .build();
+
+    let (cancel_tx, mut cancel_rx) = oneshot::channel::<()>();
+
+    match window_res {
+        Ok(win) => {
+            let win_watcher = win.clone();
+            tokio::spawn(async move {
+                loop {
+                    tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+                    if win_watcher.title().is_err() {
+                        let _ = cancel_tx.send(());
+                        break;
+                    }
+                }
+            });
+        }
+        Err(e) => {
+            tracing::warn!("Failed to create modrinth_signin webview window: {e}, falling back to default browser");
+            let _ = app.opener().open_url(&auth_request_uri, None::<&str>);
+        }
+    };
+
+    let auth_code_res = tokio::select! {
+        res = auth_code_task => {
+            res
+        }
+        _ = &mut cancel_rx => {
+            oauth_utils::auth_code_reply::stop_listeners();
+            return Err(TheseusSerializableError::Theseus(
+                theseus::ErrorKind::OtherError("Вход отменён".into()).into(),
+            ));
+        }
+    };
+
+    if let Some(win) = app.get_webview_window("modrinth_signin") {
+        let _ = win.close();
+    }
+
+    let auth_code = match auth_code_res {
         Ok(Ok(Some(code))) => code,
         Ok(Ok(None)) => {
             return Err(TheseusSerializableError::Theseus(
-                theseus::ErrorKind::OtherError("Login canceled".into()).into(),
+                theseus::ErrorKind::OtherError("Вход отменён".into()).into(),
             ));
         }
         Ok(Err(e)) => return Err(TheseusSerializableError::Theseus(e)),
@@ -227,7 +372,10 @@ pub async fn get() -> Result<Option<ModrinthCredentials>> {
 }
 
 #[tauri::command]
-pub fn cancel_modrinth_login() {
+pub fn cancel_modrinth_login<R: Runtime>(app: tauri::AppHandle<R>) {
+    if let Some(win) = app.get_webview_window("modrinth_signin") {
+        let _ = win.close();
+    }
     oauth_utils::auth_code_reply::stop_listeners();
 }
 
