@@ -202,7 +202,7 @@
 			<div class="flex flex-col gap-1">
 				<h3 class="text-base font-bold text-primary m-0">Подтверждение в браузере</h3>
 				<p class="text-xs text-secondary m-0">
-					Мы открыли страницу входа в вашем основном браузере. Введите код ниже или подтвердите вход:
+					Мы открыли страницу входа в браузере. Код уже подставлен автоматически — просто нажмите «Разрешить» на сайте:
 				</p>
 			</div>
 
@@ -546,7 +546,11 @@ async function copyElybyCode() {
 
 async function reopenElybyBrowser() {
 	if (elybyDeviceCode.value?.verification_uri) {
-		await openUrl(elybyDeviceCode.value.verification_uri)
+		const uri = elybyDeviceCode.value.verification_uri
+		const url = uri.includes('?')
+			? `${uri}&otc=${elybyDeviceCode.value.user_code}`
+			: `${uri}?otc=${elybyDeviceCode.value.user_code}`
+		await openUrl(url)
 	}
 }
 

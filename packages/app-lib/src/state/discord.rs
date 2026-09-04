@@ -18,7 +18,7 @@ impl DiscordGuard {
     /// If it fails, it will still return a DiscordGuard, but the client will be unconnected
     pub fn init() -> crate::Result<DiscordGuard> {
         let client_id = std::env::var("MACROS_DISCORD_CLIENT_ID")
-            .unwrap_or_else(|_| "1123683254248148992".to_string());
+            .unwrap_or_else(|_| "1545466047698829372".to_string());
         let dipc = DiscordIpcClient::new(&client_id);
 
         Ok(DiscordGuard {
@@ -77,7 +77,7 @@ impl DiscordGuard {
             .state(msg)
             .assets(
                 Assets::new()
-                    .large_image("modrinth_simple")
+                    .large_image("logo")
                     .large_text("Macros Launcher"),
             );
 

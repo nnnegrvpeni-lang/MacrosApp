@@ -1254,20 +1254,27 @@ pub async fn patch_libraries_for_elyby(
 		libraries: Vec<ElyMetaLibrary>,
 	}
 
-	let meta_url = format!(
-		"https://elyprismlauncher.github.io/meta/v1/by.ely.authlib/{version}.json"
-	);
 	let client = reqwest::Client::builder()
 		.user_agent("Macros/1.0.0")
 		.timeout(std::time::Duration::from_secs(10))
 		.build()
 		.unwrap_or_else(|_| crate::util::fetch::INSECURE_REQWEST_CLIENT.clone());
 
-	let meta_res = client.get(&meta_url).send().await;
-	let meta: Option<ElyMetaResponse> = match meta_res {
-		Ok(resp) if resp.status().is_success() => resp.json().await.ok(),
-		_ => None,
-	};
+	let mut meta: Option<ElyMetaResponse> = None;
+	for base in &[
+		"https://elyprismlauncher.github.io/meta/v1/by.ely.authlib",
+		"https://meta.pineconemc.ru/v1/by.ely.authlib",
+	] {
+		let meta_url = format!("{base}/{version}.json");
+		if let Ok(resp) = client.get(&meta_url).send().await {
+			if resp.status().is_success() {
+				if let Ok(parsed) = resp.json::<ElyMetaResponse>().await {
+					meta = Some(parsed);
+					break;
+				}
+			}
+		}
+	}
 
 	let ely_lib_info = match meta.and_then(|m| m.libraries.into_iter().next()) {
 		Some(l) => l,
