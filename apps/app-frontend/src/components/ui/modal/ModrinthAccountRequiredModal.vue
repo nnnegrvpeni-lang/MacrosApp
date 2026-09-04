@@ -15,11 +15,22 @@
 				<p class="m-0 text-xs text-secondary leading-relaxed">
 					Открыто окно авторизации. Войдите в свой аккаунт Modrinth через появившееся окно — лаунчер автоматически завершит подключение.
 				</p>
-				<div class="flex items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2.5 border border-surface-4 text-primary">
+				<div v-if="errorMessage" class="rounded-xl bg-red-500/10 border border-red-500/30 p-2.5 text-xs text-red-400">
+					{{ errorMessage }}
+				</div>
+				<div v-else-if="authenticating" class="flex items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2.5 border border-surface-4 text-primary">
 					<SpinnerIcon aria-hidden="true" class="h-4 w-4 shrink-0 animate-spin text-brand" />
 					<span class="text-xs text-primary font-medium">
 						Ожидание завершения авторизации...
 					</span>
+				</div>
+				<div v-else class="flex items-center justify-between gap-2.5 rounded-xl bg-surface-2 px-3 py-2 border border-surface-4 text-secondary">
+					<span class="text-xs font-medium text-contrast">
+						Окно авторизации закрыто
+					</span>
+					<Button type="colored" color="brand" @click="authenticate('sign-in')">
+						Войти снова
+					</Button>
 				</div>
 			</div>
 
@@ -104,6 +115,8 @@ const authenticating = ref<ModrinthAuthFlow | null>(null)
 const reopeningBrowser = ref(false)
 const manualToken = ref('')
 
+const errorMessage = ref<string | null>(null)
+
 async function submitManualToken() {
 	const val = manualToken.value.trim()
 	if (!val) return
@@ -174,19 +187,25 @@ function finish(signedIn: boolean) {
 function authenticate(flow: ModrinthAuthFlow) {
 	const id = ++authenticationId
 	authenticating.value = flow
+	errorMessage.value = null
 
 	const authentication = (async () => {
 		try {
-			if ((await props.requestAuth(flow)) && authenticationId === id) {
+			const success = await props.requestAuth(flow)
+			if (success && authenticationId === id) {
 				authenticating.value = null
 				activeAuthentication = undefined
 				finish(true)
 				modal.value?.hide()
+			} else if (authenticationId === id) {
+				authenticating.value = null
+				activeAuthentication = undefined
 			}
-		} finally {
+		} catch (err: any) {
 			if (authenticationId === id) {
 				authenticating.value = null
 				activeAuthentication = undefined
+				errorMessage.value = err?.message || String(err)
 			}
 		}
 	})()
@@ -217,6 +236,7 @@ function resetAuthentication(cancelActive: boolean) {
 	activeAuthentication = undefined
 	authenticating.value = null
 	reopeningBrowser.value = false
+	errorMessage.value = null
 
 	if (cancelActive && wasAuthenticating) void cancelLogin()
 }

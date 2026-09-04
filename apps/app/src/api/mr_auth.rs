@@ -199,6 +199,7 @@ pub async fn modrinth_login<R: Runtime>(
 
     function notifyCode(code) {{
         if (intercepted || !code) return;
+        if (code.indexOf('mra_') !== 0 && code.indexOf('mrp_') !== 0) return;
         intercepted = true;
         try {{
             window.location.href = 'http://127.0.0.1:' + port + '/?code=' + encodeURIComponent(code);
@@ -211,12 +212,10 @@ pub async fn modrinth_login<R: Runtime>(
             var iframes = document.querySelectorAll('iframe');
             for (var i = 0; i < iframes.length; i++) {{
                 var src = iframes[i].src || '';
-                if (src.indexOf('code=') !== -1) {{
-                    var match = src.match(/code=([^&]+)/);
-                    if (match && match[1]) {{
-                        notifyCode(decodeURIComponent(match[1]));
-                        return;
-                    }}
+                var match = src.match(/(mr[ap]_[a-zA-Z0-9_\-]+)/);
+                if (match && match[1]) {{
+                    notifyCode(match[1]);
+                    return;
                 }}
             }}
 
@@ -225,7 +224,7 @@ pub async fn modrinth_login<R: Runtime>(
                 var parts = cookies[j].trim().split('=');
                 if (parts[0] === 'auth-token' && parts[1]) {{
                     var token = decodeURIComponent(parts[1]);
-                    if (token.indexOf('mra_') === 0) {{
+                    if (token.indexOf('mra_') === 0 || token.indexOf('mrp_') === 0) {{
                         notifyCode(token);
                         return;
                     }}
@@ -235,8 +234,8 @@ pub async fn modrinth_login<R: Runtime>(
             for (var k = 0; k < localStorage.length; k++) {{
                 var key = localStorage.key(k);
                 var val = localStorage.getItem(key) || '';
-                if (val.indexOf('mra_') !== -1) {{
-                    var match = val.match(/(mra_[a-zA-Z0-9_\-]+)/);
+                if (val.indexOf('mra_') !== -1 || val.indexOf('mrp_') !== -1) {{
+                    var match = val.match(/(mr[ap]_[a-zA-Z0-9_\-]+)/);
                     if (match && match[1]) {{
                         notifyCode(match[1]);
                         return;
@@ -276,7 +275,7 @@ pub async fn modrinth_login<R: Runtime>(
     .on_navigation({
         move |url| {
             let url_str = url.as_str();
-            if url_str.contains("code=") || url_str.contains("mra_") {
+            if url_str.contains("mra_") || url_str.contains("mrp_") || url.scheme() == "modrinth" || url.scheme() == "macros" {
                 let code = oauth_utils::auth_code_reply::extract_auth_code(url_str);
                 if !code.is_empty() {
                     oauth_utils::auth_code_reply::submit_auth_code(code);

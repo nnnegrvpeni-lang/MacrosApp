@@ -166,7 +166,7 @@ fn main() {
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             for arg in &args {
                 let clean = arg.trim_matches('"').trim_matches('\'').trim();
-                if clean.contains("mra_") || clean.contains("code=") {
+                if clean.contains("mra_") || clean.contains("mrp_") || clean.contains("mro_") {
                     tracing::info!("Handling auth token deep link");
                     let code = api::oauth_utils::auth_code_reply::extract_auth_code(clean);
                     if !code.is_empty() {
@@ -240,7 +240,7 @@ fn main() {
 
             for arg in std::env::args().skip(1) {
                 let clean = arg.trim_matches('"').trim_matches('\'').trim().to_string();
-                if clean.contains("mra_") || clean.contains("code=") {
+                if clean.contains("mra_") || clean.contains("mrp_") || clean.contains("mro_") {
                     let code = api::oauth_utils::auth_code_reply::extract_auth_code(&clean);
                     if !code.is_empty() {
                         api::oauth_utils::auth_code_reply::submit_auth_code(code);

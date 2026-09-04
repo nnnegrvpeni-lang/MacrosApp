@@ -31,35 +31,68 @@ static PENDING_AUTH_CODE: LazyLock<Mutex<Option<String>>> =
 static AUTH_CODE_NOTIFY: LazyLock<tokio::sync::Notify> =
     LazyLock::new(tokio::sync::Notify::new);
 
+pub fn is_valid_modrinth_token(token: &str) -> bool {
+    (token.starts_with("mra_") || token.starts_with("mrp_") || token.starts_with("mro_"))
+        && token.len() > 8
+        && token.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+}
+
 pub fn extract_auth_code(link: &str) -> String {
     let clean = link.trim_matches('"').trim_matches('\'').trim();
-    if let Some((_, query)) = clean.split_once('?') {
-        for pair in query.split('&') {
-            if let Some((k, v)) = pair.split_once('=') {
-                if k == "code" || k == "token" {
-                    let token = v.trim_matches('/').trim_matches('"').trim();
-                    if !token.is_empty() {
-                        return token.to_string();
+    let decoded = urlencoding::decode(clean)
+        .map(|cow| cow.into_owned())
+        .unwrap_or_else(|_| clean.to_string());
+
+    for s in [&decoded, &clean.to_string()] {
+        if let Some((_, query)) = s.split_once('?') {
+            for pair in query.split('&') {
+                if let Some((k, v)) = pair.split_once('=') {
+                    if k == "code" || k == "token" {
+                        let token = v.trim_matches('/').trim_matches('"').trim();
+                        let end = token
+                            .find(|c: char| !c.is_alphanumeric() && c != '_' && c != '-')
+                            .unwrap_or(token.len());
+                        let candidate = &token[..end];
+                        if is_valid_modrinth_token(candidate) {
+                            return candidate.to_string();
+                        }
                     }
                 }
             }
         }
-    }
-    if let Some(idx) = clean.find("mra_") {
-        let token_part = &clean[idx..];
-        let end = token_part
+
+        for prefix in ["mra_", "mrp_", "mro_"] {
+            if let Some(idx) = s.find(prefix) {
+                let token_part = &s[idx..];
+                let end = token_part
+                    .find(|c: char| !c.is_alphanumeric() && c != '_' && c != '-')
+                    .unwrap_or(token_part.len());
+                let candidate = &token_part[..end];
+                if is_valid_modrinth_token(candidate) {
+                    return candidate.to_string();
+                }
+            }
+        }
+
+        let end = s
             .find(|c: char| !c.is_alphanumeric() && c != '_' && c != '-')
-            .unwrap_or(token_part.len());
-        let token = &token_part[..end];
-        if !token.is_empty() {
-            return token.to_string();
+            .unwrap_or(s.len());
+        let candidate = &s[..end];
+        if is_valid_modrinth_token(candidate) {
+            return candidate.to_string();
         }
     }
-    clean.to_string()
+
+    String::new()
 }
 
 pub fn submit_auth_code(code: String) {
     let extracted = extract_auth_code(&code);
+    if extracted.is_empty() {
+        tracing::warn!("submit_auth_code: candidate code ignored (invalid prefix or format)");
+        return;
+    }
+    tracing::info!("submit_auth_code: accepted valid token");
     if let Ok(mut lock) = PENDING_AUTH_CODE.lock() {
         *lock = Some(extracted);
     }
@@ -188,11 +221,20 @@ async fn handle_reply(
         query_string
             .split('&')
             .filter_map(|query_pair| query_pair.split_once('='))
-            .find_map(|(key, value)| (key == "code").then_some(value))
+            .find_map(|(key, value)| (key == "code" || key == "token").then_some(value))
     });
 
-    let response = if let Some(auth_code) = auth_code {
-        *auth_code_out.lock().unwrap() = Some(auth_code.to_string());
+    let valid_auth_code = auth_code.and_then(|c| {
+        let ext = extract_auth_code(c);
+        if ext.is_empty() {
+            None
+        } else {
+            Some(ext)
+        }
+    });
+
+    let response = if let Some(auth_code) = valid_auth_code {
+        *auth_code_out.lock().unwrap() = Some(auth_code.clone());
 
         let html = format!(
             r#"<!doctype html><html><head><meta charset="utf-8"><title>Macros - Авторизация успешна</title><style>body{{font-family:system-ui,-apple-system,sans-serif;background:#121212;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}}.card{{background:#1f1f1f;border:1px solid #333;border-radius:16px;padding:32px;text-align:center;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.5);}}.icon{{width:60px;height:60px;background:#00af5c22;color:#00af5c;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px;font-weight:bold;}}h1{{margin:0 0 12px;font-size:22px;color:#fff;}}p{{color:#a1a1aa;font-size:14px;line-height:1.5;margin:0 0 24px;}}.btn{{display:inline-block;background:#00af5c;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-weight:600;font-size:14px;border:none;cursor:pointer;}}</style></head><body><div class="card"><div class="icon">✓</div><h1>Вход выполнен!</h1><p>Вы успешно вошли в аккаунт. Лаунчер Macros уже завершил вход. Можете закрыть эту страницу.</p><button class="btn" onclick="window.close()">Закрыть страницу</button></div><script>try{{window.location.href="modrinth://{auth_code}";}}catch(e){{}}setTimeout(function(){{window.close();}},2000);</script></body></html>"#
