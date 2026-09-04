@@ -1032,6 +1032,7 @@ pub async fn launch_minecraft(
     if credentials.is_elyby() {
         if used_ely_authlib {
             command.arg("-Dminecraft.api.env=ELY");
+            command.arg("-Dely.authlib.offlineProfileLookupUrl=https://skinsystem.ely.by/profile/");
             command.arg("-Dely.authlib.fetchMissingSkinsByUsername=true");
             command.arg("-Dely.authlib.skipValidatePropertySignature=true");
             command.arg("-Dely.authlib.skipFetchBlockList=true");

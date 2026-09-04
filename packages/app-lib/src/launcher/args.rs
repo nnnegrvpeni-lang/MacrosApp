@@ -346,9 +346,9 @@ fn parse_minecraft_argument(
     resolution: WindowSize,
     quick_play_type: &QuickPlayType,
     is_offline: bool,
-    _is_elyby: bool,
+    is_elyby: bool,
 ) -> crate::Result<String> {
-    let safe_username = if username.chars().count() > 16 {
+    let safe_username = if !is_elyby && username.chars().count() > 16 {
         username.chars().take(16).collect::<String>()
     } else {
         username.to_string()
@@ -360,14 +360,14 @@ fn parse_minecraft_argument(
         .replace("${auth_session}", access_token)
         .replace("${auth_player_name}", &safe_username)
         // TODO: add auth xuid eventually
-        .replace("${auth_xuid}", if is_offline || _is_elyby { "" } else { "0" })
+        .replace("${auth_xuid}", if is_offline || is_elyby { "" } else { "0" })
         .replace("${auth_uuid}", &uuid.simple().to_string())
         .replace("${uuid}", &uuid.simple().to_string())
         .replace(
             "${clientid}",
             if is_offline {
                 ""
-            } else if _is_elyby {
+            } else if is_elyby {
                 "elyprism-launcher"
             } else {
                 "c4502edb-87c6-40cb-b595-64a280cf8906"

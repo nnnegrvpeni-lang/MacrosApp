@@ -246,74 +246,33 @@
 			</div>
 		</div>
 
-		<!-- Main selection / credentials form -->
-		<div v-else class="flex flex-col gap-4 p-5">
-			<div class="flex flex-col gap-2 bg-surface-2 border border-surface-5 rounded-xl p-3 text-left">
-				<div class="flex items-center gap-2 text-primary font-semibold text-sm">
-					<SparklesIcon class="w-4 h-4 text-brand" />
-					<span>Вход через сайт (рекомендуется)</span>
-				</div>
-				<p class="text-xs text-secondary m-0">
-					Открывает страницу в вашем основном браузере. Если вы уже вошли в аккаунт Ely.by или используете автозаполнение паролей, вход произойдет мгновенно.
-				</p>
+		<!-- Loading or error state while waiting for device code -->
+		<div v-else class="flex flex-col items-center text-center gap-4 p-5">
+			<div class="p-3 bg-surface-3 rounded-full text-brand">
+				<SparklesIcon class="w-8 h-8" />
+			</div>
+			<div v-if="isSubmittingElyby" class="flex flex-col items-center gap-2 py-4">
+				<SpinnerIcon class="w-6 h-6 animate-spin text-brand" />
+				<span class="text-sm text-secondary">Запрос авторизации на сайте Ely.by...</span>
+			</div>
+			<div v-else-if="elybyError" class="flex flex-col items-center gap-2 py-2">
+				<span class="text-xs text-red">{{ elybyError }}</span>
 				<Button
 					type="colored"
 					color="brand"
-					class="w-full mt-1"
-					:disabled="isSubmittingElyby"
+					class="mt-2 text-xs"
 					@click="startElybyDeviceCodeLogin"
 				>
-					<SpinnerIcon v-if="isSubmittingElyby" class="animate-spin" />
-					<ExternalIcon v-else class="w-4 h-4 mr-1.5" />
-					<span>Войти через сайт Ely.by</span>
+					Попробовать снова
 				</Button>
 			</div>
-
-			<div class="flex items-center gap-2 my-0">
-				<div class="flex-1 h-px bg-surface-5" />
-				<span class="text-xs text-secondary">или по логину и паролю</span>
-				<div class="flex-1 h-px bg-surface-5" />
-			</div>
-
-			<form class="flex flex-col gap-3" @submit.prevent="submitElybyAccount">
-				<div class="flex flex-col gap-1.5">
-					<label class="text-sm font-medium text-primary">
-						{{ formatMessage(messages.elybyLoginLabel) }}
-					</label>
-					<input
-						v-model="elybyLoginInput"
-						type="text"
-						placeholder="Username or email"
-						class="px-3 py-2 rounded-lg bg-surface-3 border border-surface-5 text-primary text-sm focus:outline-none focus:border-brand"
-					/>
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<label class="text-sm font-medium text-primary">
-						{{ formatMessage(messages.elybyPasswordLabel) }}
-					</label>
-					<input
-						v-model="elybyPasswordInput"
-						type="password"
-						placeholder="Password"
-						class="px-3 py-2 rounded-lg bg-surface-3 border border-surface-5 text-primary text-sm focus:outline-none focus:border-brand"
-					/>
-					<span v-if="elybyError" class="text-xs text-red mt-1">{{ elybyError }}</span>
-				</div>
-				<div class="flex justify-end gap-2 mt-1">
-					<Button type="quiet" native-type="button" @click="elybyModalRef?.hide()">
-						{{ formatMessage(messages.cancel) }}
-					</Button>
-					<Button
-						type="colored"
-						color="brand"
-						native-type="submit"
-						:disabled="!elybyLoginInput.trim() || !elybyPasswordInput || isSubmittingElyby"
-					>
-						<SpinnerIcon v-if="isSubmittingElyby" class="animate-spin" />
-						<span>{{ formatMessage(messages.addAccount) }}</span>
-					</Button>
-				</div>
-			</form>
+			<Button
+				type="quiet"
+				class="w-full text-xs mt-2"
+				@click="cancelElybyDeviceCode"
+			>
+				{{ formatMessage(messages.cancel) }}
+			</Button>
 		</div>
 	</NewModal>
 </template>
@@ -353,8 +312,6 @@ import { trackEvent } from '@/helpers/analytics'
 import {
 	get_default_user,
 	login as login_flow,
-	login_elyby,
-	login_elyby_web,
 	login_offline,
 	poll_elyby_device_code,
 	remove_user,
@@ -396,8 +353,6 @@ const offlineError = ref('')
 const isSubmittingOffline = ref(false)
 
 const elybyModalRef = ref<InstanceType<typeof NewModal> | null>(null)
-const elybyLoginInput = ref('')
-const elybyPasswordInput = ref('')
 const elybyError = ref('')
 const isSubmittingElyby = ref(false)
 const elybyDeviceCode = ref<{
@@ -419,10 +374,9 @@ function openOfflineModal() {
 
 function openElybyModal() {
 	cancelElybyDeviceCode()
-	elybyLoginInput.value = ''
-	elybyPasswordInput.value = ''
 	elybyError.value = ''
 	elybyModalRef.value?.show()
+	startElybyDeviceCodeLogin()
 }
 
 async function submitOfflineAccount() {
@@ -448,32 +402,6 @@ async function submitOfflineAccount() {
 		offlineError.value = err?.message || 'Failed to add offline account'
 	} finally {
 		isSubmittingOffline.value = false
-	}
-}
-
-async function submitElybyAccount() {
-	const loginStr = elybyLoginInput.value.trim()
-	const passStr = elybyPasswordInput.value
-	if (!loginStr || !passStr) {
-		elybyError.value = 'Please enter both login/email and password'
-		return
-	}
-
-	elybyError.value = ''
-	isSubmittingElyby.value = true
-
-	try {
-		const newAccount = await login_elyby(loginStr, passStr)
-		elybyModalRef.value?.hide()
-		await setAccount(newAccount)
-		trackEvent('AccountLogIn', { type: 'elyby' })
-	} catch (err: any) {
-		elybyError.value =
-			typeof err === 'string'
-				? err
-				: err?.message || err?.error || (typeof err === 'object' ? JSON.stringify(err) : 'Failed to sign in with Ely.by')
-	} finally {
-		isSubmittingElyby.value = false
 	}
 }
 
@@ -756,14 +684,6 @@ const messages = defineMessages({
 	addElybyAccountHeader: {
 		id: 'minecraft-account.add-elyby-account-header',
 		defaultMessage: 'Sign into Ely.by Account',
-	},
-	elybyLoginLabel: {
-		id: 'minecraft-account.elyby-login-label',
-		defaultMessage: 'Ely.by Username or Email',
-	},
-	elybyPasswordLabel: {
-		id: 'minecraft-account.elyby-password-label',
-		defaultMessage: 'Password',
 	},
 	elybyHint: {
 		id: 'minecraft-account.elyby-hint',
