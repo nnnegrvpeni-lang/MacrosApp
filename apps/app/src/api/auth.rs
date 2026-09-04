@@ -2,6 +2,7 @@ use crate::api::Result;
 use chrono::{Duration, Utc};
 use tauri::plugin::TauriPlugin;
 use tauri::{Manager, Runtime, UserAttentionType};
+use tauri_plugin_opener::OpenerExt;
 use theseus::prelude::*;
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
@@ -12,6 +13,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             login_offline,
             login_elyby,
             login_elyby_web,
+            start_elyby_device_code,
+            poll_elyby_device_code,
             remove_user,
             get_default_user,
             set_default_user,
@@ -103,48 +106,39 @@ pub async fn login_elyby(
 }
 
 #[tauri::command]
+pub async fn start_elyby_device_code<R: Runtime>(
+    app: tauri::AppHandle<R>,
+) -> Result<minecraft_auth::ElyByDeviceCodeInfo> {
+    let info = minecraft_auth::start_elyby_device_code().await?;
+    let _ = app.opener().open_url(&info.verification_uri, None::<&str>);
+    Ok(info)
+}
+
+#[tauri::command]
+pub async fn poll_elyby_device_code(
+    device_code: String,
+) -> Result<Option<Credentials>> {
+    Ok(minecraft_auth::poll_elyby_device_code(&device_code).await?)
+}
+
+#[tauri::command]
 pub async fn login_elyby_web<R: Runtime>(
     app: tauri::AppHandle<R>,
 ) -> Result<Option<Credentials>> {
+    let info = minecraft_auth::start_elyby_device_code().await?;
+    let _ = app.opener().open_url(&info.verification_uri, None::<&str>);
     let start = Utc::now();
+    let interval = std::cmp::max(info.interval, 3);
 
-    if let Some(window) = app.get_webview_window("signin-elyby") {
-        window.close()?;
-    }
-
-    let window = tauri::WebviewWindowBuilder::new(
-        &app,
-        "signin-elyby",
-        tauri::WebviewUrl::External(
-            "https://account.ely.by/login"
-                .parse()
-                .map_err(|_| {
-                    theseus::ErrorKind::OtherError(
-                        "Error parsing Ely.by login URL".to_string(),
-                    )
-                    .as_error()
-                })?,
-        ),
-    )
-    .title("Sign into Ely.by")
-    .always_on_top(true)
-    .min_inner_size(500.0, 500.0)
-    .inner_size(900.0, 650.0)
-    .focused(true)
-    .center()
-    .build()?;
-
-    window.request_user_attention(Some(UserAttentionType::Critical))?;
-
-    while (Utc::now() - start) < Duration::minutes(10) {
-        if window.title().is_err() {
-            return Ok(None);
+    while (Utc::now() - start) < Duration::seconds(info.expires_in) {
+        tokio::time::sleep(std::time::Duration::from_secs(interval)).await;
+        match minecraft_auth::poll_elyby_device_code(&info.device_code).await {
+            Ok(Some(creds)) => return Ok(Some(creds)),
+            Ok(None) => continue,
+            Err(e) => return Err(e.into()),
         }
-
-        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
     }
 
-    window.close()?;
     Ok(None)
 }
 

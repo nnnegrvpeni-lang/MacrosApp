@@ -190,71 +190,139 @@
 	<NewModal
 		ref="elybyModalRef"
 		:header="formatMessage(messages.addElybyAccountHeader)"
-		max-width="440px"
+		max-width="460px"
 		width="100%"
+		@hide="cancelElybyDeviceCode"
 	>
-		<form class="flex flex-col gap-4 p-5" @submit.prevent="submitElybyAccount">
-			<div class="flex flex-col gap-1.5">
-				<label class="text-sm font-medium text-primary">
-					{{ formatMessage(messages.elybyLoginLabel) }}
-				</label>
-				<input
-					v-model="elybyLoginInput"
-					type="text"
-					autofocus
-					placeholder="Username or email"
-					class="px-3 py-2 rounded-lg bg-surface-3 border border-surface-5 text-primary text-sm focus:outline-none focus:border-brand"
-				/>
+		<!-- Device code flow view -->
+		<div v-if="elybyDeviceCode" class="flex flex-col items-center text-center gap-4 p-5">
+			<div class="p-3 bg-surface-3 rounded-full text-brand">
+				<SparklesIcon class="w-8 h-8" />
 			</div>
-			<div class="flex flex-col gap-1.5">
-				<label class="text-sm font-medium text-primary">
-					{{ formatMessage(messages.elybyPasswordLabel) }}
-				</label>
-				<input
-					v-model="elybyPasswordInput"
-					type="password"
-					placeholder="Password"
-					class="px-3 py-2 rounded-lg bg-surface-3 border border-surface-5 text-primary text-sm focus:outline-none focus:border-brand"
-				/>
-				<span v-if="elybyError" class="text-xs text-red mt-1">{{ elybyError }}</span>
+			<div class="flex flex-col gap-1">
+				<h3 class="text-base font-bold text-primary m-0">Подтверждение в браузере</h3>
+				<p class="text-xs text-secondary m-0">
+					Мы открыли страницу входа в вашем основном браузере. Введите код ниже или подтвердите вход:
+				</p>
 			</div>
-			<p class="text-xs text-secondary m-0">
-				{{ formatMessage(messages.elybyHint) }}
-			</p>
-			<div class="flex items-center gap-2 my-1">
-				<div class="flex-1 h-px bg-surface-5" />
-				<span class="text-xs text-secondary">или</span>
-				<div class="flex-1 h-px bg-surface-5" />
+
+			<div class="flex items-center gap-3 bg-surface-2 border border-surface-5 px-5 py-3 rounded-xl">
+				<span class="text-2xl font-mono font-bold tracking-widest text-brand select-all">
+					{{ elybyDeviceCode.user_code }}
+				</span>
+				<IconButton
+					:label="codeCopied ? 'Скопировано!' : 'Копировать код'"
+					class="!text-secondary hover:!text-primary"
+					@click="copyElybyCode"
+				>
+					<CheckIcon v-if="codeCopied" class="text-brand" />
+					<CopyIcon v-else />
+				</IconButton>
 			</div>
-			<Button
-				class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary"
-				type="button"
-				:disabled="isSubmittingElyby"
-				@click="startElybyWebLogin()"
-			>
-				<SparklesIcon class="w-4 h-4 mr-1.5" />
-				<span>Открыть вход на сайте Ely.by</span>
-			</Button>
-			<div class="flex justify-end gap-2 mt-2">
-				<Button type="quiet" native-type="button" @click="elybyModalRef?.hide()">
+
+			<div class="flex items-center gap-2 text-xs text-secondary">
+				<SpinnerIcon class="w-4 h-4 animate-spin text-brand" />
+				<span>Ожидание подтверждения на сайте Ely.by...</span>
+			</div>
+
+			<span v-if="elybyError" class="text-xs text-red">{{ elybyError }}</span>
+
+			<div class="flex flex-col gap-2 w-full mt-2">
+				<Button
+					class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary text-xs"
+					type="button"
+					@click="reopenElybyBrowser"
+				>
+					<ExternalIcon class="w-3.5 h-3.5 mr-1.5" />
+					Открыть страницу в браузере повторно
+				</Button>
+				<Button
+					type="quiet"
+					class="w-full text-xs"
+					@click="cancelElybyDeviceCode"
+				>
 					{{ formatMessage(messages.cancel) }}
 				</Button>
+			</div>
+		</div>
+
+		<!-- Main selection / credentials form -->
+		<div v-else class="flex flex-col gap-4 p-5">
+			<div class="flex flex-col gap-2 bg-surface-2 border border-surface-5 rounded-xl p-3 text-left">
+				<div class="flex items-center gap-2 text-primary font-semibold text-sm">
+					<SparklesIcon class="w-4 h-4 text-brand" />
+					<span>Вход через сайт (рекомендуется)</span>
+				</div>
+				<p class="text-xs text-secondary m-0">
+					Открывает страницу в вашем основном браузере. Если вы уже вошли в аккаунт Ely.by или используете автозаполнение паролей, вход произойдет мгновенно.
+				</p>
 				<Button
 					type="colored"
 					color="brand"
-					native-type="submit"
-					:disabled="!elybyLoginInput.trim() || !elybyPasswordInput || isSubmittingElyby"
+					class="w-full mt-1"
+					:disabled="isSubmittingElyby"
+					@click="startElybyDeviceCodeLogin"
 				>
 					<SpinnerIcon v-if="isSubmittingElyby" class="animate-spin" />
-					<span>{{ formatMessage(messages.addAccount) }}</span>
+					<ExternalIcon v-else class="w-4 h-4 mr-1.5" />
+					<span>Войти через сайт Ely.by</span>
 				</Button>
 			</div>
-		</form>
+
+			<div class="flex items-center gap-2 my-0">
+				<div class="flex-1 h-px bg-surface-5" />
+				<span class="text-xs text-secondary">или по логину и паролю</span>
+				<div class="flex-1 h-px bg-surface-5" />
+			</div>
+
+			<form class="flex flex-col gap-3" @submit.prevent="submitElybyAccount">
+				<div class="flex flex-col gap-1.5">
+					<label class="text-sm font-medium text-primary">
+						{{ formatMessage(messages.elybyLoginLabel) }}
+					</label>
+					<input
+						v-model="elybyLoginInput"
+						type="text"
+						placeholder="Username or email"
+						class="px-3 py-2 rounded-lg bg-surface-3 border border-surface-5 text-primary text-sm focus:outline-none focus:border-brand"
+					/>
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<label class="text-sm font-medium text-primary">
+						{{ formatMessage(messages.elybyPasswordLabel) }}
+					</label>
+					<input
+						v-model="elybyPasswordInput"
+						type="password"
+						placeholder="Password"
+						class="px-3 py-2 rounded-lg bg-surface-3 border border-surface-5 text-primary text-sm focus:outline-none focus:border-brand"
+					/>
+					<span v-if="elybyError" class="text-xs text-red mt-1">{{ elybyError }}</span>
+				</div>
+				<div class="flex justify-end gap-2 mt-1">
+					<Button type="quiet" native-type="button" @click="elybyModalRef?.hide()">
+						{{ formatMessage(messages.cancel) }}
+					</Button>
+					<Button
+						type="colored"
+						color="brand"
+						native-type="submit"
+						:disabled="!elybyLoginInput.trim() || !elybyPasswordInput || isSubmittingElyby"
+					>
+						<SpinnerIcon v-if="isSubmittingElyby" class="animate-spin" />
+						<span>{{ formatMessage(messages.addAccount) }}</span>
+					</Button>
+				</div>
+			</form>
+		</div>
 	</NewModal>
 </template>
 
 <script setup lang="ts">
 import {
+	CheckIcon,
+	CopyIcon,
+	ExternalIcon,
 	LogInIcon,
 	PlusIcon,
 	RadioButtonCheckedIcon,
@@ -275,8 +343,9 @@ import {
 	NewModal,
 	useVIntl,
 } from '@modrinth/ui'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import type { Ref } from 'vue'
-import { computed, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 
 import { useAppEvent } from '@/composables/use-app-event'
 import { handleSevereError } from '@/composables/use-error.js'
@@ -287,8 +356,10 @@ import {
 	login_elyby,
 	login_elyby_web,
 	login_offline,
+	poll_elyby_device_code,
 	remove_user,
 	set_default_user,
+	start_elyby_device_code,
 	users,
 } from '@/helpers/auth'
 import { arrayBufferToBase64 } from '@modrinth/utils'
@@ -329,6 +400,16 @@ const elybyLoginInput = ref('')
 const elybyPasswordInput = ref('')
 const elybyError = ref('')
 const isSubmittingElyby = ref(false)
+const elybyDeviceCode = ref<{
+	user_code: string
+	device_code: string
+	verification_uri: string
+	expires_in: number
+	interval: number
+} | null>(null)
+const isPollingElyby = ref(false)
+const codeCopied = ref(false)
+let elybyPollTimer: any = null
 
 function openOfflineModal() {
 	offlineUsername.value = ''
@@ -337,6 +418,7 @@ function openOfflineModal() {
 }
 
 function openElybyModal() {
+	cancelElybyDeviceCode()
 	elybyLoginInput.value = ''
 	elybyPasswordInput.value = ''
 	elybyError.value = ''
@@ -395,25 +477,82 @@ async function submitElybyAccount() {
 	}
 }
 
-async function startElybyWebLogin() {
+async function startElybyDeviceCodeLogin() {
 	elybyError.value = ''
 	isSubmittingElyby.value = true
 	try {
-		const newAccount = await login_elyby_web()
-		if (newAccount) {
-			elybyModalRef.value?.hide()
-			await setAccount(newAccount)
-			trackEvent('AccountLogIn', { type: 'elyby' })
-		}
+		const info = await start_elyby_device_code()
+		elybyDeviceCode.value = info
+		startPollingElyby(info)
 	} catch (err: any) {
 		elybyError.value =
 			typeof err === 'string'
 				? err
-				: err?.message || 'Failed to sign in via Ely.by web'
+				: err?.message || 'Не удалось запросить код авторизации Ely.by'
 	} finally {
 		isSubmittingElyby.value = false
 	}
 }
+
+function startPollingElyby(info: { device_code: string; interval: number; expires_in: number }) {
+	stopPollingElyby()
+	isPollingElyby.value = true
+	const pollInterval = Math.max((info.interval || 5) * 1000, 3000)
+
+	elybyPollTimer = setInterval(async () => {
+		try {
+			const creds = await poll_elyby_device_code(info.device_code)
+			if (creds) {
+				stopPollingElyby()
+				elybyDeviceCode.value = null
+				elybyModalRef.value?.hide()
+				await setAccount(creds)
+				trackEvent('AccountLogIn', { type: 'elyby' })
+			}
+		} catch (err: any) {
+			stopPollingElyby()
+			elybyError.value =
+				typeof err === 'string'
+					? err
+					: err?.message || 'Ошибка авторизации Ely.by'
+		}
+	}, pollInterval)
+}
+
+function stopPollingElyby() {
+	if (elybyPollTimer) {
+		clearInterval(elybyPollTimer)
+		elybyPollTimer = null
+	}
+	isPollingElyby.value = false
+}
+
+function cancelElybyDeviceCode() {
+	stopPollingElyby()
+	elybyDeviceCode.value = null
+	elybyError.value = ''
+}
+
+async function copyElybyCode() {
+	if (!elybyDeviceCode.value?.user_code) return
+	try {
+		await navigator.clipboard.writeText(elybyDeviceCode.value.user_code)
+		codeCopied.value = true
+		setTimeout(() => {
+			codeCopied.value = false
+		}, 2000)
+	} catch {}
+}
+
+async function reopenElybyBrowser() {
+	if (elybyDeviceCode.value?.verification_uri) {
+		await openUrl(elybyDeviceCode.value.verification_uri)
+	}
+}
+
+onUnmounted(() => {
+	stopPollingElyby()
+})
 
 async function refreshValues() {
 	defaultUser.value = await get_default_user().catch(handleError)

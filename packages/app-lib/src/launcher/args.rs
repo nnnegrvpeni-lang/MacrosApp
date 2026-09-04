@@ -365,8 +365,10 @@ fn parse_minecraft_argument(
         .replace("${uuid}", &uuid.simple().to_string())
         .replace(
             "${clientid}",
-            if is_offline || _is_elyby {
+            if is_offline {
                 ""
+            } else if _is_elyby {
+                "elyprism-launcher"
             } else {
                 "c4502edb-87c6-40cb-b595-64a280cf8906"
             },
@@ -376,8 +378,6 @@ fn parse_minecraft_argument(
             "${user_type}",
             if is_offline {
                 "legacy"
-            } else if _is_elyby {
-                "mojang"
             } else {
                 "msa"
             },

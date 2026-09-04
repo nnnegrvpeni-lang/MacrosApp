@@ -394,6 +394,211 @@ pub async fn login_elyby(
     Ok(credentials)
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ElyByDeviceCodeInfo {
+    pub user_code: String,
+    pub device_code: String,
+    pub verification_uri: String,
+    pub expires_in: i64,
+    pub interval: u64,
+}
+
+#[derive(Deserialize, Debug)]
+struct ElyByTokenResponse {
+    access_token: Option<String>,
+    #[allow(dead_code)]
+    token_type: Option<String>,
+    refresh_token: Option<String>,
+    expires_in: Option<i64>,
+    error: Option<String>,
+    error_description: Option<String>,
+    message: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct ElyByMojangProfileResponse {
+    id: String,
+    name: String,
+    #[serde(default)]
+    skins: Vec<MinecraftSkin>,
+    #[serde(default)]
+    capes: Vec<MinecraftCape>,
+}
+
+pub async fn start_elyby_device_code() -> crate::Result<ElyByDeviceCodeInfo> {
+    let client = reqwest::Client::builder()
+        .user_agent("Macros/1.0.0")
+        .timeout(std::time::Duration::from_secs(15))
+        .build()
+        .unwrap_or_else(|_| INSECURE_REQWEST_CLIENT.clone());
+
+    let params = [
+        ("client_id", "elyprism-launcher"),
+        ("scope", "account_info offline_access minecraft_server_session"),
+    ];
+
+    let res = client
+        .post("https://account.ely.by/api/oauth2/v1/devicecode")
+        .form(&params)
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| {
+            crate::ErrorKind::OtherError(format!(
+                "Failed to request Ely.by device code: {e}"
+            ))
+        })?;
+
+    if !res.status().is_success() {
+        let status = res.status();
+        let err_text = res.text().await.unwrap_or_default();
+        return Err(crate::ErrorKind::OtherError(format!(
+            "Ely.by device code request failed ({status}): {err_text}"
+        ))
+        .as_error());
+    }
+
+    let info: ElyByDeviceCodeInfo = res.json().await.map_err(|e| {
+        crate::ErrorKind::OtherError(format!(
+            "Failed to parse Ely.by device code response: {e}"
+        ))
+    })?;
+
+    Ok(info)
+}
+
+pub async fn poll_elyby_device_code(
+    device_code: &str,
+    exec: impl sqlx::Executor<'_, Database = sqlx::Sqlite> + Copy,
+) -> crate::Result<Option<Credentials>> {
+    let client = reqwest::Client::builder()
+        .user_agent("Macros/1.0.0")
+        .timeout(std::time::Duration::from_secs(15))
+        .build()
+        .unwrap_or_else(|_| INSECURE_REQWEST_CLIENT.clone());
+
+    let params = [
+        ("client_id", "elyprism-launcher"),
+        ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
+        ("device_code", device_code),
+    ];
+
+    let res = client
+        .post("https://account.ely.by/api/oauth2/v1/token")
+        .form(&params)
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| {
+            crate::ErrorKind::OtherError(format!(
+                "Failed to poll Ely.by token: {e}"
+            ))
+        })?;
+
+    let text = res.text().await.unwrap_or_default();
+    let token_resp: ElyByTokenResponse = serde_json::from_str(&text).map_err(|e| {
+        crate::ErrorKind::OtherError(format!(
+            "Failed to parse Ely.by token response: {e}. Raw: {text}"
+        ))
+    })?;
+
+    if let Some(err) = &token_resp.error {
+        if err == "authorization_pending" || err == "slow_down" {
+            return Ok(None);
+        }
+        let desc = token_resp
+            .error_description
+            .or(token_resp.message)
+            .unwrap_or_else(|| err.clone());
+        return Err(crate::ErrorKind::InputError(desc).as_error());
+    }
+
+    let access_token = token_resp.access_token.ok_or_else(|| {
+        crate::ErrorKind::OtherError("Missing access token in Ely.by response".to_string())
+    })?;
+    let refresh_token = token_resp.refresh_token.unwrap_or_default();
+    let expires_in = token_resp.expires_in.unwrap_or(2592000);
+
+    let profile_res = client
+        .get("https://account.ely.by/api/mojang/services/minecraft/profile")
+        .bearer_auth(&access_token)
+        .header("Accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| {
+            crate::ErrorKind::OtherError(format!(
+                "Failed to fetch Ely.by Minecraft profile: {e}"
+            ))
+        })?;
+
+    if !profile_res.status().is_success() {
+        let status = profile_res.status();
+        let err_text = profile_res.text().await.unwrap_or_default();
+        return Err(crate::ErrorKind::OtherError(format!(
+            "Failed to fetch Ely.by profile ({status}): {err_text}"
+        ))
+        .as_error());
+    }
+
+    let profile_resp: ElyByMojangProfileResponse = profile_res.json().await.map_err(|e| {
+        crate::ErrorKind::OtherError(format!(
+            "Failed to parse Ely.by Minecraft profile: {e}"
+        ))
+    })?;
+
+    let uuid = Uuid::parse_str(&profile_resp.id)
+        .unwrap_or_else(|_| generate_offline_uuid(&profile_resp.name));
+
+    let mut skins = profile_resp.skins;
+    if skins.is_empty() {
+        if let Ok(url) = Url::parse(&format!(
+            "http://skinsystem.ely.by/skins/{}.png",
+            profile_resp.name
+        )) {
+            skins.push(MinecraftSkin {
+                id: Uuid::new_v4(),
+                state: MinecraftCharacterExpressionState::Active,
+                url: Arc::new(url),
+                texture_key: Some(Arc::from(format!("elyby_{}", profile_resp.name))),
+                variant: MinecraftSkinVariant::Classic,
+                name: Some("Ely.by Skin".to_string()),
+            });
+        }
+    }
+
+    let mut capes = profile_resp.capes;
+    if capes.is_empty() {
+        if let Ok(url) = Url::parse(&format!(
+            "http://skinsystem.ely.by/cloaks/{}.png",
+            profile_resp.name
+        )) {
+            capes.push(MinecraftCape {
+                id: Uuid::new_v4(),
+                state: MinecraftCharacterExpressionState::Active,
+                url: Arc::new(url),
+                name: "Ely.by Cape".into(),
+            });
+        }
+    }
+
+    let credentials = Credentials {
+        offline_profile: MinecraftProfile {
+            id: uuid,
+            name: profile_resp.name,
+            skins,
+            capes,
+            fetch_time: Some(Instant::now()),
+        },
+        access_token,
+        refresh_token: format!("elyby:oauth:{refresh_token}"),
+        expires: Utc::now() + Duration::seconds(expires_in),
+        active: true,
+    };
+
+    credentials.upsert(exec).await?;
+    Ok(Some(credentials))
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Credentials {
     /// The offline profile of the user these credentials are for.

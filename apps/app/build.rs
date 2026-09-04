@@ -17,6 +17,8 @@ fn main() {
                         "login_offline",
                         "login_elyby",
                         "login_elyby_web",
+                        "start_elyby_device_code",
+                        "poll_elyby_device_code",
                         "remove_user",
                         "get_default_user",
                         "set_default_user",

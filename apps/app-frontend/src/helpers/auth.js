@@ -61,6 +61,23 @@ export async function login_elyby_web() {
 }
 
 /**
+ * Start Ely.by device code authorization flow.
+ * @returns {Promise<{ user_code: string, device_code: string, verification_uri: string, expires_in: number, interval: number }>}
+ */
+export async function start_elyby_device_code() {
+	return await invoke('plugin:auth|start_elyby_device_code')
+}
+
+/**
+ * Poll Ely.by device code authorization.
+ * @param {string} deviceCode
+ * @returns {Promise<Credential|null>}
+ */
+export async function poll_elyby_device_code(deviceCode) {
+	return await invoke('plugin:auth|poll_elyby_device_code', { deviceCode })
+}
+
+/**
  * Retrieves the default user
  * @return {Promise<UUID | undefined>}
  */

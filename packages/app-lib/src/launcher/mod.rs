@@ -978,6 +978,11 @@ pub async fn launch_minecraft(
         address.resolve().await?;
     }
 
+    let mut used_ely_authlib = false;
+    if credentials.is_elyby() {
+        used_ely_authlib = patch_libraries_for_elyby(&state, &mut version_info.libraries).await;
+    }
+
     let (main_class_keep_alive, main_class_path) =
         get_resource_file!(env "JAVA_JARS_DIR" / "theseus.jar")?;
 
@@ -1024,7 +1029,7 @@ pub async fn launch_minecraft(
         command.arg("--add-opens=jdk.internal/jdk.internal.misc=ALL-UNNAMED");
     }
 
-    if credentials.is_elyby() {
+    if credentials.is_elyby() && !used_ely_authlib {
         let caches_dir = state.directories.caches_dir();
         let _ = tokio::fs::create_dir_all(&caches_dir).await;
         let authlib_path = caches_dir.join("authlib-injector.jar");
@@ -1204,4 +1209,140 @@ pub async fn launch_minecraft(
             },
         )
         .await
+}
+
+pub async fn patch_libraries_for_elyby(
+	state: &State,
+	libraries: &mut Vec<daedalus::minecraft::Library>,
+) -> bool {
+	let mojang_lib_idx = match libraries
+		.iter()
+		.position(|l| l.name.starts_with("com.mojang:authlib:"))
+	{
+		Some(idx) => idx,
+		None => return false,
+	};
+
+	let mojang_name = libraries[mojang_lib_idx].name.clone();
+	let version = match mojang_name.split(':').nth(2) {
+		Some(v) => v,
+		None => return false,
+	};
+
+	tracing::info!(
+		"Attempting to patch Mojang authlib {version} with Ely.by authlib"
+	);
+
+	#[derive(serde::Deserialize)]
+	struct ElyMetaArtifact {
+		url: String,
+	}
+
+	#[derive(serde::Deserialize)]
+	struct ElyMetaDownloads {
+		artifact: Option<ElyMetaArtifact>,
+	}
+
+	#[derive(serde::Deserialize)]
+	struct ElyMetaLibrary {
+		name: String,
+		downloads: Option<ElyMetaDownloads>,
+	}
+
+	#[derive(serde::Deserialize)]
+	struct ElyMetaResponse {
+		libraries: Vec<ElyMetaLibrary>,
+	}
+
+	let meta_url = format!(
+		"https://elyprismlauncher.github.io/meta/v1/by.ely.authlib/{version}.json"
+	);
+	let client = reqwest::Client::builder()
+		.user_agent("Macros/1.0.0")
+		.timeout(std::time::Duration::from_secs(10))
+		.build()
+		.unwrap_or_else(|_| crate::util::fetch::INSECURE_REQWEST_CLIENT.clone());
+
+	let meta_res = client.get(&meta_url).send().await;
+	let meta: Option<ElyMetaResponse> = match meta_res {
+		Ok(resp) if resp.status().is_success() => resp.json().await.ok(),
+		_ => None,
+	};
+
+	let ely_lib_info = match meta.and_then(|m| m.libraries.into_iter().next()) {
+		Some(l) => l,
+		None => {
+			tracing::warn!(
+				"No Ely.by authlib metadata found for version {version}"
+			);
+			return false;
+		}
+	};
+
+	let rel_path = match daedalus::get_path_from_artifact(&ely_lib_info.name) {
+		Ok(p) => p,
+		Err(e) => {
+			tracing::warn!(
+				"Failed to get artifact path for {}: {e}",
+				ely_lib_info.name
+			);
+			return false;
+		}
+	};
+
+	let target_jar = state.directories.libraries_dir().join(&rel_path);
+
+	let needs_download = match tokio::fs::metadata(&target_jar).await {
+		Ok(m) => m.len() == 0,
+		Err(_) => true,
+	};
+
+	if needs_download {
+		if let Some(downloads) = &ely_lib_info.downloads
+			&& let Some(artifact) = &downloads.artifact
+		{
+			tracing::info!("Downloading Ely.by authlib from {}", artifact.url);
+			match client.get(&artifact.url).send().await {
+				Ok(resp) if resp.status().is_success() => {
+					if let Ok(bytes) = resp.bytes().await {
+						if let Some(parent) = target_jar.parent() {
+							let _ = tokio::fs::create_dir_all(parent).await;
+						}
+						if let Err(e) =
+							tokio::fs::write(&target_jar, &bytes).await
+						{
+							tracing::error!(
+								"Failed to write Ely.by authlib jar: {e}"
+							);
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
+				_ => return false,
+			}
+		} else {
+			return false;
+		}
+	}
+
+	if target_jar.exists() {
+		tracing::info!("Successfully patched authlib to {}", ely_lib_info.name);
+		libraries.remove(mojang_lib_idx);
+		libraries.push(daedalus::minecraft::Library {
+			downloads: None,
+			extract: None,
+			name: ely_lib_info.name,
+			url: None,
+			natives: None,
+			rules: None,
+			checksums: None,
+			include_in_classpath: true,
+			downloadable: false,
+		});
+		return true;
+	}
+
+	false
 }

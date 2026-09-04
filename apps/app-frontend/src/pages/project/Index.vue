@@ -239,6 +239,10 @@
 		/>
 		<CurseForgeInstallModal ref="curseForgeInstallModalRef" />
 	</div>
+	<div v-else class="flex flex-col items-center justify-center min-h-[400px] p-12 text-center text-secondary">
+		<SpinnerIcon class="w-8 h-8 animate-spin mb-4 text-brand" />
+		<p class="text-base font-semibold">{{ formatMessage(commonMessages.loadingLabel) }}</p>
+	</div>
 </template>
 
 <script setup>
@@ -317,6 +321,7 @@ import { get_categories, get_game_versions, get_loaders } from '@/helpers/tags'
 import { getServerAddress } from '@/helpers/worlds'
 import { provideBreadcrumbParent, useBreadcrumb } from '@/providers/breadcrumbs'
 import { injectContentInstall } from '@/providers/content-install'
+import { injectServerInstall } from '@/providers/server-install'
 import CurseForgeInstallModal from '@/components/ui/install_flow/CurseForgeInstallModal.vue'
 import {
 	curseForgeFilesToModrinthVersions,

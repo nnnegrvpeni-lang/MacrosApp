@@ -3,6 +3,7 @@
 use reqwest::StatusCode;
 
 use crate::State;
+pub use crate::state::ElyByDeviceCodeInfo;
 use crate::state::{Credentials, MinecraftLoginFlow};
 use crate::util::fetch::INSECURE_REQWEST_CLIENT;
 
@@ -81,6 +82,31 @@ pub async fn login_elyby(
         tracing::warn!(
             "Failed to mark Minecraft login in onboarding checklist: {error}"
         );
+    }
+
+    Ok(credentials)
+}
+
+#[tracing::instrument]
+pub async fn start_elyby_device_code() -> crate::Result<ElyByDeviceCodeInfo> {
+    crate::state::start_elyby_device_code().await
+}
+
+#[tracing::instrument]
+pub async fn poll_elyby_device_code(
+    device_code: &str,
+) -> crate::Result<Option<Credentials>> {
+    let state = State::get().await?;
+    let credentials = crate::state::poll_elyby_device_code(device_code, &state.pool).await?;
+
+    if credentials.is_some() {
+        if let Err(error) =
+            crate::onboarding_checklist::mark_logged_into_minecraft().await
+        {
+            tracing::warn!(
+                "Failed to mark Minecraft login in onboarding checklist: {error}"
+            );
+        }
     }
 
     Ok(credentials)
