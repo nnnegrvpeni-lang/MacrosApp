@@ -37,6 +37,7 @@ import DefaultInstanceSettings from '@/components/ui/settings/instances/DefaultI
 import JavaSettings from '@/components/ui/settings/instances/JavaSettings.vue'
 import ResourceManagementSettings from '@/components/ui/settings/instances/ResourceManagementSettings.vue'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { macrosAppUpdate } from '@/composables/use-macros-update'
 import { get, set } from '@/helpers/settings.ts'
 import {
 	appSettingsModalContextKey,
@@ -284,9 +285,25 @@ const messages = defineMessages({
 		:floating-action-bar-shown="hasUnsavedChanges"
 	>
 		<template #title>
-			<span class="text-2xl font-semibold text-contrast">
-				{{ formatMessage(commonMessages.settingsLabel) }}
-			</span>
+			<div class="flex items-center gap-3">
+				<span class="text-2xl font-semibold text-contrast">
+					{{ formatMessage(commonMessages.settingsLabel) }}
+				</span>
+				<div
+					v-if="macrosAppUpdate"
+					class="flex items-center gap-2 py-1 px-3 rounded-full bg-brand/15 border border-brand/40 text-xs font-semibold text-brand"
+				>
+					<span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+					<span>Доступна версия {{ macrosAppUpdate.version }}</span>
+					<a
+						:href="macrosAppUpdate.downloadUrl"
+						target="_blank"
+						class="ml-1 px-2 py-0.5 rounded-md bg-brand text-black hover:brightness-110 no-underline transition-all"
+					>
+						Скачать
+					</a>
+				</div>
+			</div>
 		</template>
 		<template #floating-action-bar>
 			<UnsavedChangesPopup

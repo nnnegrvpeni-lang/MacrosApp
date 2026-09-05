@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { ArrowBigUpDashIcon, RefreshCwIcon } from '@modrinth/assets'
 import {
+	Button,
 	defineMessages,
 	injectAuth,
+	injectPopupNotificationManager,
 	injectUserPreferences,
 	Toggle,
 	useSavable,
@@ -14,6 +17,11 @@ import {
 	type FeatureFlag,
 	useAppSettings,
 } from '@/composables/use-app-settings.ts'
+import {
+	checkForMacrosUpdate,
+	checkingUpdate,
+	macrosAppUpdate,
+} from '@/composables/use-macros-update'
 import { type AppSettings, get, set } from '@/helpers/settings.ts'
 import { appSettingsModalContextKey } from '@/providers/app-settings-modal'
 
@@ -29,6 +37,7 @@ const skipNonEssentialWarningsFlag: FeatureFlag = 'skip_non_essential_warnings'
 const skipUnknownPackWarningFlag: FeatureFlag = 'skip_unknown_pack_warning'
 const showPlayTimeFlag: FeatureFlag = 'show_instance_play_time'
 const showSidebarNewsFlag: FeatureFlag = 'show_sidebar_news'
+const checkLauncherUpdatesFlag: FeatureFlag = 'check_launcher_updates'
 
 const messages = defineMessages({
 	syncAcrossDevicesTitle: {
@@ -152,6 +161,7 @@ type BehaviorSettingsState = {
 	warnOnUnknownModpacks: boolean
 	skipNonEssentialWarnings: boolean
 	showSidebarNews: boolean
+	checkLauncherUpdates: boolean
 }
 
 const persistedSettings = ref(await get())
@@ -178,6 +188,9 @@ function getBehaviorSettingsState(settings: AppSettings): BehaviorSettingsState 
 		showSidebarNews:
 			settings.feature_flags[showSidebarNewsFlag] ??
 			DEFAULT_FEATURE_FLAGS[showSidebarNewsFlag],
+		checkLauncherUpdates:
+			settings.feature_flags[checkLauncherUpdatesFlag] ??
+			DEFAULT_FEATURE_FLAGS[checkLauncherUpdatesFlag],
 	}
 }
 
@@ -215,6 +228,7 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 				[skipUnknownPackWarningFlag]: !value.warnOnUnknownModpacks,
 				[skipNonEssentialWarningsFlag]: value.skipNonEssentialWarnings,
 				[showSidebarNewsFlag]: value.showSidebarNews,
+				[checkLauncherUpdatesFlag]: value.checkLauncherUpdates,
 			},
 		}
 
@@ -229,6 +243,7 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 		appSettings.featureFlags[skipUnknownPackWarningFlag] = !value.warnOnUnknownModpacks
 		appSettings.featureFlags[skipNonEssentialWarningsFlag] = value.skipNonEssentialWarnings
 		appSettings.featureFlags[showSidebarNewsFlag] = value.showSidebarNews
+		appSettings.featureFlags[checkLauncherUpdatesFlag] = value.checkLauncherUpdates
 	},
 )
 
@@ -254,6 +269,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
 	settingsModal?.registerUnsavedChangesController(null)
 })
+
+const popupNotificationManager = injectPopupNotificationManager()
+
+function manualCheckUpdate() {
+	void checkForMacrosUpdate(popupNotificationManager, { notifyIfLatest: true })
+}
 </script>
 <template>
 	<section class="border-0 border-b border-solid border-divider pb-6">
@@ -401,6 +422,65 @@ onBeforeUnmount(() => {
 					</p>
 				</div>
 				<Toggle id="skip-non-essential-warnings" v-model="current.skipNonEssentialWarnings" />
+			</div>
+		</div>
+	</section>
+
+	<section class="mt-8 border-0 border-t border-solid border-divider pt-6">
+		<h2 class="m-0 text-xl font-semibold text-contrast">
+			Обновления MacrosApp
+		</h2>
+		<div class="mt-4 flex flex-col gap-6">
+			<div
+				v-if="macrosAppUpdate"
+				class="flex items-center justify-between p-4 rounded-xl bg-brand/10 border border-brand/30"
+			>
+				<div class="flex items-center gap-3">
+					<div class="w-10 h-10 rounded-lg bg-brand/20 flex items-center justify-center text-brand shrink-0">
+						<ArrowBigUpDashIcon class="w-6 h-6" />
+					</div>
+					<div>
+						<div class="font-bold text-contrast flex items-center gap-2">
+							Доступно обновление {{ macrosAppUpdate.version }}!
+							<span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+						</div>
+						<div class="text-xs text-secondary mt-0.5">
+							{{ macrosAppUpdate.notes || 'Новая версия готова к загрузке' }}
+						</div>
+					</div>
+				</div>
+				<a
+					:href="macrosAppUpdate.downloadUrl"
+					target="_blank"
+					class="px-4 py-2 rounded-lg bg-brand text-black font-semibold hover:brightness-110 no-underline transition-all flex items-center gap-2 shrink-0"
+				>
+					<ArrowBigUpDashIcon class="w-4 h-4" />
+					Скачать обновление
+				</a>
+			</div>
+
+			<div class="flex items-center justify-between gap-4">
+				<div>
+					<h3 class="m-0 text-lg font-semibold text-contrast">
+						Проверять обновления при запуске
+					</h3>
+					<p class="m-0 mt-1">
+						Автоматически проверять наличие новых версий лаунчера на GitHub при запуске приложения.
+					</p>
+				</div>
+				<Toggle id="check-launcher-updates" v-model="current.checkLauncherUpdates" />
+			</div>
+
+			<div class="flex items-center gap-3">
+				<Button
+					type="outlined"
+					size="sm"
+					:disabled="checkingUpdate"
+					@click="manualCheckUpdate"
+				>
+					<RefreshCwIcon class="w-4 h-4 mr-1.5" :class="{ 'animate-spin': checkingUpdate }" />
+					{{ checkingUpdate ? 'Проверка...' : 'Проверить сейчас' }}
+				</Button>
 			</div>
 		</div>
 	</section>

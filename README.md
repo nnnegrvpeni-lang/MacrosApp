@@ -66,7 +66,7 @@ pnpm --filter @modrinth/app build
 ```
 
 Готовый установщик и исполняемый файл будут находиться в директории:
-- `target/release/bundle/nsis/Macros_1.2.0_x64-setup.exe` — установщик
+- `target/release/bundle/nsis/Macros_1.2.1_x64-setup.exe` — установщик
 - `target/release/Macros.exe` — бинарный файл
 
 ---

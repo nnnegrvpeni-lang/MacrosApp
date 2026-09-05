@@ -96,6 +96,7 @@ import { useCheckDisableMouseover } from '@/composables/macCssFix.js'
 import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { useError } from '@/composables/use-error.js'
+import { checkForMacrosUpdate } from '@/composables/use-macros-update'
 import { useTheme } from '@/composables/use-theme.ts'
 import { config } from '@/config'
 import {
@@ -401,6 +402,13 @@ function onCreationIconSaved(iconPath, config) {
 
 const activeNewsTab = ref('macros')
 const defaultMacrosNews = [
+	{
+		title: 'MacrosApp v1.2.1',
+		summary: 'Система уведомлений о новых версиях лаунчера с GitHub Releases, ненавязчивая кнопка обновления в шапке и исправление верстки в Настройках.',
+		thumbnail: macrosBanner,
+		date: '2026-09-05T17:15:00Z',
+		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.1',
+	},
 	{
 		title: 'MacrosApp v1.2.0',
 		summary: 'Мульти-фид новостей (Macros, Minecraft, Modrinth), управление показом новостей в настройках, свежие статьи Mojang и поддержка кастомных баннеров.',
@@ -881,6 +889,10 @@ async function setupApp() {
 		.catch((error) => {
 			console.error('Failed to fetch news articles', error)
 		})
+
+	if (appSettings.getFeatureFlag('check_launcher_updates')) {
+		checkForMacrosUpdate(popupNotificationManager, { isStartup: true })
+	}
 
 	get_opening_command().then(handleCommand)
 	fetchCredentials()
