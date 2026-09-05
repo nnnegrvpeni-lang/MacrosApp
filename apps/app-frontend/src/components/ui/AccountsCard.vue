@@ -743,7 +743,7 @@ const messages = defineMessages({
 	},
 	signInToMinecraft: {
 		id: 'minecraft-account.sign-in',
-		defaultMessage: 'Sign in to Minecraft (Microsoft)',
+		defaultMessage: 'Sign in to Minecraft',
 	},
 })
 </script>

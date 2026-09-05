@@ -57,6 +57,17 @@ impl CustomMinecraftSkin {
 
         let mut transaction = db.begin().await?;
 
+        let user_id_str = minecraft_user_id.to_string();
+        let user_exists = sqlx::query("SELECT 1 FROM minecraft_users WHERE uuid = ?")
+            .bind(&user_id_str)
+            .fetch_optional(&mut *transaction)
+            .await?
+            .is_some();
+
+        if !user_exists {
+            return Ok(());
+        }
+
         let existing_order = sqlx::query_scalar!(
             "SELECT display_order FROM custom_minecraft_skins WHERE minecraft_user_uuid = ? AND texture_key = ?",
             minecraft_user_id,

@@ -403,6 +403,13 @@ function onCreationIconSaved(iconPath, config) {
 const activeNewsTab = ref('macros')
 const defaultMacrosNews = [
 	{
+		title: 'MacrosApp v1.2.4',
+		summary: 'Fixed Ely.by skin sync & 3D body caching, eliminated skin change error loop on account removal, and cleaned up sign-in UI.',
+		thumbnail: macrosBanner,
+		date: '2026-09-05T21:35:00Z',
+		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.4',
+	},
+	{
 		title: 'MacrosApp v1.2.3',
 		summary: 'Hotfix: Fixed blank screen when opening the Browse/Mods discovery page and restored catalog search.',
 		thumbnail: macrosBanner,

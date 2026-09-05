@@ -139,7 +139,19 @@ pub async fn set_default_user(user: uuid::Uuid) -> crate::Result<()> {
 /// Remove a user account from the database
 #[tracing::instrument]
 pub async fn remove_user(uuid: uuid::Uuid) -> crate::Result<()> {
+    crate::api::minecraft_skins::cancel_pending_skin_changes(uuid).await;
+
     let state = State::get().await?;
+
+    let uuid_str = uuid.as_hyphenated().to_string();
+    let _ = sqlx::query("DELETE FROM custom_minecraft_skins WHERE minecraft_user_uuid = ?")
+        .bind(&uuid_str)
+        .execute(&state.pool)
+        .await;
+    let _ = sqlx::query("DELETE FROM default_minecraft_capes WHERE minecraft_user_uuid = ?")
+        .bind(&uuid_str)
+        .execute(&state.pool)
+        .await;
 
     let users = Credentials::get_all(&state.pool).await?;
 

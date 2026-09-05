@@ -559,7 +559,7 @@ pub async fn poll_elyby_device_code(
                 id: Uuid::new_v4(),
                 state: MinecraftCharacterExpressionState::Active,
                 url: Arc::new(url),
-                texture_key: Some(Arc::from(format!("elyby_{}", profile_resp.name))),
+                texture_key: None,
                 variant: MinecraftSkinVariant::Classic,
                 name: Some("Ely.by Skin".to_string()),
             });
@@ -691,7 +691,7 @@ impl Credentials {
                         id: Uuid::new_v4(),
                         state: MinecraftCharacterExpressionState::Active,
                         url: Arc::new(url),
-                        texture_key: Some(Arc::from(format!("elyby_{}", profile.name))),
+                        texture_key: None,
                         variant: MinecraftSkinVariant::Classic,
                         name: Some("Ely.by Skin".to_string()),
                     });
@@ -813,7 +813,7 @@ impl Credentials {
         &self,
         cache_intent: OnlineProfileCacheIntent,
     ) -> Option<Arc<MinecraftProfile>> {
-        if self.is_offline() || self.is_elyby() {
+        if self.is_offline() {
             return Some(Arc::new(self.build_offline_or_elyby_profile()));
         }
 
@@ -862,6 +862,27 @@ impl Credentials {
 
             stale_profile
         };
+
+        if self.is_elyby() {
+            return match elyby_profile(&self.access_token, &self.offline_profile.name).await {
+                Ok(profile) => {
+                    let profile = Arc::new(profile);
+                    let cache_entry = ProfileCacheEntry::Hit(Arc::clone(&profile));
+
+                    let mut profile_cache = PROFILE_CACHE.lock().await;
+                    profile_cache.insert(self.offline_profile.id, cache_entry);
+
+                    Some(profile)
+                }
+                Err(err) => {
+                    tracing::warn!(
+                        "Failed to fetch Ely.by profile for {}: {err}",
+                        self.offline_profile.name
+                    );
+                    stale_profile.or_else(|| Some(Arc::new(self.build_offline_or_elyby_profile())))
+                }
+            };
+        }
 
         match minecraft_profile(&self.access_token).await {
             Ok(profile) => {
@@ -1896,6 +1917,80 @@ async fn minecraft_profile(
 
     tracing::debug!(
         "Successfully fetched Minecraft profile for {}",
+        profile.name
+    );
+
+    Ok(profile)
+}
+
+#[tracing::instrument(skip(token))]
+async fn elyby_profile(
+    token: &str,
+    name: &str,
+) -> Result<MinecraftProfile, MinecraftAuthenticationError> {
+    let client = reqwest::Client::builder()
+        .user_agent("Macros/1.0.0")
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .unwrap_or_else(|_| INSECURE_REQWEST_CLIENT.clone());
+
+    let res = client
+        .get("https://account.ely.by/api/mojang/services/minecraft/profile")
+        .header("Accept", "application/json")
+        .bearer_auth(token)
+        .send()
+        .await
+        .map_err(|source| MinecraftAuthenticationError::Request {
+            source,
+            step: MinecraftAuthStep::MinecraftProfile,
+        })?;
+
+    let status = res.status();
+    let text = res.text().await.map_err(|source| {
+        MinecraftAuthenticationError::Request {
+            source,
+            step: MinecraftAuthStep::MinecraftProfile,
+        }
+    })?;
+
+    let mut profile =
+        serde_json::from_str::<MinecraftProfile>(&text).map_err(|source| {
+            MinecraftAuthenticationError::DeserializeResponse {
+                source,
+                raw: text,
+                step: MinecraftAuthStep::MinecraftProfile,
+                status_code: status,
+            }
+        })?;
+
+    if profile.skins.is_empty() {
+        if let Ok(url) = Url::parse(&format!("http://skinsystem.ely.by/skins/{}.png", name)) {
+            profile.skins.push(MinecraftSkin {
+                id: Uuid::new_v4(),
+                state: MinecraftCharacterExpressionState::Active,
+                url: Arc::new(url),
+                texture_key: None,
+                variant: MinecraftSkinVariant::Classic,
+                name: Some("Ely.by Skin".to_string()),
+            });
+        }
+    }
+
+    if profile.capes.is_empty() {
+        if let Ok(url) = Url::parse(&format!("http://skinsystem.ely.by/cloaks/{}.png", name)) {
+            profile.capes.push(MinecraftCape {
+                id: Uuid::new_v4(),
+                state: MinecraftCharacterExpressionState::Active,
+                url: Arc::new(url),
+                name: "Ely.by Cape".into(),
+            });
+        }
+    }
+
+    profile.fetch_time = Some(Instant::now());
+
+    tracing::debug!(
+        "Successfully fetched Ely.by profile for {}",
         profile.name
     );
 

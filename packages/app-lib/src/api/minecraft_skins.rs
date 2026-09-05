@@ -1159,6 +1159,11 @@ async fn cancel_pending_skin_change_for_skin(profile_id: Uuid, skin: &Skin) {
     }
 }
 
+pub async fn cancel_pending_skin_changes(profile_id: Uuid) {
+    let mut state = PENDING_SKIN_CHANGE.lock().await;
+    state.pending.remove(&profile_id);
+}
+
 #[derive(Clone, Copy, Debug)]
 enum PendingSkinChangeFilter {
     Generation { profile_id: Uuid, generation: u64 },
@@ -1205,13 +1210,27 @@ async fn flush_pending_skin_change_inner(
             return Ok(());
         };
 
-        if let Err(error) = execute_pending_skin_change(&entry.change).await {
-            let profile_id = entry.change.profile_id();
-            let generation = entry.generation;
-            let mut state = PENDING_SKIN_CHANGE.lock().await;
-            state.pending.entry(profile_id).or_insert(entry);
-            schedule_pending_skin_change_flush(profile_id, generation);
+        let profile_id = entry.change.profile_id();
+        let user_still_exists = if let Ok(state) = State::get().await {
+            let uuid_str = profile_id.as_hyphenated().to_string();
+            sqlx::query("SELECT 1 FROM minecraft_users WHERE uuid = ?")
+                .bind(&uuid_str)
+                .fetch_optional(&state.pool)
+                .await
+                .unwrap_or(None)
+                .is_some()
+        } else {
+            false
+        };
 
+        if !user_still_exists {
+            tracing::info!("Dropping pending skin change for removed/unknown user {profile_id}");
+            continue;
+        }
+
+        if let Err(error) = execute_pending_skin_change(&entry.change).await {
+            tracing::warn!("Failed to execute pending skin change for profile {profile_id}: {error}");
+            // Discard failed skin change instead of infinitely rescheduling
             return Err(error);
         }
 
