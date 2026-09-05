@@ -4,73 +4,85 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](COPYING.md)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)](https://github.com/nnnegrvpeni-lang/MacrosApp/releases)
 
-**MacrosApp** — быстрый, открытый и модифицированный форк Modrinth App с нативной поддержкой **Ely.by**, **оффлайн-режима (No-Auth)**, **каталога CurseForge**, **Discord Rich Presence** и **полным отключением рекламы**.
+**MacrosApp** is a fast, lightweight, and modified fork of the Modrinth App featuring native **Ely.by** skins and accounts support, **Offline mode (No-Auth)**, unified **CurseForge** catalog browsing, **Discord Rich Presence**, non-intrusive **update notifications**, and a completely **ad-free** experience.
 
 ---
 
-## 🌟 Возможности / Features
+## 🌟 Key Features
 
-### 🔑 Удобная авторизация в Modrinth
-- Встроенное окно авторизации с автоперехватом сессии: вход в один клик без проблем с блокировкой редиректов в сторонних браузерах и без необходимости ручного копирования токенов.
+### 🔔 Smart Update Notifications
+- Non-intrusive update checks powered directly by GitHub Releases API.
+- Graceful startup toast notifications with 10-second auto-dismiss.
+- Compact update badge in the top bar and dedicated update management in Settings.
 
-### 🦊 Нативная интеграция Ely.by
-- **Безопасная авторизация через OAuth2**: вход в один клик через официальный сайт Ely.by в браузере с кодом подтверждения — никаких вводов паролей в лаунчере.
-- **Скиносистема Ely.by**: скины и плащи работают прямо в игре на базе официальной библиотеки `by.ely:authlib`.
-- **Отображение в лаунчере**: 2D/3D рендеринг скина и плаща в меню профиля и боковой панели.
+### 🔑 Seamless Modrinth Authentication
+- Built-in OAuth window with automatic session capture.
+- Instant single-click sign-in without external browser redirects or manual token copying.
 
-### 🎮 Оффлайн-аккаунты (Offline / No-Auth)
-- Запуск игры под любым ником без необходимости привязки учётной записи Microsoft.
-- Корректная генерация оффлайн UUID по стандарту Java (`MD5("OfflinePlayer:" + username)`).
-- Поддержка быстрого переключения между типами аккаунтов (Microsoft, Ely.by, Offline).
+### 🦊 Native Ely.by Integration
+- **Secure OAuth2 Login**: Sign in via the official Ely.by website with a confirmation code — zero password exposure inside the launcher.
+- **In-Game Skins & Capes**: Full skin and cape rendering powered by the official `by.ely:authlib` library.
+- **Launcher Preview**: 2D/3D skin and cape rendering in the profile switcher and sidebar.
 
-### 📦 Единый каталог: Modrinth + CurseForge
-- Удобный переключатель **Modrinth / CurseForge** прямо в интерфейсе каталога.
-- Полноценный поиск, просмотр информации, фильтрация версий и прямая установка модов, модпаков, ресурс-паков и шейдеров из обеих экосистем.
+### 🎮 Offline Accounts (No-Auth)
+- Launch Minecraft under any custom nickname without requiring a Microsoft account.
+- Compliant Java offline UUID generation (`MD5("OfflinePlayer:" + username)`).
+- Quick account switching between Microsoft, Ely.by, and Offline accounts.
+
+### 📦 Unified Catalog: Modrinth + CurseForge
+- Direct **Modrinth / CurseForge** source switch in the browse view.
+- Search, filter versions, and install mods, modpacks, resource packs, and shaders directly into your instances from both ecosystems.
 
 ### 💬 Discord Rich Presence
-- Интеграция со статусом Discord: красивое отображение запущенной сборки, версии и времени игры.
+- Real-time Discord status showcasing the active instance, Minecraft version, and play time.
 
-### 🚫 Полное отсутствие рекламы (Ad-Free)
-- Вырезан рекламный видеоплеер в боковой панели.
-- Удалены навязчивые баннеры подписок `Modrinth+`.
-- Чистый, производительный и минималистичный интерфейс.
+### 📰 Multi-Feed News
+- Stay up to date with multi-tab news feeds (Macros, Minecraft, and Modrinth articles) with a customizable visibility toggle in Settings.
 
----
-
-## 📥 Скачать / Download
-
-Готовая сборка для Windows:
-
-👉 **[Скачать последнюю версию MacrosApp](https://github.com/nnnegrvpeni-lang/MacrosApp/releases/latest)**
+### 🚫 100% Ad-Free
+- No video ad players.
+- Removed Modrinth+ upsells and sponsored banners.
+- Clean, focused, and distraction-free UI.
 
 ---
 
-## 🛠️ Сборка из исходного кода / Building from Source
+## 📥 Download
 
-### Необходимые инструменты:
+Prebuilt binaries for Windows:
+
+👉 **[Download Latest MacrosApp Release](https://github.com/nnnegrvpeni-lang/MacrosApp/releases/latest)**
+
+- **`Macros_1.2.2_x64-setup.exe`** — Official Windows installer (NSIS).
+- **`Macros.exe`** — Portable standalone executable (no installation required).
+
+---
+
+## 🛠️ Building from Source
+
+### Prerequisites
 - **Node.js** (v20+)
 - **pnpm** (`npm install -g pnpm`)
 - **Rust** (stable toolchain)
 
-### Порядок сборки:
+### Build Steps
 ```bash
-# 1. Клонирование репозитория
+# 1. Clone the repository
 git clone https://github.com/nnnegrvpeni-lang/MacrosApp.git
 cd MacrosApp
 
-# 2. Установка зависимостей
+# 2. Install dependencies
 pnpm install
 
-# 3. Сборка приложения и установщика
+# 3. Build the application and installer
 pnpm --filter @modrinth/app build
 ```
 
-Готовый установщик и исполняемый файл будут находиться в директории:
-- `target/release/bundle/nsis/Macros_1.2.1_x64-setup.exe` — установщик
-- `target/release/Macros.exe` — бинарный файл
+The output executables and installer will be located in:
+- `target/release/bundle/nsis/Macros_1.2.2_x64-setup.exe` — Windows installer
+- `target/release/Macros.exe` — Standalone binary
 
 ---
 
-## 📜 Лицензия / License
+## 📜 License
 
-Проект распространяется под свободной лицензией **GNU General Public License v3.0 (GPLv3)**. Подробная информация доступна в файле [COPYING.md](COPYING.md).
+MacrosApp is open-source software licensed under the **GNU General Public License v3.0 (GPLv3)**. See [COPYING.md](COPYING.md) for full license details.

@@ -403,22 +403,29 @@ function onCreationIconSaved(iconPath, config) {
 const activeNewsTab = ref('macros')
 const defaultMacrosNews = [
 	{
+		title: 'MacrosApp v1.2.2',
+		summary: 'Full English documentation, internationalized update system and release notes, and UI enhancements.',
+		thumbnail: macrosBanner,
+		date: '2026-09-05T19:30:00Z',
+		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.2',
+	},
+	{
 		title: 'MacrosApp v1.2.1',
-		summary: 'Система уведомлений о новых версиях лаунчера с GitHub Releases, ненавязчивая кнопка обновления в шапке и исправление верстки в Настройках.',
+		summary: 'Smart update notifications from GitHub Releases, header update button, and Settings layout fixes.',
 		thumbnail: macrosBanner,
 		date: '2026-09-05T17:15:00Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.1',
 	},
 	{
 		title: 'MacrosApp v1.2.0',
-		summary: 'Мульти-фид новостей (Macros, Minecraft, Modrinth), управление показом новостей в настройках, свежие статьи Mojang и поддержка кастомных баннеров.',
+		summary: 'Multi-feed news tabs (Macros, Minecraft, Modrinth), sidebar visibility toggles, and custom banners.',
 		thumbnail: macrosBanner,
 		date: '2026-09-05T16:00:00Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.0',
 	},
 	{
 		title: 'MacrosApp v1.1.1',
-		summary: 'Автоматическая авторизация в Modrinth через нативное окно без DevTools, перехват токенов и улучшенная скиносистема Ely.by.',
+		summary: 'Automatic Modrinth OAuth login via native window, token interception, and enhanced Ely.by skins.',
 		thumbnail: macrosBanner,
 		date: '2026-09-04T19:12:26Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.1.1',
