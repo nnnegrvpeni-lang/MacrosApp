@@ -100,10 +100,10 @@ import {
 	NewModal,
 	useVIntl,
 } from '@modrinth/ui'
+import { invoke } from '@tauri-apps/api/core'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 import { cancelLogin, type ModrinthAuthFlow } from '@/helpers/mr_auth'
-import { invoke } from '@tauri-apps/api/core'
 
 const props = defineProps<{
 	requestAuth: (flow: ModrinthAuthFlow) => Promise<boolean>

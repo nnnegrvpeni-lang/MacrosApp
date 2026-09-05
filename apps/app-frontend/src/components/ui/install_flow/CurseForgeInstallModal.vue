@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
-	ContentInstallModal,
 	type ContentInstallInstance,
+	ContentInstallModal,
 	injectNotificationManager,
 } from '@modrinth/ui'
 import { useQueryClient } from '@tanstack/vue-query'

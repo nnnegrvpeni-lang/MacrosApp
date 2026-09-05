@@ -28,6 +28,7 @@ const compactInstanceCardsFlag: FeatureFlag = 'compact_instance_cards'
 const skipNonEssentialWarningsFlag: FeatureFlag = 'skip_non_essential_warnings'
 const skipUnknownPackWarningFlag: FeatureFlag = 'skip_unknown_pack_warning'
 const showPlayTimeFlag: FeatureFlag = 'show_instance_play_time'
+const showSidebarNewsFlag: FeatureFlag = 'show_sidebar_news'
 
 const messages = defineMessages({
 	syncAcrossDevicesTitle: {
@@ -130,6 +131,14 @@ const messages = defineMessages({
 		defaultMessage:
 			'Skip confirmations for low-risk actions such as duplicate installs, normal content deletion, bulk updates, unlinking, and repairs. Warnings for dangerous actions are always shown.',
 	},
+	showSidebarNewsTitle: {
+		id: 'app.behavior-settings.show-sidebar-news.title',
+		defaultMessage: 'Show news in sidebar',
+	},
+	showSidebarNewsDescription: {
+		id: 'app.behavior-settings.show-sidebar-news.description',
+		defaultMessage: 'Display news and release updates in the right sidebar.',
+	},
 })
 
 type BehaviorSettingsState = {
@@ -142,6 +151,7 @@ type BehaviorSettingsState = {
 	hideNametag: boolean
 	warnOnUnknownModpacks: boolean
 	skipNonEssentialWarnings: boolean
+	showSidebarNews: boolean
 }
 
 const persistedSettings = ref(await get())
@@ -165,6 +175,9 @@ function getBehaviorSettingsState(settings: AppSettings): BehaviorSettingsState 
 		skipNonEssentialWarnings:
 			settings.feature_flags[skipNonEssentialWarningsFlag] ??
 			DEFAULT_FEATURE_FLAGS[skipNonEssentialWarningsFlag],
+		showSidebarNews:
+			settings.feature_flags[showSidebarNewsFlag] ??
+			DEFAULT_FEATURE_FLAGS[showSidebarNewsFlag],
 	}
 }
 
@@ -201,6 +214,7 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 				[showPlayTimeFlag]: value.showPlayTime,
 				[skipUnknownPackWarningFlag]: !value.warnOnUnknownModpacks,
 				[skipNonEssentialWarningsFlag]: value.skipNonEssentialWarnings,
+				[showSidebarNewsFlag]: value.showSidebarNews,
 			},
 		}
 
@@ -214,6 +228,7 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 		appSettings.featureFlags[showPlayTimeFlag] = value.showPlayTime
 		appSettings.featureFlags[skipUnknownPackWarningFlag] = !value.warnOnUnknownModpacks
 		appSettings.featureFlags[skipNonEssentialWarningsFlag] = value.skipNonEssentialWarnings
+		appSettings.featureFlags[showSidebarNewsFlag] = value.showSidebarNews
 	},
 )
 
@@ -342,6 +357,16 @@ onBeforeUnmount(() => {
 					<p class="m-0 mt-1">{{ formatMessage(messages.hideNametagDescription) }}</p>
 				</div>
 				<Toggle id="hide-nametag-skins-page" v-model="current.hideNametag" />
+			</div>
+
+			<div class="flex items-center justify-between gap-4">
+				<div>
+					<h3 class="m-0 text-lg font-semibold text-contrast">
+						{{ formatMessage(messages.showSidebarNewsTitle) }}
+					</h3>
+					<p class="m-0 mt-1">{{ formatMessage(messages.showSidebarNewsDescription) }}</p>
+				</div>
+				<Toggle id="show-sidebar-news" v-model="current.showSidebarNews" />
 			</div>
 		</div>
 	</section>

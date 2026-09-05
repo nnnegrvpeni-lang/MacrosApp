@@ -20,7 +20,6 @@
 </template>
 
 <script setup>
-import { ModrinthIcon } from '@modrinth/assets'
 import { injectLoadingState } from '@modrinth/ui'
 import { ref, watch } from 'vue'
 

@@ -1,8 +1,3 @@
-<script lang="ts">
-import { ref as vueRef } from 'vue'
-const persistentSearchSource = vueRef<'modrinth' | 'curseforge'>('modrinth')
-</script>
-
 <script setup lang="ts">
 import type { Labrinth } from '@modrinth/api-client'
 import {
@@ -39,7 +34,6 @@ import {
 	useVIntl,
 } from '@modrinth/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { openUrl } from '@tauri-apps/plugin-opener'
 import type { Ref } from 'vue'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import type { LocationQuery } from 'vue-router'
@@ -73,6 +67,7 @@ import {
 	createServerInstallContent,
 	provideServerInstallContent,
 } from '@/providers/setup/server-install-content'
+const persistentSearchSource = vueRef<'modrinth' | 'curseforge'>('modrinth')
 
 const { handleError } = injectNotificationManager()
 const { formatMessage } = useVIntl()
@@ -901,7 +896,7 @@ function getCardActions(
 	const projectResult = result as Labrinth.Search.v3.ResultSearchProject & {
 		installed?: boolean
 		installing?: boolean
-		cf_raw?: any
+		cf_raw?: Record<string, unknown>
 	}
 
 	if (projectResult.cf_raw || projectResult.project_id?.startsWith('cf-')) {

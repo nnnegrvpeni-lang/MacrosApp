@@ -302,6 +302,7 @@ import {
 	NewModal,
 	useVIntl,
 } from '@modrinth/ui'
+import { arrayBufferToBase64 } from '@modrinth/utils'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import type { Ref } from 'vue'
 import { computed, onUnmounted, ref, watch } from 'vue'
@@ -319,7 +320,6 @@ import {
 	start_elyby_device_code,
 	users,
 } from '@/helpers/auth'
-import { arrayBufferToBase64 } from '@modrinth/utils'
 import { generatePlayerHeadBlob, getPlayerHeadUrl } from '@/helpers/rendering/batch-skin-renderer.ts'
 import type { Skin } from '@/helpers/skins'
 import { get_available_skins, normalize_skin_texture } from '@/helpers/skins'

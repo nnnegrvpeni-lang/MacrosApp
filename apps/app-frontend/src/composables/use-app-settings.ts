@@ -22,6 +22,7 @@ export const DEFAULT_FEATURE_FLAGS = {
 	friends_offline_collapsed: true,
 	friends_pending_collapsed: true,
 	dismissed_photosensitivity_filter_warning: false,
+	show_sidebar_news: true,
 }
 
 export type FeatureFlag = keyof typeof DEFAULT_FEATURE_FLAGS

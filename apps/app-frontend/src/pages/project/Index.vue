@@ -293,6 +293,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { SwapIcon } from '@/assets/icons/index.js'
 import ContextMenu from '@/components/ui/context-menu/index.vue'
+import CurseForgeInstallModal from '@/components/ui/install_flow/CurseForgeInstallModal.vue'
 import InstanceIndicator from '@/components/ui/InstanceIndicator.vue'
 import {
 	fetchCachedServerStatus,
@@ -309,6 +310,15 @@ import {
 	get_version_many,
 } from '@/helpers/cache.js'
 import {
+	curseForgeFilesToModrinthVersions,
+	curseForgeModToModrinthProject,
+	getCurseForgeMod,
+	getCurseForgeModDescription,
+	getCurseForgeModFiles,
+	installCurseForgeMod,
+	searchCurseForge,
+} from '@/helpers/curseforge'
+import {
 	get as getInstance,
 	get_projects as getInstanceProjects,
 	getInstanceIconUrl,
@@ -322,16 +332,6 @@ import { getServerAddress } from '@/helpers/worlds'
 import { provideBreadcrumbParent, useBreadcrumb } from '@/providers/breadcrumbs'
 import { injectContentInstall } from '@/providers/content-install'
 import { injectServerInstall } from '@/providers/server-install'
-import CurseForgeInstallModal from '@/components/ui/install_flow/CurseForgeInstallModal.vue'
-import {
-	curseForgeFilesToModrinthVersions,
-	curseForgeModToModrinthProject,
-	getCurseForgeMod,
-	getCurseForgeModDescription,
-	getCurseForgeModFiles,
-	installCurseForgeMod,
-	searchCurseForge,
-} from '@/helpers/curseforge'
 import { createServerInstallContent } from '@/providers/setup/server-install-content'
 
 dayjs.extend(relativeTime)

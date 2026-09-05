@@ -1,5 +1,6 @@
 import type { Labrinth } from '@modrinth/api-client'
 import { invoke } from '@tauri-apps/api/core'
+
 import { install_curseforge_file } from './instance'
 
 export interface CurseForgeFile {

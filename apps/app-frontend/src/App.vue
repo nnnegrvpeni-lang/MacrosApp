@@ -65,6 +65,7 @@ import { saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state'
 import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 
+import macrosBanner from '@/assets/macros_banner.jpg'
 import AccountsCard from '@/components/ui/AccountsCard.vue'
 import AppActionBar from '@/components/ui/AppActionBar.vue'
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue'
@@ -86,7 +87,6 @@ import NewIconEditorNotification from '@/components/ui/new-icon-editor-notificat
 import { shouldShowNewIconEditorNotification } from '@/components/ui/new-icon-editor-notification/show-notification'
 import OnboardingChecklist from '@/components/ui/onboarding-checklist/index.vue'
 import PrideFundraiserBanner from '@/components/ui/PrideFundraiserBanner.vue'
-import PromotionWrapper from '@/components/ui/PromotionWrapper.vue'
 import QuickInstanceSwitcher from '@/components/ui/QuickInstanceSwitcher.vue'
 import SharedInstanceInviteHandler from '@/components/ui/shared-instances/shared-instance-invite-handler/index.vue'
 import SplashScreen from '@/components/ui/SplashScreen.vue'
@@ -360,7 +360,7 @@ const {
 	(iconPath) =>
 		creationGeneratedIcon.value?.path === iconPath ? creationGeneratedIcon.value.config : null,
 )
-const { hasLoggedIntoMinecraft, hasLoggedIntoModrinth, showChecklist } = onboardingChecklist
+const { hasLoggedIntoModrinth, showChecklist } = onboardingChecklist
 const showFriendsList = computed(() => !showChecklist.value || hasLoggedIntoModrinth.value)
 
 async function randomizeCreationIcon() {
@@ -399,7 +399,70 @@ function onCreationIconSaved(iconPath, config) {
 	context.instanceIconPath.value = iconPath
 }
 
-const news = ref([])
+const activeNewsTab = ref('macros')
+const defaultMacrosNews = [
+	{
+		title: 'MacrosApp v1.2.0',
+		summary: 'Мульти-фид новостей (Macros, Minecraft, Modrinth), управление показом новостей в настройках, свежие статьи Mojang и поддержка кастомных баннеров.',
+		thumbnail: macrosBanner,
+		date: '2026-09-05T16:00:00Z',
+		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.0',
+	},
+	{
+		title: 'MacrosApp v1.1.1',
+		summary: 'Автоматическая авторизация в Modrinth через нативное окно без DevTools, перехват токенов и улучшенная скиносистема Ely.by.',
+		thumbnail: macrosBanner,
+		date: '2026-09-04T19:12:26Z',
+		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.1.1',
+	},
+]
+const defaultMinecraftNews = [
+	{
+		title: 'New on Java Realms: Mischiefs & Secrets',
+		summary: '9 new and exciting maps have been released this month for Minecraft Java Edition!',
+		thumbnail: 'https://launchercontent.mojang.com/v2/images/jr0828700x466.jpg',
+		date: '2026-08-28',
+		path: 'https://www.minecraft.net/article/new-on-java-realms--mischiefs---secrets?OCID=Launcher',
+	},
+	{
+		title: 'The Hero Cape',
+		summary: 'Show off your bravery with the Hero Cape in Minecraft Java & Bedrock Edition.',
+		thumbnail: 'https://launchercontent.mojang.com/v2/images/MCD2HeroCapeMinecraftLauncher700x466.png',
+		date: '2026-08-27',
+		path: 'https://www.minecraft.net/article/minecraft-dungeons-ii-capes-promos?OCID=Launcher',
+	},
+]
+const macrosNews = ref([...defaultMacrosNews])
+const minecraftNews = ref([...defaultMinecraftNews])
+const modrinthNews = ref([])
+
+const showSidebarNews = computed(() => appSettings.getFeatureFlag('show_sidebar_news'))
+
+const currentNewsList = computed(() => {
+	switch (activeNewsTab.value) {
+		case 'macros':
+			return macrosNews.value
+		case 'minecraft':
+			return minecraftNews.value
+		case 'modrinth':
+			return modrinthNews.value
+		default:
+			return macrosNews.value
+	}
+})
+
+const currentNewsViewAllLink = computed(() => {
+	switch (activeNewsTab.value) {
+		case 'macros':
+			return 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases'
+		case 'minecraft':
+			return 'https://www.minecraft.net/articles'
+		case 'modrinth':
+			return 'https://modrinth.com/news'
+		default:
+			return 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases'
+	}
+})
 const displayedServerInviteNotifications = new Set()
 const serverInvitePopupNotificationIds = new Set()
 let liveNotificationGeneration = 0
@@ -701,11 +764,113 @@ async function setupApp() {
 			)
 		})
 
-	fetch(`https://modrinth.com/news/feed/articles.json`)
-		.then((response) => response.json())
+	const fetchSafe = async (url, options) => {
+		try {
+			return await tauriFetch(url, options)
+		} catch {
+			return await fetch(url, options)
+		}
+	}
+
+	fetchSafe('https://api.github.com/repos/nnnegrvpeni-lang/MacrosApp/releases', {
+		headers: {
+			'User-Agent': 'MacrosApp',
+			Accept: 'application/vnd.github.v3+json',
+		},
+	})
+		.then((res) => (res.ok ? res.json() : []))
+		.then((releases) => {
+			if (Array.isArray(releases) && releases.length > 0) {
+				const parsed = releases
+					.filter((rel) => !rel.draft)
+					.slice(0, 4)
+					.map((rel) => {
+						const imgMatch = rel.body
+							? rel.body.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/)
+							: null
+						let thumbnail = imgMatch ? imgMatch[1] : null
+						if (!thumbnail && rel.assets && rel.assets.length > 0) {
+							const imageAsset = rel.assets.find((a) =>
+								/\.(png|jpe?g|webp)$/i.test(a.name),
+							)
+							if (imageAsset) {
+								thumbnail = imageAsset.browser_download_url
+							}
+						}
+						if (!thumbnail) {
+							thumbnail = macrosBanner
+						}
+
+						let summary = (rel.body || '')
+							.replace(/#{1,6}\s+/g, '')
+							.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+							.replace(/[*_`~]/g, '')
+							.replace(/\r?\n+/g, ' ')
+							.trim()
+						if (summary.length > 130) {
+							summary = `${summary.slice(0, 130)}...`
+						}
+
+						return {
+							title: rel.name || rel.tag_name,
+							summary,
+							thumbnail,
+							date: rel.published_at || rel.created_at,
+							path: rel.html_url,
+						}
+					})
+				if (parsed.length > 0) {
+					macrosNews.value = parsed
+				}
+			}
+		})
+		.catch((error) => {
+			console.warn('Failed to fetch MacrosApp releases', error)
+		})
+
+	const parseMojangEntries = (entries) => {
+		return entries.slice(0, 4).map((entry) => {
+			let img = entry.newsPageImage?.url || entry.playPageImage?.url || ''
+			if (img && !img.startsWith('http')) {
+				img = `https://launchercontent.mojang.com${img}`
+			}
+			return {
+				title: entry.title,
+				summary: entry.text || '',
+				thumbnail: img,
+				date: entry.date,
+				path: entry.readMoreLink || 'https://www.minecraft.net/articles',
+			}
+		})
+	}
+
+	fetchSafe('https://launchercontent.mojang.com/v2/news.json')
+		.then((res) => (res.ok ? res.json() : null))
+		.then((data) => {
+			if (data && Array.isArray(data.entries) && data.entries.length > 0) {
+				minecraftNews.value = parseMojangEntries(data.entries)
+			} else {
+				throw new Error('No entries in v2')
+			}
+		})
+		.catch(() => {
+			return fetchSafe('https://launchercontent.mojang.com/news.json')
+				.then((res) => (res.ok ? res.json() : null))
+				.then((data) => {
+					if (data && Array.isArray(data.entries) && data.entries.length > 0) {
+						minecraftNews.value = parseMojangEntries(data.entries)
+					}
+				})
+		})
+		.catch((error) => {
+			console.warn('Failed to fetch Minecraft news', error)
+		})
+
+	fetchSafe('https://modrinth.com/news/feed/articles.json')
+		.then((response) => (response.ok ? response.json() : null))
 		.then((res) => {
 			if (res && res.articles) {
-				news.value = res.articles
+				modrinthNews.value = res.articles
 					.map((article) => ({
 						...article,
 						path: article.link,
@@ -1101,7 +1266,7 @@ async function signIn(flow = 'sign-in') {
 	}
 }
 
-async function requestSignIn(flow = 'sign-in') {
+async function requestSignIn(_flow = 'sign-in') {
 	await modrinthLoginModal.value?.show()
 }
 
@@ -2027,21 +2192,52 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 						v-if="prideFundraiserEnabled"
 						class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid"
 					/>
-					<div v-if="news && news.length > 0" class="p-4 flex flex-col items-center">
-						<h3 class="text-base mb-4 text-primary font-medium m-0 text-left w-full">
+					<div
+						v-if="showSidebarNews && (macrosNews.length > 0 || minecraftNews.length > 0 || modrinthNews.length > 0)"
+						class="p-4 flex flex-col items-center"
+					>
+						<h3 class="text-base mb-3 text-primary font-medium m-0 text-left w-full">
 							{{ formatMessage(messages.news) }}
 						</h3>
+						<div
+							class="flex items-center gap-1 p-1 bg-bg-secondary rounded-xl w-full mb-4 border border-solid border-button-border"
+						>
+							<button
+								type="button"
+								class="flex-1 py-1 px-2 text-xs font-medium rounded-lg transition-all cursor-pointer border-0"
+								:class="activeNewsTab === 'macros' ? 'bg-button-bg text-primary shadow-xs font-semibold' : 'bg-transparent text-secondary hover:text-primary'"
+								@click="activeNewsTab = 'macros'"
+							>
+								Macros
+							</button>
+							<button
+								type="button"
+								class="flex-1 py-1 px-2 text-xs font-medium rounded-lg transition-all cursor-pointer border-0"
+								:class="activeNewsTab === 'minecraft' ? 'bg-button-bg text-primary shadow-xs font-semibold' : 'bg-transparent text-secondary hover:text-primary'"
+								@click="activeNewsTab = 'minecraft'"
+							>
+								Minecraft
+							</button>
+							<button
+								type="button"
+								class="flex-1 py-1 px-2 text-xs font-medium rounded-lg transition-all cursor-pointer border-0"
+								:class="activeNewsTab === 'modrinth' ? 'bg-button-bg text-primary shadow-xs font-semibold' : 'bg-transparent text-secondary hover:text-primary'"
+								@click="activeNewsTab = 'modrinth'"
+							>
+								Modrinth
+							</button>
+						</div>
 						<div class="space-y-4 flex flex-col items-center w-full">
 							<NewsArticleCard
-								v-for="(item, index) in news"
-								:key="`news-${index}`"
+								v-for="(item, index) in currentNewsList"
+								:key="`${activeNewsTab}-${index}`"
 								:article="item"
 							/>
 							<ButtonLink
 								type="colored"
 								color="brand"
 								size="xl"
-								href="https://modrinth.com/news"
+								:href="currentNewsViewAllLink"
 								target="_blank"
 								class="my-4"
 							>
