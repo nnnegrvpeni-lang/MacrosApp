@@ -52,7 +52,7 @@ Prebuilt binaries for Windows:
 
 👉 **[Download Latest MacrosApp Release](https://github.com/nnnegrvpeni-lang/MacrosApp/releases/latest)**
 
-- **`Macros_1.2.2_x64-setup.exe`** — Official Windows installer (NSIS).
+- **`Macros_1.2.3_x64-setup.exe`** — Official Windows installer (NSIS).
 - **`Macros.exe`** — Portable standalone executable (no installation required).
 
 ---

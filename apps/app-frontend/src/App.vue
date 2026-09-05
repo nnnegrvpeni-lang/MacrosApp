@@ -403,6 +403,13 @@ function onCreationIconSaved(iconPath, config) {
 const activeNewsTab = ref('macros')
 const defaultMacrosNews = [
 	{
+		title: 'MacrosApp v1.2.3',
+		summary: 'Hotfix: Fixed blank screen when opening the Browse/Mods discovery page and restored catalog search.',
+		thumbnail: macrosBanner,
+		date: '2026-09-05T19:50:00Z',
+		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.3',
+	},
+	{
 		title: 'MacrosApp v1.2.2',
 		summary: 'Full English documentation, internationalized update system and release notes, and UI enhancements.',
 		thumbnail: macrosBanner,

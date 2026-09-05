@@ -67,7 +67,7 @@ import {
 	createServerInstallContent,
 	provideServerInstallContent,
 } from '@/providers/setup/server-install-content'
-const persistentSearchSource = vueRef<'modrinth' | 'curseforge'>('modrinth')
+import { persistentSearchSource } from '@/composables/use-browse-source'
 
 const { handleError } = injectNotificationManager()
 const { formatMessage } = useVIntl()
@@ -627,8 +627,7 @@ function resetInstanceContext() {
 	newlyInstalled.value = []
 	hiddenInstanceProjectIds.value = new Set()
 	hiddenInstanceProjectIdsInitialized.value = false
-	isServerInstance.value = false
-	browseBreadcrumb.reset()
+	syncBreadcrumbs()
 	void refreshInstalledProjectIds()
 }
 
