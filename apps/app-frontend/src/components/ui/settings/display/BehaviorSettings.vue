@@ -148,6 +148,39 @@ const messages = defineMessages({
 		id: 'app.behavior-settings.show-sidebar-news.description',
 		defaultMessage: 'Display news and release updates in the right sidebar.',
 	},
+	macrosUpdatesSectionTitle: {
+		id: 'app.behavior-settings.macros-updates.title',
+		defaultMessage: 'MacrosApp updates',
+	},
+	checkLauncherUpdatesTitle: {
+		id: 'app.behavior-settings.check-launcher-updates.title',
+		defaultMessage: 'Check for updates on startup',
+	},
+	checkLauncherUpdatesDescription: {
+		id: 'app.behavior-settings.check-launcher-updates.description',
+		defaultMessage:
+			'Automatically check for new launcher versions on GitHub when opening the app.',
+	},
+	checkUpdatesNow: {
+		id: 'app.behavior-settings.check-updates-now',
+		defaultMessage: 'Check now',
+	},
+	checkingUpdates: {
+		id: 'app.behavior-settings.checking-updates',
+		defaultMessage: 'Checking...',
+	},
+	updateAvailableTitle: {
+		id: 'app.behavior-settings.update-available.title',
+		defaultMessage: 'Update {version} is available!',
+	},
+	updateAvailableFallbackNote: {
+		id: 'app.behavior-settings.update-available.ready-to-download',
+		defaultMessage: 'New version is ready to download',
+	},
+	downloadUpdate: {
+		id: 'app.behavior-settings.download-update',
+		defaultMessage: 'Download update',
+	},
 })
 
 type BehaviorSettingsState = {
@@ -428,7 +461,7 @@ function manualCheckUpdate() {
 
 	<section class="mt-8 border-0 border-t border-solid border-divider pt-6">
 		<h2 class="m-0 text-xl font-semibold text-contrast">
-			Обновления MacrosApp
+			{{ formatMessage(messages.macrosUpdatesSectionTitle) }}
 		</h2>
 		<div class="mt-4 flex flex-col gap-6">
 			<div
@@ -441,11 +474,11 @@ function manualCheckUpdate() {
 					</div>
 					<div>
 						<div class="font-bold text-contrast flex items-center gap-2">
-							Доступно обновление {{ macrosAppUpdate.version }}!
+							{{ formatMessage(messages.updateAvailableTitle, { version: macrosAppUpdate.version }) }}
 							<span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
 						</div>
 						<div class="text-xs text-secondary mt-0.5">
-							{{ macrosAppUpdate.notes || 'Новая версия готова к загрузке' }}
+							{{ macrosAppUpdate.notes || formatMessage(messages.updateAvailableFallbackNote) }}
 						</div>
 					</div>
 				</div>
@@ -455,17 +488,17 @@ function manualCheckUpdate() {
 					class="px-4 py-2 rounded-lg bg-brand text-black font-semibold hover:brightness-110 no-underline transition-all flex items-center gap-2 shrink-0"
 				>
 					<ArrowBigUpDashIcon class="w-4 h-4" />
-					Скачать обновление
+					{{ formatMessage(messages.downloadUpdate) }}
 				</a>
 			</div>
 
 			<div class="flex items-center justify-between gap-4">
 				<div>
 					<h3 class="m-0 text-lg font-semibold text-contrast">
-						Проверять обновления при запуске
+						{{ formatMessage(messages.checkLauncherUpdatesTitle) }}
 					</h3>
 					<p class="m-0 mt-1">
-						Автоматически проверять наличие новых версий лаунчера на GitHub при запуске приложения.
+						{{ formatMessage(messages.checkLauncherUpdatesDescription) }}
 					</p>
 				</div>
 				<Toggle id="check-launcher-updates" v-model="current.checkLauncherUpdates" />
@@ -479,7 +512,7 @@ function manualCheckUpdate() {
 					@click="manualCheckUpdate"
 				>
 					<RefreshCwIcon class="w-4 h-4 mr-1.5" :class="{ 'animate-spin': checkingUpdate }" />
-					{{ checkingUpdate ? 'Проверка...' : 'Проверить сейчас' }}
+					{{ checkingUpdate ? formatMessage(messages.checkingUpdates) : formatMessage(messages.checkUpdatesNow) }}
 				</Button>
 			</div>
 		</div>

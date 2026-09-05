@@ -273,6 +273,14 @@ const messages = defineMessages({
 		id: 'app.settings.developer-mode-button.label',
 		defaultMessage: 'Toggle developer mode',
 	},
+	versionAvailable: {
+		id: 'app.settings.version-available',
+		defaultMessage: 'Version {version} available',
+	},
+	download: {
+		id: 'app.settings.download',
+		defaultMessage: 'Download',
+	},
 })
 </script>
 <template>
@@ -294,13 +302,13 @@ const messages = defineMessages({
 					class="flex items-center gap-2 py-1 px-3 rounded-full bg-brand/15 border border-brand/40 text-xs font-semibold text-brand"
 				>
 					<span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
-					<span>Доступна версия {{ macrosAppUpdate.version }}</span>
+					<span>{{ formatMessage(messages.versionAvailable, { version: macrosAppUpdate.version }) }}</span>
 					<a
 						:href="macrosAppUpdate.downloadUrl"
 						target="_blank"
 						class="ml-1 px-2 py-0.5 rounded-md bg-brand text-black hover:brightness-110 no-underline transition-all"
 					>
-						Скачать
+						{{ formatMessage(messages.download) }}
 					</a>
 				</div>
 			</div>

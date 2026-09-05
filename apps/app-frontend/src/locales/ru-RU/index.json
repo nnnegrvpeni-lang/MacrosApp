@@ -5,6 +5,9 @@
   "app.action-bar.downloading-update": {
     "message": "Скачивание обновления"
   },
+  "app.action-bar.update-version-available": {
+    "message": "Доступно {version}"
+  },
   "app.action-bar.downloads": {
     "message": "Загрузки"
   },
@@ -197,14 +200,44 @@
   "app.auth-servers.unreachable.header": {
     "message": "Нет связи с серверами аутентификации"
   },
+  "app.behavior-settings.check-launcher-updates.description": {
+    "message": "Автоматически проверять наличие новых версий лаунчера на GitHub при запуске приложения."
+  },
+  "app.behavior-settings.check-launcher-updates.title": {
+    "message": "Проверять обновления при запуске"
+  },
+  "app.behavior-settings.check-updates-now": {
+    "message": "Проверить сейчас"
+  },
+  "app.behavior-settings.checking-updates": {
+    "message": "Проверка..."
+  },
   "app.behavior-settings.confirmations.title": {
     "message": "Подтверждения"
   },
   "app.behavior-settings.content.title": {
     "message": "Главная и контент"
   },
+  "app.behavior-settings.download-update": {
+    "message": "Скачать обновление"
+  },
+  "app.behavior-settings.macros-updates.title": {
+    "message": "Обновления MacrosApp"
+  },
+  "app.behavior-settings.show-sidebar-news.description": {
+    "message": "Отображать новости и обновления релизов в правой боковой панели."
+  },
+  "app.behavior-settings.show-sidebar-news.title": {
+    "message": "Показывать новости в боковой панели"
+  },
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Запуск и навигация"
+  },
+  "app.behavior-settings.update-available.ready-to-download": {
+    "message": "Новая версия готова к загрузке"
+  },
+  "app.behavior-settings.update-available.title": {
+    "message": "Доступно обновление {version}!"
   },
   "app.browse.add-servers-to-instance": {
     "message": "Добавление серверов в сборку"
@@ -935,6 +968,9 @@
   "app.settings.resource-management.maximum-concurrent-downloads.description": {
     "message": "Количество одновременно скачиваемых файлов. Уменьшите, если скачивание работает нестабильно. Требуется перезапуск."
   },
+  "app.settings.download": {
+    "message": "Скачать"
+  },
   "app.settings.resource-management.maximum-concurrent-downloads.title": {
     "message": "Лимит одновременных скачиваний"
   },
@@ -967,6 +1003,9 @@
   },
   "app.settings.tabs.resource-management": {
     "message": "Управление ресурсами"
+  },
+  "app.settings.version-available": {
+    "message": "Доступна версия {version}"
   },
   "app.sidebar.playing-as": {
     "message": "Текущий аккаунт"
@@ -1165,6 +1204,24 @@
   },
   "app.update.complete-toast.title": {
     "message": "Версия {version} успешно установлена!"
+  },
+  "app.update.toast.default-summary": {
+    "message": "Доступна новая версия лаунчера с улучшениями и исправлениями."
+  },
+  "app.update.toast.download-installer": {
+    "message": "Скачать установщик"
+  },
+  "app.update.toast.no-updates.text": {
+    "message": "У вас установлена последняя версия MacrosApp ({version})."
+  },
+  "app.update.toast.no-updates.title": {
+    "message": "Обновлений не найдено"
+  },
+  "app.update.toast.title": {
+    "message": "Доступно обновление MacrosApp {version}!"
+  },
+  "app.update.toast.whats-new": {
+    "message": "Что нового"
   },
   "app.user.project.install-to-instance": {
     "message": "Установить в сборку"
@@ -1760,11 +1817,59 @@
   "minecraft-account.add-account": {
     "message": "Добавить аккаунт"
   },
+  "minecraft-account.add-elyby-account": {
+    "message": "Войти через Ely.by (Скины)"
+  },
+  "minecraft-account.add-elyby-account-header": {
+    "message": "Вход в аккаунт Ely.by"
+  },
+  "minecraft-account.add-microsoft-account": {
+    "message": "Добавить аккаунт Microsoft"
+  },
+  "minecraft-account.add-offline-account": {
+    "message": "Добавить офлайн-аккаунт"
+  },
+  "minecraft-account.add-offline-account-header": {
+    "message": "Добавление офлайн-аккаунта"
+  },
+  "minecraft-account.cancel": {
+    "message": "Отмена"
+  },
+  "minecraft-account.elyby-account": {
+    "message": "Аккаунт Ely.by"
+  },
+  "minecraft-account.elyby-hint": {
+    "message": "Ely.by предоставляет скины и плащи, которые будут отображаться в игре."
+  },
+  "minecraft-account.elyby.auth-error": {
+    "message": "Ошибка авторизации Ely.by"
+  },
+  "minecraft-account.elyby.reopen-page": {
+    "message": "Открыть страницу в браузере повторно"
+  },
+  "minecraft-account.elyby.request-failed": {
+    "message": "Не удалось запросить код авторизации Ely.by"
+  },
+  "minecraft-account.elyby.requesting-auth": {
+    "message": "Запрос авторизации на сайте Ely.by..."
+  },
+  "minecraft-account.elyby.waiting-approval": {
+    "message": "Ожидание подтверждения на сайте Ely.by..."
+  },
   "minecraft-account.label": {
     "message": "Аккаунт Minecraft"
   },
+  "minecraft-account.microsoft-account": {
+    "message": "Аккаунт Microsoft"
+  },
   "minecraft-account.not-signed-in": {
     "message": "Вход не выполнен"
+  },
+  "minecraft-account.offline-account": {
+    "message": "Офлайн-аккаунт"
+  },
+  "minecraft-account.offline-nickname-label": {
+    "message": "Никнейм игрока"
   },
   "minecraft-account.remove-account": {
     "message": "Удалить аккаунт"

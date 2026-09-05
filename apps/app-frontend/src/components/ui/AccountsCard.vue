@@ -222,7 +222,7 @@
 
 			<div class="flex items-center gap-2 text-xs text-secondary">
 				<SpinnerIcon class="w-4 h-4 animate-spin text-brand" />
-				<span>Ожидание подтверждения на сайте Ely.by...</span>
+				<span>{{ formatMessage(messages.elybyWaitingApproval) }}</span>
 			</div>
 
 			<span v-if="elybyError" class="text-xs text-red">{{ elybyError }}</span>
@@ -234,7 +234,7 @@
 					@click="reopenElybyBrowser"
 				>
 					<ExternalIcon class="w-3.5 h-3.5 mr-1.5" />
-					Открыть страницу в браузере повторно
+					{{ formatMessage(messages.elybyReopenPage) }}
 				</Button>
 				<Button
 					type="quiet"
@@ -253,7 +253,7 @@
 			</div>
 			<div v-if="isSubmittingElyby" class="flex flex-col items-center gap-2 py-4">
 				<SpinnerIcon class="w-6 h-6 animate-spin text-brand" />
-				<span class="text-sm text-secondary">Запрос авторизации на сайте Ely.by...</span>
+				<span class="text-sm text-secondary">{{ formatMessage(messages.elybyRequestingAuth) }}</span>
 			</div>
 			<div v-else-if="elybyError" class="flex flex-col items-center gap-2 py-2">
 				<span class="text-xs text-red">{{ elybyError }}</span>
@@ -416,7 +416,7 @@ async function startElybyDeviceCodeLogin() {
 		elybyError.value =
 			typeof err === 'string'
 				? err
-				: err?.message || 'Не удалось запросить код авторизации Ely.by'
+				: err?.message || formatMessage(messages.elybyRequestFailed)
 	} finally {
 		isSubmittingElyby.value = false
 	}
@@ -442,7 +442,7 @@ function startPollingElyby(info: { device_code: string; interval: number; expire
 			elybyError.value =
 				typeof err === 'string'
 					? err
-					: err?.message || 'Ошибка авторизации Ely.by'
+					: err?.message || formatMessage(messages.elybyAuthError)
 		}
 	}, pollInterval)
 }
@@ -692,6 +692,26 @@ const messages = defineMessages({
 	elybyAccount: {
 		id: 'minecraft-account.elyby-account',
 		defaultMessage: 'Ely.by account',
+	},
+	elybyWaitingApproval: {
+		id: 'minecraft-account.elyby.waiting-approval',
+		defaultMessage: 'Waiting for confirmation on Ely.by...',
+	},
+	elybyReopenPage: {
+		id: 'minecraft-account.elyby.reopen-page',
+		defaultMessage: 'Re-open page in browser',
+	},
+	elybyRequestingAuth: {
+		id: 'minecraft-account.elyby.requesting-auth',
+		defaultMessage: 'Requesting authorization from Ely.by...',
+	},
+	elybyRequestFailed: {
+		id: 'minecraft-account.elyby.request-failed',
+		defaultMessage: 'Failed to request Ely.by authorization code',
+	},
+	elybyAuthError: {
+		id: 'minecraft-account.elyby.auth-error',
+		defaultMessage: 'Ely.by authorization error',
 	},
 	offlineAccount: {
 		id: 'minecraft-account.offline-account',

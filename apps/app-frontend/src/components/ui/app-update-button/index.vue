@@ -15,7 +15,7 @@
 		<RefreshCwIcon v-if="finishedDownloading" :class="{ 'animate-spin': restarting }" />
 		<DownloadIcon v-else />
 		<span v-if="macrosAppUpdate">
-			Доступно {{ macrosAppUpdate.version }}
+			{{ formatMessage(messages.updateVersionAvailable, { version: macrosAppUpdate.version }) }}
 		</span>
 		<span v-else-if="isUpdateDownloading">
 			{{ formatMessage(messages.downloadingUpdate) }}
@@ -52,6 +52,10 @@ const messages = defineMessages({
 	reloadToUpdate: {
 		id: 'app.action-bar.reload-to-update',
 		defaultMessage: 'Reload to update',
+	},
+	updateVersionAvailable: {
+		id: 'app.action-bar.update-version-available',
+		defaultMessage: 'Update {version}',
 	},
 })
 

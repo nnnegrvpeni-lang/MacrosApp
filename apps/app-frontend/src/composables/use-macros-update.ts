@@ -1,4 +1,5 @@
-﻿import { getVersion } from '@tauri-apps/api/app'
+import { defineMessages, type MessageDescriptor, useVIntl } from '@modrinth/ui'
+import { getVersion } from '@tauri-apps/api/app'
 import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { ref } from 'vue'
@@ -14,6 +15,48 @@ export interface MacrosAppUpdateInfo {
 
 export const macrosAppUpdate = ref<MacrosAppUpdateInfo | null>(null)
 export const checkingUpdate = ref(false)
+
+export const updateMessages = defineMessages({
+	updateAvailable: {
+		id: 'app.update.toast.title',
+		defaultMessage: 'MacrosApp update {version} is available!',
+	},
+	defaultSummary: {
+		id: 'app.update.toast.default-summary',
+		defaultMessage: 'A new launcher version is available with improvements and fixes.',
+	},
+	downloadInstaller: {
+		id: 'app.update.toast.download-installer',
+		defaultMessage: 'Download installer',
+	},
+	whatsNew: {
+		id: 'app.update.toast.whats-new',
+		defaultMessage: "What's new",
+	},
+	noUpdatesTitle: {
+		id: 'app.update.toast.no-updates.title',
+		defaultMessage: 'No updates found',
+	},
+	noUpdatesText: {
+		id: 'app.update.toast.no-updates.text',
+		defaultMessage: 'You are running the latest version of MacrosApp ({version}).',
+	},
+})
+
+function safeFormatMessage(descriptor: MessageDescriptor, values?: Record<string, unknown>): string {
+	try {
+		const { formatMessage } = useVIntl()
+		return formatMessage(descriptor, values)
+	} catch {
+		let text = descriptor.defaultMessage ?? descriptor.id
+		if (values) {
+			for (const [k, v] of Object.entries(values)) {
+				text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v))
+			}
+		}
+		return text
+	}
+}
 
 export function isVersionNewer(latest: string, current: string): boolean {
 	if (!latest || !current) return false
@@ -106,7 +149,7 @@ export async function checkForMacrosUpdate(
 				version: latestTag,
 				releaseName: release.name || latestTag,
 				summary:
-					summary || 'Доступна новая версия лаунчера с улучшениями и исправлениями.',
+					summary || safeFormatMessage(updateMessages.defaultSummary),
 				downloadUrl,
 				releaseUrl: release.html_url,
 				publishedAt: release.published_at || release.created_at,
@@ -122,8 +165,8 @@ export async function checkForMacrosUpdate(
 			if (opts.notifyIfLatest && popupManager) {
 				popupManager.addPopupNotification({
 					contentType: 'standard',
-					title: 'Обновлений не найдено',
-					text: `У вас установлена последняя версия MacrosApp (${currentVersion}).`,
+					title: safeFormatMessage(updateMessages.noUpdatesTitle),
+					text: safeFormatMessage(updateMessages.noUpdatesText, { version: currentVersion }),
 					type: 'success',
 					autoCloseMs: 4000,
 					dismissible: true,
@@ -141,19 +184,19 @@ export async function checkForMacrosUpdate(
 function showUpdateToast(popupManager: any, update: MacrosAppUpdateInfo) {
 	popupManager.addPopupNotification({
 		contentType: 'standard',
-		title: `Доступно обновление MacrosApp ${update.version}!`,
+		title: safeFormatMessage(updateMessages.updateAvailable, { version: update.version }),
 		text: update.summary,
 		type: 'info',
 		autoCloseMs: 10000,
 		dismissible: true,
 		buttons: [
 			{
-				label: 'Скачать установщик',
+				label: safeFormatMessage(updateMessages.downloadInstaller),
 				action: () => void openUrl(update.downloadUrl),
 				color: 'brand',
 			},
 			{
-				label: 'Что нового',
+				label: safeFormatMessage(updateMessages.whatsNew),
 				action: () => void openUrl(update.releaseUrl),
 				keepOpen: true,
 			},

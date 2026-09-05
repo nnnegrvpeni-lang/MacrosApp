@@ -125,6 +125,9 @@
   "app.action-bar.update": {
     "message": "Update"
   },
+  "app.action-bar.update-version-available": {
+    "message": "Update {version}"
+  },
   "app.action-bar.view-active-downloads": {
     "message": "View active downloads"
   },
@@ -209,11 +212,35 @@
   "app.auth-servers.unreachable.header": {
     "message": "Cannot reach authentication servers"
   },
+  "app.behavior-settings.check-launcher-updates.description": {
+    "message": "Automatically check for new launcher versions on GitHub when opening the app."
+  },
+  "app.behavior-settings.check-launcher-updates.title": {
+    "message": "Check for updates on startup"
+  },
+  "app.behavior-settings.check-updates-now": {
+    "message": "Check now"
+  },
+  "app.behavior-settings.checking-updates": {
+    "message": "Checking..."
+  },
   "app.behavior-settings.confirmations.title": {
     "message": "Confirmations"
   },
   "app.behavior-settings.content.title": {
     "message": "Home and content"
+  },
+  "app.behavior-settings.download-update": {
+    "message": "Download update"
+  },
+  "app.behavior-settings.macros-updates.title": {
+    "message": "MacrosApp updates"
+  },
+  "app.behavior-settings.show-sidebar-news.description": {
+    "message": "Display news and release updates in the right sidebar."
+  },
+  "app.behavior-settings.show-sidebar-news.title": {
+    "message": "Show news in sidebar"
   },
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Startup and navigation"
@@ -226,6 +253,12 @@
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Sync behavior across devices"
+  },
+  "app.behavior-settings.update-available.ready-to-download": {
+    "message": "New version is ready to download"
+  },
+  "app.behavior-settings.update-available.title": {
+    "message": "Update {version} is available!"
   },
   "app.browse.add-servers-to-instance": {
     "message": "Adding server to instance"
@@ -1397,6 +1430,9 @@
   "app.settings.developer-mode-enabled": {
     "message": "Developer mode enabled."
   },
+  "app.settings.download": {
+    "message": "Download"
+  },
   "app.settings.downloading": {
     "message": "Downloading v{version}"
   },
@@ -1498,6 +1534,9 @@
   },
   "app.settings.tabs.resource-management": {
     "message": "Resource management"
+  },
+  "app.settings.version-available": {
+    "message": "Version {version} available"
   },
   "app.sidebar.playing-as": {
     "message": "Playing as"
@@ -1712,6 +1751,24 @@
   "app.update.download-error.missing-version": {
     "message": "Failed to download update: no version available"
   },
+  "app.update.toast.default-summary": {
+    "message": "A new launcher version is available with improvements and fixes."
+  },
+  "app.update.toast.download-installer": {
+    "message": "Download installer"
+  },
+  "app.update.toast.no-updates.text": {
+    "message": "You are running the latest version of MacrosApp ({version})."
+  },
+  "app.update.toast.no-updates.title": {
+    "message": "No updates found"
+  },
+  "app.update.toast.title": {
+    "message": "MacrosApp update {version} is available!"
+  },
+  "app.update.toast.whats-new": {
+    "message": "What's new"
+  },
   "app.user.project.install-to-instance": {
     "message": "Install to instance"
   },
@@ -1731,7 +1788,7 @@
     "message": "Press <shortcut>N</shortcut> to quick create an instance"
   },
   "app.welcome-screen.title": {
-    "message": "Welcome to Modrinth"
+    "message": "Welcome to Macros"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -2567,11 +2624,59 @@
   "minecraft-account.add-account": {
     "message": "Add account"
   },
+  "minecraft-account.add-elyby-account": {
+    "message": "Sign in with Ely.by (Skins)"
+  },
+  "minecraft-account.add-elyby-account-header": {
+    "message": "Sign into Ely.by Account"
+  },
+  "minecraft-account.add-microsoft-account": {
+    "message": "Add Microsoft account"
+  },
+  "minecraft-account.add-offline-account": {
+    "message": "Add offline account"
+  },
+  "minecraft-account.add-offline-account-header": {
+    "message": "Add Offline Minecraft Account"
+  },
+  "minecraft-account.cancel": {
+    "message": "Cancel"
+  },
+  "minecraft-account.elyby-account": {
+    "message": "Ely.by account"
+  },
+  "minecraft-account.elyby-hint": {
+    "message": "Ely.by provides custom skins and capes that will render in-game."
+  },
+  "minecraft-account.elyby.auth-error": {
+    "message": "Ely.by authorization error"
+  },
+  "minecraft-account.elyby.reopen-page": {
+    "message": "Re-open page in browser"
+  },
+  "minecraft-account.elyby.request-failed": {
+    "message": "Failed to request Ely.by authorization code"
+  },
+  "minecraft-account.elyby.requesting-auth": {
+    "message": "Requesting authorization from Ely.by..."
+  },
+  "minecraft-account.elyby.waiting-approval": {
+    "message": "Waiting for confirmation on Ely.by..."
+  },
   "minecraft-account.label": {
     "message": "Minecraft account"
   },
+  "minecraft-account.microsoft-account": {
+    "message": "Microsoft account"
+  },
   "minecraft-account.not-signed-in": {
     "message": "Not signed in"
+  },
+  "minecraft-account.offline-account": {
+    "message": "Offline account"
+  },
+  "minecraft-account.offline-nickname-label": {
+    "message": "Minecraft nickname / username"
   },
   "minecraft-account.remove-account": {
     "message": "Remove account"
@@ -2580,13 +2685,19 @@
     "message": "Select account"
   },
   "minecraft-account.sign-in": {
-    "message": "Sign in to Minecraft"
+    "message": "Sign in to Minecraft (Microsoft)"
+  },
+  "minecraft-required.add-elyby-account": {
+    "message": "Sign in with Ely.by (Skins)"
+  },
+  "minecraft-required.add-offline-account": {
+    "message": "Add offline account"
   },
   "minecraft-required.description": {
-    "message": "You need a Microsoft account that owns Minecraft before you can launch and play."
+    "message": "You need a Minecraft account before you can launch and play."
   },
   "minecraft-required.description-header": {
-    "message": "Sign in to a Microsoft account"
+    "message": "Sign in to a Minecraft account"
   },
   "minecraft-required.dont-have-account": {
     "message": "Don’t have an account?"
@@ -2603,47 +2714,17 @@
   "minecraft-required.sign-in": {
     "message": "Sign in to Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "A new tab opened to sign in. Complete the sign in there, then return to the app."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Continue in your browser"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Create an account"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "You'll need to sign into your Modrinth account before you can use this feature."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Account required"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Open browser again"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Sign in to Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Sign in to a Modrinth account"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Signing in"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Having trouble signing in? <support>Get support</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Waiting for browser confirmation..."
   },
   "onboarding-checklist.create-instance": {
     "message": "Create first instance"
   },
-  "onboarding-checklist.login-minecraft": {
-    "message": "Sign in to Minecraft"
-  },
   "onboarding-checklist.login-modrinth": {
     "message": "Sign in to Modrinth"
+  },
+  "onboarding-checklist.login-offline": {
+    "message": "Sign in to Offline account"
   },
   "onboarding-checklist.title": {
     "message": "Getting started"
