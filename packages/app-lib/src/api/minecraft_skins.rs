@@ -370,6 +370,10 @@ pub async fn get_available_skins() -> crate::Result<Vec<Skin>> {
         },
         |skin| skin.variant,
     );
+    let current_skin_variant = match current_skin_variant {
+        MinecraftSkinVariant::Unknown => MinecraftSkinVariant::Classic,
+        variant => variant,
+    };
     let current_cape_id = pending_skin.as_ref().map_or(
         if pending_unequip {
             None
@@ -453,7 +457,10 @@ pub async fn get_available_skins() -> crate::Result<Vec<Skin>> {
         custom_skins.push(Skin {
             name: None,
             section: None,
-            variant: custom_skin.variant,
+            variant: match custom_skin.variant {
+                MinecraftSkinVariant::Unknown => MinecraftSkinVariant::Classic,
+                v => v,
+            },
             cape_id: custom_skin.cape_id,
             texture: png_util::blob_to_data_url(texture_blob)
                 .or_else(|| {

@@ -36,15 +36,22 @@ const props = withDefaults(
 const imagesLoaded = ref({
 	forward: false,
 })
+const hasLoadError = ref(false)
 
 function onImageLoad() {
 	imagesLoaded.value.forward = true
+	hasLoadError.value = false
+}
+
+function onImageError() {
+	hasLoadError.value = true
 }
 
 watch(
 	() => props.forwardImageSrc,
 	() => {
 		imagesLoaded.value.forward = false
+		hasLoadError.value = false
 	},
 )
 </script>
@@ -95,23 +102,25 @@ watch(
 			<CheckIcon class="relative size-4 invert [stroke-width:3]" />
 		</span>
 
-		<div v-if="!imagesLoaded.forward" class="skeleton-loader h-full w-full">
+		<div v-if="!imagesLoaded.forward && !hasLoadError" class="skeleton-loader h-full w-full">
 			<div class="skeleton absolute inset-0 aspect-[5/7]"></div>
 		</div>
 
 		<span
-			v-show="imagesLoaded.forward"
+			v-show="imagesLoaded.forward && !hasLoadError"
 			:key="`${selected}-${active}`"
 			:class="[
 				'skin-button__image-parent pointer-events-none relative z-0 mb-[1.5px] grid place-items-stretch with-shadow',
 			]"
 		>
 			<img
+				v-if="forwardImageSrc"
 				alt=""
 				:src="forwardImageSrc"
 				class="skin-button__image-facing col-start-1 row-start-1 h-full w-full object-contain"
 				height="504"
 				@load="onImageLoad"
+				@error="onImageError"
 			/>
 		</span>
 

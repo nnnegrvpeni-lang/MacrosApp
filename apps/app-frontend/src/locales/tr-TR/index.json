@@ -1415,15 +1415,6 @@
   "minecraft-required.sign-in": {
     "message": "Microsoft'a giriş yap"
   },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Tarayıcında devam et"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Bir hesap oluştur"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Tarayıcıyı yeniden aç"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Giriş yapılıyor"
   },

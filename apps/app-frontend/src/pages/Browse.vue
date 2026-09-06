@@ -44,6 +44,7 @@ import CurseForgeInstallModal from '@/components/ui/install_flow/CurseForgeInsta
 import { useAppServerBrowse } from '@/composables/browse/use-app-server-browse'
 import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { persistentSearchSource } from '@/composables/use-browse-source'
 import { get_project, get_search_results_v3, get_version_many } from '@/helpers/cache.js'
 import { installCurseForgeMod, searchCurseForge } from '@/helpers/curseforge'
 import {
@@ -67,7 +68,6 @@ import {
 	createServerInstallContent,
 	provideServerInstallContent,
 } from '@/providers/setup/server-install-content'
-import { persistentSearchSource } from '@/composables/use-browse-source'
 
 const { handleError } = injectNotificationManager()
 const { formatMessage } = useVIntl()
@@ -1136,8 +1136,7 @@ async function search(requestParams: string) {
 		try {
 			const gameVersion =
 				instance.value?.game_version || serverContextServerData.value?.mc_version || undefined
-			const loader =
-				instance.value?.loader || serverContextServerData.value?.loader || undefined
+			const loader = instance.value?.loader || serverContextServerData.value?.loader || undefined
 			const cfResult = await searchCurseForge({
 				query: searchState.query.value,
 				projectType: projectType.value,

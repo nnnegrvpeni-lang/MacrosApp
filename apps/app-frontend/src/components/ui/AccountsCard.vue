@@ -9,11 +9,19 @@
 				<UserPlusIcon />
 				{{ formatMessage(messages.addOfflineAccount) }}
 			</Button>
-			<Button class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary" :disabled="loginDisabled" @click="openElybyModal()">
+			<Button
+				class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary"
+				:disabled="loginDisabled"
+				@click="openElybyModal()"
+			>
 				<SparklesIcon />
 				{{ formatMessage(messages.addElybyAccount) }}
 			</Button>
-			<Button class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary" :disabled="loginDisabled" @click="login()">
+			<Button
+				class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary"
+				:disabled="loginDisabled"
+				@click="login()"
+			>
 				<LogInIcon v-if="!loginDisabled" />
 				<SpinnerIcon v-else class="animate-spin" />
 				{{ formatMessage(messages.signInToMinecraft) }}
@@ -50,7 +58,10 @@
 							Ely.by
 						</Badge>
 						<Badge
-							v-else-if="selectedAccount && (selectedAccount.is_offline || selectedAccount.refresh_token === 'offline')"
+							v-else-if="
+								selectedAccount &&
+								(selectedAccount.is_offline || selectedAccount.refresh_token === 'offline')
+							"
 							color="purple"
 							size="small"
 						>
@@ -202,11 +213,14 @@
 			<div class="flex flex-col gap-1">
 				<h3 class="text-base font-bold text-primary m-0">Подтверждение в браузере</h3>
 				<p class="text-xs text-secondary m-0">
-					Мы открыли страницу входа в браузере. Код уже подставлен автоматически — просто нажмите «Разрешить» на сайте:
+					Мы открыли страницу входа в браузере. Код уже подставлен автоматически — просто нажмите
+					«Разрешить» на сайте:
 				</p>
 			</div>
 
-			<div class="flex items-center gap-3 bg-surface-2 border border-surface-5 px-5 py-3 rounded-xl">
+			<div
+				class="flex items-center gap-3 bg-surface-2 border border-surface-5 px-5 py-3 rounded-xl"
+			>
 				<span class="text-2xl font-mono font-bold tracking-widest text-brand select-all">
 					{{ elybyDeviceCode.user_code }}
 				</span>
@@ -236,11 +250,7 @@
 					<ExternalIcon class="w-3.5 h-3.5 mr-1.5" />
 					{{ formatMessage(messages.elybyReopenPage) }}
 				</Button>
-				<Button
-					type="quiet"
-					class="w-full text-xs"
-					@click="cancelElybyDeviceCode"
-				>
+				<Button type="quiet" class="w-full text-xs" @click="cancelElybyDeviceCode">
 					{{ formatMessage(messages.cancel) }}
 				</Button>
 			</div>
@@ -253,7 +263,9 @@
 			</div>
 			<div v-if="isSubmittingElyby" class="flex flex-col items-center gap-2 py-4">
 				<SpinnerIcon class="w-6 h-6 animate-spin text-brand" />
-				<span class="text-sm text-secondary">{{ formatMessage(messages.elybyRequestingAuth) }}</span>
+				<span class="text-sm text-secondary">{{
+					formatMessage(messages.elybyRequestingAuth)
+				}}</span>
 			</div>
 			<div v-else-if="elybyError" class="flex flex-col items-center gap-2 py-2">
 				<span class="text-xs text-red">{{ elybyError }}</span>
@@ -266,11 +278,7 @@
 					Попробовать снова
 				</Button>
 			</div>
-			<Button
-				type="quiet"
-				class="w-full text-xs mt-2"
-				@click="cancelElybyDeviceCode"
-			>
+			<Button type="quiet" class="w-full text-xs mt-2" @click="cancelElybyDeviceCode">
 				{{ formatMessage(messages.cancel) }}
 			</Button>
 		</div>
@@ -320,7 +328,10 @@ import {
 	start_elyby_device_code,
 	users,
 } from '@/helpers/auth'
-import { generatePlayerHeadBlob, getPlayerHeadUrl } from '@/helpers/rendering/batch-skin-renderer.ts'
+import {
+	generatePlayerHeadBlob,
+	getPlayerHeadUrl,
+} from '@/helpers/rendering/batch-skin-renderer.ts'
 import type { Skin } from '@/helpers/skins'
 import { get_available_skins, normalize_skin_texture } from '@/helpers/skins'
 
@@ -364,7 +375,7 @@ const elybyDeviceCode = ref<{
 } | null>(null)
 const isPollingElyby = ref(false)
 const codeCopied = ref(false)
-let elybyPollTimer: any = null
+let elybyPollTimer: ReturnType<typeof setInterval> | null = null
 
 function openOfflineModal() {
 	offlineUsername.value = ''
@@ -398,8 +409,8 @@ async function submitOfflineAccount() {
 		offlineModalRef.value?.hide()
 		await setAccount(newAccount)
 		trackEvent('AccountLogIn', { type: 'offline' })
-	} catch (err: any) {
-		offlineError.value = err?.message || 'Failed to add offline account'
+	} catch (err: unknown) {
+		offlineError.value = (err as Error)?.message || 'Failed to add offline account'
 	} finally {
 		isSubmittingOffline.value = false
 	}
@@ -412,11 +423,11 @@ async function startElybyDeviceCodeLogin() {
 		const info = await start_elyby_device_code()
 		elybyDeviceCode.value = info
 		startPollingElyby(info)
-	} catch (err: any) {
+	} catch (err: unknown) {
 		elybyError.value =
 			typeof err === 'string'
 				? err
-				: err?.message || formatMessage(messages.elybyRequestFailed)
+				: (err as Error)?.message || formatMessage(messages.elybyRequestFailed)
 	} finally {
 		isSubmittingElyby.value = false
 	}
@@ -437,12 +448,12 @@ function startPollingElyby(info: { device_code: string; interval: number; expire
 				await setAccount(creds)
 				trackEvent('AccountLogIn', { type: 'elyby' })
 			}
-		} catch (err: any) {
+		} catch (err: unknown) {
 			stopPollingElyby()
 			elybyError.value =
 				typeof err === 'string'
 					? err
-					: err?.message || formatMessage(messages.elybyAuthError)
+					: (err as Error)?.message || formatMessage(messages.elybyAuthError)
 		}
 	}, pollInterval)
 }
@@ -469,7 +480,9 @@ async function copyElybyCode() {
 		setTimeout(() => {
 			codeCopied.value = false
 		}, 2000)
-	} catch {}
+	} catch {
+		// Ignore clipboard failure
+	}
 }
 
 async function reopenElybyBrowser() {
@@ -582,7 +595,10 @@ function getAccountSubtitle(account?: MinecraftCredential) {
 }
 
 const avatarUrl = computed(() => {
-	if (selectedAccount.value?.refresh_token?.startsWith('elyby:') && selectedAccount.value?.profile?.name) {
+	if (
+		selectedAccount.value?.refresh_token?.startsWith('elyby:') &&
+		selectedAccount.value?.profile?.name
+	) {
 		const rendered = elyHeadMap.value.get(selectedAccount.value.profile.name)
 		if (rendered) return rendered
 		loadElybyHead(selectedAccount.value.profile.name)

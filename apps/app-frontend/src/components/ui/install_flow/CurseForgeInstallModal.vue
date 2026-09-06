@@ -32,7 +32,7 @@ const router = useRouter()
 
 const modal = ref<InstanceType<typeof ContentInstallModal> | null>(null)
 const iconEditorModal = ref<InstanceType<typeof IconEditorModal> | null>(null)
-const generatedIconConfig = ref<any>(null)
+const generatedIconConfig = ref<Record<string, unknown> | null>(null)
 
 const currentMod = ref<CurseForgeMod | null>(null)
 const currentProjectType = ref('mod')
@@ -47,7 +47,10 @@ const preferredLoader = ref<string | null>(null)
 const preferredGameVersion = ref<string | null>(null)
 const defaultTab = ref<'existing' | 'new'>('existing')
 
-function extractLoadersAndVersions(mod: CurseForgeMod, allGameVersions: any[]) {
+function extractLoadersAndVersions(
+	mod: CurseForgeMod,
+	allGameVersions: { version?: string; version_type?: string }[],
+) {
 	const isUniversal =
 		currentProjectType.value === 'shader' ||
 		currentProjectType.value === 'shaders' ||
@@ -65,7 +68,8 @@ function extractLoadersAndVersions(mod: CurseForgeMod, allGameVersions: any[]) {
 		const releases = new Set<string>(
 			allGameVersions.filter((v) => v.version_type === 'release').map((v) => v.id || v.version),
 		)
-		gameVersions.value = orderedVersions.length > 0 ? orderedVersions : ['1.21.11', '1.21.1', '1.20.1']
+		gameVersions.value =
+			orderedVersions.length > 0 ? orderedVersions : ['1.21.11', '1.21.1', '1.20.1']
 		releaseGameVersions.value = releases
 		preferredGameVersion.value =
 			orderedVersions.find((v) => releases.has(v)) ?? orderedVersions[0] ?? null
@@ -123,7 +127,8 @@ function extractLoadersAndVersions(mod: CurseForgeMod, allGameVersions: any[]) {
 		}
 	}
 
-	gameVersions.value = orderedVersions.length > 0 ? orderedVersions : ['1.21.11', '1.21.1', '1.20.1']
+	gameVersions.value =
+		orderedVersions.length > 0 ? orderedVersions : ['1.21.11', '1.21.1', '1.20.1']
 	releaseGameVersions.value = releases
 	preferredGameVersion.value =
 		orderedVersions.find((v) => releases.has(v)) ?? orderedVersions[0] ?? null
@@ -218,7 +223,7 @@ function customizeIcon() {
 	iconEditorModal.value?.show()
 }
 
-function onIconSaved(iconPath: string, config: any) {
+function onIconSaved(iconPath: string, config: Record<string, unknown>) {
 	generatedIconConfig.value = config
 	modal.value?.setIcon(iconPath, convertFileSrc(iconPath))
 }
@@ -230,9 +235,9 @@ defineExpose({
 		loading.value = true
 
 		try {
-			let allGv: any[] = []
+			let allGv: { version?: string; version_type?: string }[] = []
 			try {
-				allGv = (await get_game_versions()) as any[]
+				allGv = (await get_game_versions()) as { version?: string; version_type?: string }[]
 			} catch {
 				allGv = []
 			}
@@ -246,10 +251,7 @@ defineExpose({
 				listData.map(async (inst) => {
 					try {
 						const installedIds = await getInstalledProjectIds(inst.id)
-						if (
-							installedIds.includes(`cf-${mod.id}`) ||
-							installedIds.includes(String(mod.id))
-						) {
+						if (installedIds.includes(`cf-${mod.id}`) || installedIds.includes(String(mod.id))) {
 							installed.add(inst.id)
 						}
 					} catch {
@@ -265,12 +267,14 @@ defineExpose({
 			defaultTab.value = compatibleAvailable ? 'existing' : 'new'
 
 			if (!mod.latestFilesIndexes?.length) {
-				getCurseForgeModFiles(mod.id).then((files) => {
-					if (files.length) {
-						currentMod.value = { ...mod, latestFiles: files }
-						extractLoadersAndVersions({ ...mod, latestFiles: files }, allGv)
-					}
-				}).catch(() => {})
+				getCurseForgeModFiles(mod.id)
+					.then((files) => {
+						if (files.length) {
+							currentMod.value = { ...mod, latestFiles: files }
+							extractLoadersAndVersions({ ...mod, latestFiles: files }, allGv)
+						}
+					})
+					.catch(() => {})
 			}
 		} catch (e) {
 			handleError(e)
@@ -381,9 +385,5 @@ function handleCancel() {
 		@navigate="handleNavigate"
 		@cancel="handleCancel"
 	/>
-	<IconEditorModal
-		ref="iconEditorModal"
-		:config="generatedIconConfig"
-		@saved="onIconSaved"
-	/>
+	<IconEditorModal ref="iconEditorModal" :config="generatedIconConfig" @saved="onIconSaved" />
 </template>

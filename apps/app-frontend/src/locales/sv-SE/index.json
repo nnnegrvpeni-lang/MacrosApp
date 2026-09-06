@@ -1625,29 +1625,8 @@
   "minecraft-required.sign-in": {
     "message": "Logga in på Microsoft"
   },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Fortsätt i din webbläsare"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Skapa ett konto"
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Konto behövs"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Öppna webbläsare igen"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Logga in på Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Logga in till ett Modrinth-konto"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Loggar in"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Har du problem med att logga in? <support>Få hjälp</support>"
   },
   "search.filter.locked.instance": {
     "message": "Tillhandahållet av instansen"

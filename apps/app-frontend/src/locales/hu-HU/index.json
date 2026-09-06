@@ -1793,38 +1793,8 @@
   "minecraft-required.sign-in": {
     "message": "Bejelentkezés a Microsft-ba"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Megnyílt egy új lap a bejelentkezéshez. Végezd el ott a bejelentkezést, majd térj vissza az alkalmazásba."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Folytatás a böngészőben"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Fiók létrehozása"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Ahhoz, hogy ezt a funkciót használhas, be kell jelentkeznie a Modrinth-fiókjába."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Fiók szükséges"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Böngésző megnyitása újra"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Jelentkezz be a Modrinthbe"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Jelentkezz be egy Modrinth-fiókba"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Bejelentkezés"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Problémád van a bejelentkezéssel? <support>Segítség</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Várakozás a böngésző megerősítésére..."
   },
   "search.filter.locked.instance": {
     "message": "Pédány által megadva"

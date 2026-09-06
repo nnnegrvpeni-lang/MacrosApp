@@ -13,6 +13,8 @@ import { type AppSettings, get, set } from '@/helpers/settings.ts'
 import { getOS } from '@/helpers/utils'
 import { appSettingsModalContextKey } from '@/providers/app-settings-modal'
 
+import AccentColorSelector from './AccentColorSelector.vue'
+
 const theme = useTheme()
 const auth = injectAuth()
 const { updatePreferences } = injectUserPreferences()
@@ -150,5 +152,8 @@ provideAppearanceSettings({
 </script>
 
 <template>
-	<AppearanceSettingsLayout />
+	<div class="flex flex-col">
+		<AppearanceSettingsLayout />
+		<AccentColorSelector />
+	</div>
 </template>

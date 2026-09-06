@@ -1808,38 +1808,8 @@
   "minecraft-required.sign-in": {
     "message": "Microsoft にサインイン"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "サインイン用のタブが開きました。そちらでサインインを完了してから、アプリに戻ってください。"
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "ブラウザで続行"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "アカウントを作成"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "この機能を利用するには、Modrinthアカウントにログインする必要があります。"
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "アカウントが必要です"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "もう一度ブラウザを開く"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Modrinthへサインイン"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Modrinth アカウントにサインインしてください"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "サインイン"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "サインインでお困りですか？<support>サポート</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "ブラウザからの確認を待っています…"
   },
   "search.filter.locked.instance": {
     "message": "インスタンスによる条件"

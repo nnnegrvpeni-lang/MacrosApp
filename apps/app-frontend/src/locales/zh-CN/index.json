@@ -1808,38 +1808,8 @@
   "minecraft-required.sign-in": {
     "message": "登录 Microsoft 账户"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "一个新的标签页已打开，你需要在那里完成登录，然后回到Modrinth app。"
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "请在你的浏览器中继续"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "新建账户"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "在使用这个功能之前，你需要登入你的Modrinth账户。"
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "需要账户"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "再次开启浏览器"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "登录 Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "登录 Modrinth 账号"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "正在登录"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "在登录时遇到困难？<support>获取帮助</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "等待浏览器确认……"
   },
   "search.filter.locked.instance": {
     "message": "由该实例提供"

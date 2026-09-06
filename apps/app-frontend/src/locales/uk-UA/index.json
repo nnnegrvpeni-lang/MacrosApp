@@ -1808,38 +1808,8 @@
   "minecraft-required.sign-in": {
     "message": "Увійти в Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Відкрилася нова вкладка, де ви зможете ввійти. Увійдіть, тоді поверніться до застосунку."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Продовжити у браузері"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Створити обліковий запис"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Ви повинні ввійти у свій обліковий запис Modrinth, перш ніж використовувати цей функціонал."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Необхідний обліковий запис"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Знову відкрити браузер"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Увійти в Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Вхід в обліковий запис Modrinth"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Вхід"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Не можете ввійти? <support>Отримати допомогу</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Очікуємо на підтвердження від переглядача…"
   },
   "search.filter.locked.instance": {
     "message": "Надано профілем"

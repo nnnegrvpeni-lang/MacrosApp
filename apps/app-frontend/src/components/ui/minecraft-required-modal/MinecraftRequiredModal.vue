@@ -25,7 +25,11 @@
 					<UserPlusIcon />
 					{{ formatMessage(messages.addOfflineAccount) }}
 				</Button>
-				<Button class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary" size="lg" @click="addElyby">
+				<Button
+					class="w-full !bg-surface-3 hover:!bg-surface-4 text-primary"
+					size="lg"
+					@click="addElyby"
+				>
 					<SparklesIcon />
 					{{ formatMessage(messages.addElybyAccount) }}
 				</Button>
@@ -91,8 +95,7 @@ const messages = defineMessages({
 	},
 	description: {
 		id: 'minecraft-required.description',
-		defaultMessage:
-			'You need a Minecraft account before you can launch and play.',
+		defaultMessage: 'You need a Minecraft account before you can launch and play.',
 	},
 	getSupport: {
 		id: 'minecraft-required.get-support',

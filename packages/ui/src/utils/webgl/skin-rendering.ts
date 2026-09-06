@@ -264,8 +264,12 @@ export async function setupSkinModel(
 	applyTexture(model, texture)
 
 	if (capeTextureUrl) {
-		const capeTexture = await loadTexture(capeTextureUrl, config)
-		applyCapeTexture(model, capeTexture)
+		try {
+			const capeTexture = await loadTexture(capeTextureUrl, config)
+			applyCapeTexture(model, capeTexture)
+		} catch (error) {
+			console.warn('Failed to load cape texture, continuing without cape:', error)
+		}
 	}
 
 	const bodyNode = findBodyNode(model)

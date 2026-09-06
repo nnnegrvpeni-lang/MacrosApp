@@ -40,6 +40,7 @@ import type { RenderResult } from '@/helpers/rendering/batch-skin-renderer.ts'
 import {
 	generateSkinPreviews,
 	getSkinPreviewKey,
+	headBlobUrlMap,
 	skinBlobUrlMap,
 } from '@/helpers/rendering/batch-skin-renderer.ts'
 import type { Cape, Skin, SkinTextureUrl } from '@/helpers/skins.ts'
@@ -805,7 +806,28 @@ async function loadCurrentUser() {
 }
 
 function getBakedSkinTextures(skin: Skin): RenderResult | undefined {
-	return skinBlobUrlMap.get(getSkinPreviewKey(skin))
+	const direct = skinBlobUrlMap.get(getSkinPreviewKey(skin))
+	if (direct) return direct
+
+	const classic = skinBlobUrlMap.get(getSkinPreviewKey({ ...skin, variant: 'CLASSIC' }))
+	if (classic) return classic
+
+	const unknown = skinBlobUrlMap.get(getSkinPreviewKey({ ...skin, variant: 'UNKNOWN' }))
+	if (unknown) return unknown
+
+	const slim = skinBlobUrlMap.get(getSkinPreviewKey({ ...skin, variant: 'SLIM' }))
+	if (slim) return slim
+
+	const headUrl = headBlobUrlMap.get(`${skin.texture_key}-head`)
+	if (headUrl) {
+		return { forwards: headUrl }
+	}
+
+	if (skin.texture?.startsWith('data:image/')) {
+		return { forwards: skin.texture }
+	}
+
+	return undefined
 }
 
 async function login() {

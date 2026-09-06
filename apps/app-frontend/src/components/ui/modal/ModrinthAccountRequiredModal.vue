@@ -9,39 +9,48 @@
 	>
 		<div class="flex w-full flex-col gap-5 p-6">
 			<div class="flex flex-col gap-2 px-1">
-				<h2 class="m-0 text-xl font-bold leading-7 text-contrast">
-					Вход в аккаунт Modrinth
-				</h2>
+				<h2 class="m-0 text-xl font-bold leading-7 text-contrast">Вход в аккаунт Modrinth</h2>
 				<p class="m-0 text-xs text-secondary leading-relaxed">
-					Открыто окно авторизации. Войдите в свой аккаунт Modrinth через появившееся окно — лаунчер автоматически завершит подключение.
+					Открыто окно авторизации. Войдите в свой аккаунт Modrinth через появившееся окно — лаунчер
+					автоматически завершит подключение.
 				</p>
-				<div v-if="errorMessage" class="rounded-xl bg-red-500/10 border border-red-500/30 p-2.5 text-xs text-red-400">
+				<div
+					v-if="errorMessage"
+					class="rounded-xl bg-red-500/10 border border-red-500/30 p-2.5 text-xs text-red-400"
+				>
 					{{ errorMessage }}
 				</div>
-				<div v-else-if="authenticating" class="flex items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2.5 border border-surface-4 text-primary">
+				<div
+					v-else-if="authenticating"
+					class="flex items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2.5 border border-surface-4 text-primary"
+				>
 					<SpinnerIcon aria-hidden="true" class="h-4 w-4 shrink-0 animate-spin text-brand" />
-					<span class="text-xs text-primary font-medium">
-						Ожидание завершения авторизации...
-					</span>
+					<span class="text-xs text-primary font-medium"> Ожидание завершения авторизации... </span>
 				</div>
-				<div v-else class="flex items-center justify-between gap-2.5 rounded-xl bg-surface-2 px-3 py-2 border border-surface-4 text-secondary">
-					<span class="text-xs font-medium text-contrast">
-						Окно авторизации закрыто
-					</span>
+				<div
+					v-else
+					class="flex items-center justify-between gap-2.5 rounded-xl bg-surface-2 px-3 py-2 border border-surface-4 text-secondary"
+				>
+					<span class="text-xs font-medium text-contrast"> Окно авторизации закрыто </span>
 					<Button type="colored" color="brand" @click="authenticate('sign-in')">
 						Войти снова
 					</Button>
 				</div>
 			</div>
 
-			<details class="group rounded-2xl bg-surface-2 p-3.5 border border-surface-4 shadow-sm text-xs">
-				<summary class="cursor-pointer font-semibold text-secondary hover:text-contrast select-none flex items-center justify-between">
+			<details
+				class="group rounded-2xl bg-surface-2 p-3.5 border border-surface-4 shadow-sm text-xs"
+			>
+				<summary
+					class="cursor-pointer font-semibold text-secondary hover:text-contrast select-none flex items-center justify-between"
+				>
 					<span>Дополнительно: ручной ввод токена</span>
 					<span class="text-xs text-brand transition-transform group-open:rotate-180">▼</span>
 				</summary>
 				<div class="flex flex-col gap-2.5 pt-3">
 					<p class="m-0 text-secondary text-xs leading-relaxed">
-						Если у вас есть персональный токен доступа (PAT) или ссылка авторизации, укажите её ниже:
+						Если у вас есть персональный токен доступа (PAT) или ссылка авторизации, укажите её
+						ниже:
 					</p>
 					<div class="flex gap-2">
 						<input
@@ -65,7 +74,12 @@
 
 			<div class="flex flex-col gap-3">
 				<div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
-					<Button type="outlined" class="w-full justify-center" native-type="button" @click="modal?.hide()">
+					<Button
+						type="outlined"
+						class="w-full justify-center"
+						native-type="button"
+						@click="modal?.hide()"
+					>
 						<XIcon aria-hidden="true" />
 						Отмена
 					</Button>
@@ -94,12 +108,7 @@
 
 <script setup lang="ts">
 import { RefreshCwIcon, SpinnerIcon, UserPlusIcon, XIcon } from '@modrinth/assets'
-import {
-	Button,
-	defineMessages,
-	NewModal,
-	useVIntl,
-} from '@modrinth/ui'
+import { Button, defineMessages, NewModal, useVIntl } from '@modrinth/ui'
 import { invoke } from '@tauri-apps/api/core'
 import { onMounted, onUnmounted, ref } from 'vue'
 
@@ -131,11 +140,19 @@ async function onWindowFocus() {
 	if (authenticating.value) {
 		try {
 			const text = await navigator.clipboard.readText()
-			if (text && (text.includes('mra_') || text.includes('code=mra_') || text.startsWith('modrinth://') || text.includes('127.0.0.1:'))) {
+			if (
+				text &&
+				(text.includes('mra_') ||
+					text.includes('code=mra_') ||
+					text.startsWith('modrinth://') ||
+					text.includes('127.0.0.1:'))
+			) {
 				manualToken.value = text.trim()
 				await submitManualToken()
 			}
-		} catch {}
+		} catch {
+			// Ignore clipboard failure
+		}
 	}
 }
 
@@ -201,11 +218,11 @@ function authenticate(flow: ModrinthAuthFlow) {
 				authenticating.value = null
 				activeAuthentication = undefined
 			}
-		} catch (err: any) {
+		} catch (err: unknown) {
 			if (authenticationId === id) {
 				authenticating.value = null
 				activeAuthentication = undefined
-				errorMessage.value = err?.message || String(err)
+				errorMessage.value = (err as Error)?.message || String(err)
 			}
 		}
 	})()

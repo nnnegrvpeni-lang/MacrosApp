@@ -1808,38 +1808,8 @@
   "minecraft-required.sign-in": {
     "message": "登入 Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "一個新分頁已開啟供你登入。請在該分頁完成登入，然後返回應用程式。"
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "在瀏覽器中繼續"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "建立帳號"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "你必須登入 Modrinth 帳號才能使用這個功能。"
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "需要帳號"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "再次開啟瀏覽器"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "登入 Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "登入 Modrinth 帳號"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "登入"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "登入時遇到問題嗎？<support>取得支援</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "等待瀏覽器確認..."
   },
   "search.filter.locked.instance": {
     "message": "由該實例提供"

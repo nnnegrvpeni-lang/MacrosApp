@@ -3,7 +3,11 @@
 		<div v-if="!doneLoading" class="splash-screen dark">
 			<div class="app-logo-wrapper" data-tauri-drag-region>
 				<div class="flex items-center gap-3 select-none pointer-events-none mb-1">
-					<img src="@/assets/macros_logo.png" alt="Macros" class="h-10 w-10 object-contain shrink-0" />
+					<img
+						src="@/assets/macros_logo.png"
+						alt="Macros"
+						class="h-10 w-10 object-contain shrink-0"
+					/>
 					<div class="flex items-baseline gap-2">
 						<span class="font-bold text-3xl text-contrast tracking-tight lowercase">macros</span>
 						<span class="font-semibold text-3xl text-brand tracking-tight lowercase">app</span>

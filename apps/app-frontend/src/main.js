@@ -8,10 +8,13 @@ import FloatingVue from 'floating-vue'
 import { createApp } from 'vue'
 
 import App from '@/App.vue'
+import { initAccentColor } from '@/composables/use-accent-color'
 import { overlayScrollbarsDirective } from '@/directives/overlayScrollbars'
 import i18nPlugin from '@/plugins/i18n'
 import i18nDebugPlugin from '@/plugins/i18n-debug'
 import router from '@/routes'
+
+initAccentColor()
 
 const vueScan = new VueScanPlugin({
 	enabled: false, // Enable or disable the tracker

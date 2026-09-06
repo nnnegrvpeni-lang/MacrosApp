@@ -1901,38 +1901,8 @@
   "minecraft-required.sign-in": {
     "message": "Войти в Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Открылась вкладка для входа. Завершение вход и вернитесь в приложение."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Продолжите в браузере"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Создать аккаунт"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Войдите в аккаунт Modrinth, чтобы использовать эту функцию."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Требуется аккаунт"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Открыть браузер снова"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Войти в Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Войдите в аккаунт Modrinth"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Вход"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Проблемы с входом? <support>Обратитесь в поддержку</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Ожидание подтверждения браузера..."
   },
   "search.filter.locked.instance": {
     "message": "Управляется сборкой"

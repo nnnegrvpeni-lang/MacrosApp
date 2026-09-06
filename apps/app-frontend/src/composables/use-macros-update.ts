@@ -43,7 +43,10 @@ export const updateMessages = defineMessages({
 	},
 })
 
-function safeFormatMessage(descriptor: MessageDescriptor, values?: Record<string, unknown>): string {
+function safeFormatMessage(
+	descriptor: MessageDescriptor,
+	values?: Record<string, unknown>,
+): string {
 	try {
 		const { formatMessage } = useVIntl()
 		return formatMessage(descriptor, values)
@@ -126,9 +129,9 @@ export async function checkForMacrosUpdate(
 		if (isVersionNewer(latestTag, currentVersion)) {
 			let downloadUrl = release.html_url
 			if (Array.isArray(release.assets)) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const exeAsset = release.assets.find((a: any) =>
-					typeof a.name === 'string' && a.name.endsWith('.exe'),
+				const exeAsset = release.assets.find(
+					(a: { name?: string; browser_download_url?: string }) =>
+						typeof a.name === 'string' && a.name.endsWith('.exe'),
 				)
 				if (exeAsset?.browser_download_url) {
 					downloadUrl = exeAsset.browser_download_url
@@ -148,8 +151,7 @@ export async function checkForMacrosUpdate(
 			const updateInfo: MacrosAppUpdateInfo = {
 				version: latestTag,
 				releaseName: release.name || latestTag,
-				summary:
-					summary || safeFormatMessage(updateMessages.defaultSummary),
+				summary: summary || safeFormatMessage(updateMessages.defaultSummary),
 				downloadUrl,
 				releaseUrl: release.html_url,
 				publishedAt: release.published_at || release.created_at,

@@ -550,6 +550,11 @@ pub async fn poll_elyby_device_code(
         .unwrap_or_else(|_| generate_offline_uuid(&profile_resp.name));
 
     let mut skins = profile_resp.skins;
+    for skin in &mut skins {
+        if skin.variant == MinecraftSkinVariant::Unknown {
+            skin.variant = MinecraftSkinVariant::Classic;
+        }
+    }
     if skins.is_empty() {
         if let Ok(url) = Url::parse(&format!(
             "http://skinsystem.ely.by/skins/{}.png",
@@ -566,20 +571,7 @@ pub async fn poll_elyby_device_code(
         }
     }
 
-    let mut capes = profile_resp.capes;
-    if capes.is_empty() {
-        if let Ok(url) = Url::parse(&format!(
-            "http://skinsystem.ely.by/cloaks/{}.png",
-            profile_resp.name
-        )) {
-            capes.push(MinecraftCape {
-                id: Uuid::new_v4(),
-                state: MinecraftCharacterExpressionState::Active,
-                url: Arc::new(url),
-                name: "Ely.by Cape".into(),
-            });
-        }
-    }
+    let capes = profile_resp.capes;
 
     let credentials = Credentials {
         offline_profile: MinecraftProfile {
@@ -694,19 +686,6 @@ impl Credentials {
                         texture_key: None,
                         variant: MinecraftSkinVariant::Classic,
                         name: Some("Ely.by Skin".to_string()),
-                    });
-                }
-            }
-            if profile.capes.is_empty() {
-                if let Ok(url) = url::Url::parse(&format!(
-                    "http://skinsystem.ely.by/cloaks/{}.png",
-                    profile.name
-                )) {
-                    profile.capes.push(MinecraftCape {
-                        id: Uuid::new_v4(),
-                        state: MinecraftCharacterExpressionState::Active,
-                        url: Arc::new(url),
-                        name: "Ely.by Cape".into(),
                     });
                 }
             }
@@ -1972,17 +1951,6 @@ async fn elyby_profile(
                 texture_key: None,
                 variant: MinecraftSkinVariant::Classic,
                 name: Some("Ely.by Skin".to_string()),
-            });
-        }
-    }
-
-    if profile.capes.is_empty() {
-        if let Ok(url) = Url::parse(&format!("http://skinsystem.ely.by/cloaks/{}.png", name)) {
-            profile.capes.push(MinecraftCape {
-                id: Uuid::new_v4(),
-                state: MinecraftCharacterExpressionState::Active,
-                url: Arc::new(url),
-                name: "Ely.by Cape".into(),
             });
         }
     }

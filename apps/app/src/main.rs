@@ -66,6 +66,23 @@ fn show_window(app: tauri::AppHandle) {
             .unwrap();
         panic!("cannot display application window")
     } else {
+        #[cfg(target_os = "windows")]
+        if let Ok(hwnd) = win.hwnd() {
+            unsafe {
+                use windows::Win32::Graphics::Dwm::{
+                    DwmSetWindowAttribute, DWMWA_WINDOW_CORNER_PREFERENCE,
+                    DWM_WINDOW_CORNER_PREFERENCE, DWMWCP_ROUND,
+                };
+                use windows::Win32::Foundation::HWND;
+                let preference = DWMWCP_ROUND;
+                let _ = DwmSetWindowAttribute(
+                    HWND(hwnd.0),
+                    DWMWA_WINDOW_CORNER_PREFERENCE,
+                    &preference as *const _ as *const _,
+                    std::mem::size_of::<DWM_WINDOW_CORNER_PREFERENCE>() as u32,
+                );
+            }
+        }
         let _ = win.set_focus();
     }
 }

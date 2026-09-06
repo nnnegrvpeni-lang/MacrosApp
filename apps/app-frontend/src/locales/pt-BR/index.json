@@ -1808,38 +1808,8 @@
   "minecraft-required.sign-in": {
     "message": "Entrar na Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Uma nova aba foi aberta para iniciar sessão. Conclua lá, então volte ao aplicativo."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Continuar em seu navegador"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Criar uma conta"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Você precisa iniciar sessão na sua conta do Modrinth antes de usar este recurso."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Conta necessária"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Abra o navegador novamente"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Entrar no Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Iniciar sessão em uma conta do Modrinth"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Iniciando sessão"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Enfrentando problemas ao iniciar sessão? <support>Obtenha suporte</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Aguardando confirmação do navegador..."
   },
   "search.filter.locked.instance": {
     "message": "Fornecido pela instância"

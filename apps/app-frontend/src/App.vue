@@ -9,13 +9,11 @@ import {
 	VerboseLoggingFeature,
 } from '@modrinth/api-client'
 import {
-	ArrowBigUpDashIcon,
 	ChevronLeftIcon,
 	ChevronRightIcon,
 	CompassIcon,
 	LogInIcon,
 	LogOutIcon,
-	ModrinthIcon,
 	NewspaperIcon,
 	PlayIcon,
 	PlusIcon,
@@ -404,42 +402,48 @@ const activeNewsTab = ref('macros')
 const defaultMacrosNews = [
 	{
 		title: 'MacrosApp v1.2.4',
-		summary: 'Fixed Ely.by skin sync & 3D body caching, eliminated skin change error loop on account removal, and cleaned up sign-in UI.',
+		summary:
+			'Fixed Ely.by skin sync & 3D body caching, eliminated skin change error loop on account removal, and cleaned up sign-in UI.',
 		thumbnail: macrosBanner,
 		date: '2026-09-05T21:35:00Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.4',
 	},
 	{
 		title: 'MacrosApp v1.2.3',
-		summary: 'Hotfix: Fixed blank screen when opening the Browse/Mods discovery page and restored catalog search.',
+		summary:
+			'Hotfix: Fixed blank screen when opening the Browse/Mods discovery page and restored catalog search.',
 		thumbnail: macrosBanner,
 		date: '2026-09-05T19:50:00Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.3',
 	},
 	{
 		title: 'MacrosApp v1.2.2',
-		summary: 'Full English documentation, internationalized update system and release notes, and UI enhancements.',
+		summary:
+			'Full English documentation, internationalized update system and release notes, and UI enhancements.',
 		thumbnail: macrosBanner,
 		date: '2026-09-05T19:30:00Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.2',
 	},
 	{
 		title: 'MacrosApp v1.2.1',
-		summary: 'Smart update notifications from GitHub Releases, header update button, and Settings layout fixes.',
+		summary:
+			'Smart update notifications from GitHub Releases, header update button, and Settings layout fixes.',
 		thumbnail: macrosBanner,
 		date: '2026-09-05T17:15:00Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.1',
 	},
 	{
 		title: 'MacrosApp v1.2.0',
-		summary: 'Multi-feed news tabs (Macros, Minecraft, Modrinth), sidebar visibility toggles, and custom banners.',
+		summary:
+			'Multi-feed news tabs (Macros, Minecraft, Modrinth), sidebar visibility toggles, and custom banners.',
 		thumbnail: macrosBanner,
 		date: '2026-09-05T16:00:00Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.0',
 	},
 	{
 		title: 'MacrosApp v1.1.1',
-		summary: 'Automatic Modrinth OAuth login via native window, token interception, and enhanced Ely.by skins.',
+		summary:
+			'Automatic Modrinth OAuth login via native window, token interception, and enhanced Ely.by skins.',
 		thumbnail: macrosBanner,
 		date: '2026-09-04T19:12:26Z',
 		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.1.1',
@@ -456,7 +460,8 @@ const defaultMinecraftNews = [
 	{
 		title: 'The Hero Cape',
 		summary: 'Show off your bravery with the Hero Cape in Minecraft Java & Bedrock Edition.',
-		thumbnail: 'https://launchercontent.mojang.com/v2/images/MCD2HeroCapeMinecraftLauncher700x466.png',
+		thumbnail:
+			'https://launchercontent.mojang.com/v2/images/MCD2HeroCapeMinecraftLauncher700x466.png',
 		date: '2026-08-27',
 		path: 'https://www.minecraft.net/article/minecraft-dungeons-ii-capes-promos?OCID=Launcher',
 	},
@@ -814,14 +819,10 @@ async function setupApp() {
 					.filter((rel) => !rel.draft)
 					.slice(0, 4)
 					.map((rel) => {
-						const imgMatch = rel.body
-							? rel.body.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/)
-							: null
+						const imgMatch = rel.body ? rel.body.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/) : null
 						let thumbnail = imgMatch ? imgMatch[1] : null
 						if (!thumbnail && rel.assets && rel.assets.length > 0) {
-							const imageAsset = rel.assets.find((a) =>
-								/\.(png|jpe?g|webp)$/i.test(a.name),
-							)
+							const imageAsset = rel.assets.find((a) => /\.(png|jpe?g|webp)$/i.test(a.name))
 							if (imageAsset) {
 								thumbnail = imageAsset.browser_download_url
 							}
@@ -1916,7 +1917,9 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	<div
 		v-if="stateInitialized"
 		class="app-grid-layout relative"
-		:class="{ 'disable-advanced-rendering': !appTheme.advancedRendering }"
+		:class="{
+			'disable-advanced-rendering': !appTheme.advancedRendering,
+		}"
 	>
 		<Transition name="fade">
 			<div
@@ -2072,7 +2075,11 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		<div data-tauri-drag-region class="app-grid-statusbar bg-bg-raised h-[--top-bar-height] flex">
 			<div data-tauri-drag-region class="flex min-w-0 flex-1 items-center overflow-hidden p-2">
 				<div class="flex items-center gap-2 select-none pointer-events-none shrink-0 pl-1 pr-2">
-					<img src="@/assets/macros_logo.png" alt="Macros" class="h-9 w-9 object-contain shrink-0" />
+					<img
+						src="@/assets/macros_logo.png"
+						alt="Macros"
+						class="h-9 w-9 object-contain shrink-0"
+					/>
 					<span class="font-bold text-lg text-contrast tracking-tight lowercase">macros</span>
 				</div>
 				<div data-tauri-drag-region class="ml-2 flex shrink-0 items-center gap-2">
@@ -2198,14 +2205,14 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			>
 				<OnboardingChecklist
 					@create-instance="installationModal?.show()"
-					@login-minecraft="accounts?.openOfflineModal ? accounts.openOfflineModal() : accounts?.login()"
+					@login-minecraft="
+						accounts?.openOfflineModal ? accounts.openOfflineModal() : accounts?.login()
+					"
 					@login-modrinth="() => requestSignIn()"
 				/>
 				<div id="sidebar-teleport-target" class="sidebar-teleport-content"></div>
 				<div class="sidebar-default-content" :class="{ 'sidebar-enabled': sidebarVisible }">
-					<div
-						class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid"
-					>
+					<div class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid">
 						<h3 class="text-base text-primary font-medium m-0">
 							{{ formatMessage(messages.playingAs) }}
 						</h3>
@@ -2226,7 +2233,10 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 						class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid"
 					/>
 					<div
-						v-if="showSidebarNews && (macrosNews.length > 0 || minecraftNews.length > 0 || modrinthNews.length > 0)"
+						v-if="
+							showSidebarNews &&
+							(macrosNews.length > 0 || minecraftNews.length > 0 || modrinthNews.length > 0)
+						"
 						class="p-4 flex flex-col items-center"
 					>
 						<h3 class="text-base mb-3 text-primary font-medium m-0 text-left w-full">
@@ -2238,7 +2248,11 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 							<button
 								type="button"
 								class="flex-1 py-1 px-2 text-xs font-medium rounded-lg transition-all cursor-pointer border-0"
-								:class="activeNewsTab === 'macros' ? 'bg-button-bg text-primary shadow-xs font-semibold' : 'bg-transparent text-secondary hover:text-primary'"
+								:class="
+									activeNewsTab === 'macros'
+										? 'bg-button-bg text-primary shadow-xs font-semibold'
+										: 'bg-transparent text-secondary hover:text-primary'
+								"
 								@click="activeNewsTab = 'macros'"
 							>
 								Macros
@@ -2246,7 +2260,11 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 							<button
 								type="button"
 								class="flex-1 py-1 px-2 text-xs font-medium rounded-lg transition-all cursor-pointer border-0"
-								:class="activeNewsTab === 'minecraft' ? 'bg-button-bg text-primary shadow-xs font-semibold' : 'bg-transparent text-secondary hover:text-primary'"
+								:class="
+									activeNewsTab === 'minecraft'
+										? 'bg-button-bg text-primary shadow-xs font-semibold'
+										: 'bg-transparent text-secondary hover:text-primary'
+								"
 								@click="activeNewsTab = 'minecraft'"
 							>
 								Minecraft
@@ -2254,7 +2272,11 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 							<button
 								type="button"
 								class="flex-1 py-1 px-2 text-xs font-medium rounded-lg transition-all cursor-pointer border-0"
-								:class="activeNewsTab === 'modrinth' ? 'bg-button-bg text-primary shadow-xs font-semibold' : 'bg-transparent text-secondary hover:text-primary'"
+								:class="
+									activeNewsTab === 'modrinth'
+										? 'bg-button-bg text-primary shadow-xs font-semibold'
+										: 'bg-transparent text-secondary hover:text-primary'
+								"
 								@click="activeNewsTab = 'modrinth'"
 							>
 								Modrinth

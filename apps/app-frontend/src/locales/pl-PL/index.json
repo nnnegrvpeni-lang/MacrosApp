@@ -1601,32 +1601,8 @@
   "minecraft-required.sign-in": {
     "message": "Zaloguj się do Microsoft"
   },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Kontynuuj w przeglądarce"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Utwórz konto"
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Konto wymagane"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Otwórz ponownie przeglądarkę"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Zaloguj się na Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Zaloguj się na konto Modrinth"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Trwa logowanie"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Masz problem z logowaniem? Skorzystaj z <support>Obsługi klienta</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Oczekiwanie na twoje potwierdzenie..."
   },
   "search.filter.locked.instance": {
     "message": "Podane przez instancję"

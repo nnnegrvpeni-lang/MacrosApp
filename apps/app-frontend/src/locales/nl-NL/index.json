@@ -1808,38 +1808,8 @@
   "minecraft-required.sign-in": {
     "message": "Aanmelden bij Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Er is een nieuw tabblad geopend om je aan te melden. Log daar in en ga vervolgens terug naar de app."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Doorgaan in je browser"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Een account aanmaken"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Je moet je aanmelden bij je Modrinth-account voordat je deze functie kunt gebruiken."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Account vereist"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Opnieuw de browser openen"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Bij Modrinth aanmelden"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Meld je aan bij een Modrinth-account"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Aanmelden"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Problemen bij het aanmelden? <support>Hulp krijgen</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Wachten op bevestiging van de browser..."
   },
   "search.filter.locked.instance": {
     "message": "Aangeboden door de instantie"

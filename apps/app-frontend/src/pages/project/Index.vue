@@ -239,7 +239,10 @@
 		/>
 		<CurseForgeInstallModal ref="curseForgeInstallModalRef" />
 	</div>
-	<div v-else class="flex flex-col items-center justify-center min-h-[400px] p-12 text-center text-secondary">
+	<div
+		v-else
+		class="flex flex-col items-center justify-center min-h-[400px] p-12 text-center text-secondary"
+	>
 		<SpinnerIcon class="w-8 h-8 animate-spin mb-4 text-brand" />
 		<p class="text-base font-semibold">{{ formatMessage(commonMessages.loadingLabel) }}</p>
 	</div>
@@ -764,7 +767,9 @@ async function fetchProjectData() {
 		])
 		project = p
 		projectV3Result = pv3
-	} catch {}
+	} catch {
+		// Ignore fetch errors
+	}
 
 	if (!project && !requestedId.startsWith('cf-')) {
 		try {
@@ -794,7 +799,9 @@ async function fetchProjectData() {
 				organization.value = null
 				return
 			}
-		} catch {}
+		} catch {
+			// Ignore CurseForge lookup failure
+		}
 	}
 
 	if (String(route.params.id ?? '') !== requestedId) {
@@ -812,7 +819,9 @@ async function fetchProjectData() {
 	projectBreadcrumbLabel.value = project.title
 	;[versions.value, members.value, categories.value, instance.value, instanceProjects.value] =
 		await Promise.all([
-			project.versions?.length ? get_version_many(project.versions, 'must_revalidate').catch(() => []) : Promise.resolve([]),
+			project.versions?.length
+				? get_version_many(project.versions, 'must_revalidate').catch(() => [])
+				: Promise.resolve([]),
 			project.team ? get_team(project.team).catch(() => null) : Promise.resolve(null),
 			get_categories().catch(() => []),
 			route.query.i ? getInstance(route.query.i).catch(() => null) : Promise.resolve(null),

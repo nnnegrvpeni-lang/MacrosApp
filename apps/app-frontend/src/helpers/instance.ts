@@ -561,4 +561,3 @@ export async function install_curseforge_file(
 		projectType,
 	})
 }
-

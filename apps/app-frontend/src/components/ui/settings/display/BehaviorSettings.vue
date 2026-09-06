@@ -158,8 +158,7 @@ const messages = defineMessages({
 	},
 	checkLauncherUpdatesDescription: {
 		id: 'app.behavior-settings.check-launcher-updates.description',
-		defaultMessage:
-			'Automatically check for new launcher versions on GitHub when opening the app.',
+		defaultMessage: 'Automatically check for new launcher versions on GitHub when opening the app.',
 	},
 	checkUpdatesNow: {
 		id: 'app.behavior-settings.check-updates-now',
@@ -219,8 +218,7 @@ function getBehaviorSettingsState(settings: AppSettings): BehaviorSettingsState 
 			settings.feature_flags[skipNonEssentialWarningsFlag] ??
 			DEFAULT_FEATURE_FLAGS[skipNonEssentialWarningsFlag],
 		showSidebarNews:
-			settings.feature_flags[showSidebarNewsFlag] ??
-			DEFAULT_FEATURE_FLAGS[showSidebarNewsFlag],
+			settings.feature_flags[showSidebarNewsFlag] ?? DEFAULT_FEATURE_FLAGS[showSidebarNewsFlag],
 		checkLauncherUpdates:
 			settings.feature_flags[checkLauncherUpdatesFlag] ??
 			DEFAULT_FEATURE_FLAGS[checkLauncherUpdatesFlag],
@@ -469,12 +467,16 @@ function manualCheckUpdate() {
 				class="flex items-center justify-between p-4 rounded-xl bg-brand/10 border border-brand/30"
 			>
 				<div class="flex items-center gap-3">
-					<div class="w-10 h-10 rounded-lg bg-brand/20 flex items-center justify-center text-brand shrink-0">
+					<div
+						class="w-10 h-10 rounded-lg bg-brand/20 flex items-center justify-center text-brand shrink-0"
+					>
 						<ArrowBigUpDashIcon class="w-6 h-6" />
 					</div>
 					<div>
 						<div class="font-bold text-contrast flex items-center gap-2">
-							{{ formatMessage(messages.updateAvailableTitle, { version: macrosAppUpdate.version }) }}
+							{{
+								formatMessage(messages.updateAvailableTitle, { version: macrosAppUpdate.version })
+							}}
 							<span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
 						</div>
 						<div class="text-xs text-secondary mt-0.5">
@@ -505,14 +507,13 @@ function manualCheckUpdate() {
 			</div>
 
 			<div class="flex items-center gap-3">
-				<Button
-					type="outlined"
-					size="sm"
-					:disabled="checkingUpdate"
-					@click="manualCheckUpdate"
-				>
+				<Button type="outlined" size="sm" :disabled="checkingUpdate" @click="manualCheckUpdate">
 					<RefreshCwIcon class="w-4 h-4 mr-1.5" :class="{ 'animate-spin': checkingUpdate }" />
-					{{ checkingUpdate ? formatMessage(messages.checkingUpdates) : formatMessage(messages.checkUpdatesNow) }}
+					{{
+						checkingUpdate
+							? formatMessage(messages.checkingUpdates)
+							: formatMessage(messages.checkUpdatesNow)
+					}}
 				</Button>
 			</div>
 		</div>

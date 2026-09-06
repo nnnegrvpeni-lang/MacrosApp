@@ -1805,38 +1805,8 @@
   "minecraft-required.sign-in": {
     "message": "Accedi a Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "Si è aperta una nuova scheda per effettuare l'accesso. Poi torna all'app."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Continua nel browser"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Crea un account"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Devi aver effettuato l'accesso a Modrinth per usare questa funzione."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Account richiesto"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Apri di nuovo il browser"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Accedi a Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Accedi a un account Modrinth"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Accesso"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Hai problemi ad accedere? Scrivi al <support>supporto</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "Aspettando la conferma del browser..."
   },
   "search.filter.locked.instance": {
     "message": "Determinato dall'istanza"

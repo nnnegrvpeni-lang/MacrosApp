@@ -141,7 +141,7 @@ export async function searchCurseForge(options: {
 			installed?: boolean
 		} = {
 			project_id: `cf-${mod.id}`,
-			project_type: projectType as any,
+			project_type: projectType as Labrinth.Projects.ProjectType,
 			slug: mod.slug,
 			author: authorName,
 			title: mod.name,
@@ -329,11 +329,10 @@ export async function getCurseForgeModDescription(modId: number): Promise<string
 export function curseForgeModToModrinthProject(
 	cfMod: CurseForgeMod,
 	descriptionHtml = '',
-	files: CurseForgeFile[] = [],
-): any {
+	_files: CurseForgeFile[] = [],
+): Record<string, unknown> {
 	const loaders = extractLoaders(cfMod)
 	const gameVersions = extractGameVersions(cfMod)
-	const authorName = cfMod.authors?.map((a) => a.name).join(', ') || 'CurseForge'
 	const cfId = `cf-${cfMod.id}`
 
 	return {
@@ -401,7 +400,7 @@ export function curseForgeModToModrinthProject(
 export function curseForgeFilesToModrinthVersions(
 	cfMod: CurseForgeMod,
 	files: CurseForgeFile[],
-): any[] {
+): Record<string, unknown>[] {
 	const cfId = `cf-${cfMod.id}`
 	return files.map((f) => {
 		const gvs = (f.gameVersions || []).filter((v) => /^\d+\.\d+/.test(v))

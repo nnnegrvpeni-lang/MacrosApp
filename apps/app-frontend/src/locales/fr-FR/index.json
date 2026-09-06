@@ -1808,38 +1808,8 @@
   "minecraft-required.sign-in": {
     "message": "Se connecter à Microsoft"
   },
-  "modal.modrinth-account-required.browser-description": {
-    "message": "A nouvel onglet a été ouvert pour vous connecter. Finissez la connexion, puis retournez dans l'application."
-  },
-  "modal.modrinth-account-required.continue-in-browser-heading": {
-    "message": "Continuer dans votre navigateur"
-  },
-  "modal.modrinth-account-required.create-account-button": {
-    "message": "Créer un compte"
-  },
-  "modal.modrinth-account-required.description": {
-    "message": "Vous aurez besoin de vous connecter à votre compte Modrinth avant de pouvoir utiliser cette fonctionnalité."
-  },
-  "modal.modrinth-account-required.header": {
-    "message": "Compte requis"
-  },
-  "modal.modrinth-account-required.open-browser-again-button": {
-    "message": "Ouvrir de nouveau le navigateur"
-  },
-  "modal.modrinth-account-required.sign-in-button": {
-    "message": "Se connecter à Modrinth"
-  },
-  "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Se connecter à un compte Modrinth"
-  },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Connexion"
-  },
-  "modal.modrinth-account-required.support-prompt": {
-    "message": "Vous avez des problèmes à vous connecter ? <support>Obtenez de l'aide</support>"
-  },
-  "modal.modrinth-account-required.waiting-for-browser": {
-    "message": "En attente de la confirmation du navigateur..."
   },
   "search.filter.locked.instance": {
     "message": "Procuré par l'instance"

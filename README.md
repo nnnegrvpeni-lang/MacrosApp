@@ -62,7 +62,7 @@ Prebuilt binaries for Windows:
 
 👉 **[Download Latest MacrosApp Release](https://github.com/nnnegrvpeni-lang/MacrosApp/releases/latest)**
 
-- **`Macros_1.2.4_x64-setup.exe`** — Official Windows installer (NSIS).
+- **`Macros_1.2.5_x64-setup.exe`** — Official Windows installer (NSIS).
 - **`Macros.exe`** — Portable standalone executable (no installation required).
 
 ---
@@ -88,7 +88,7 @@ pnpm --filter @modrinth/app build
 ```
 
 The output executables and installer will be located in:
-- `target/release/bundle/nsis/Macros_1.2.4_x64-setup.exe` — Windows installer
+- `target/release/bundle/nsis/Macros_1.2.5_x64-setup.exe` — Windows installer
 - `target/release/Macros.exe` — Standalone binary
 
 ---
