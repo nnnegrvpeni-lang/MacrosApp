@@ -4,17 +4,22 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](COPYING.md)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)](https://github.com/nnnegrvpeni-lang/MacrosApp/releases)
 
-**MacrosApp** is a fast, lightweight, and modified fork of the Modrinth App featuring native **Ely.by** skins and accounts support, **Offline mode (No-Auth)**, unified **CurseForge** catalog browsing, **Discord Rich Presence**, non-intrusive **update notifications**, and a completely **ad-free** experience.
+**MacrosApp** is a fast, lightweight, and modern Minecraft launcher featuring its own native **MacrosApp account system** and web portal ([macrosapp.1337.cx](https://macrosapp.1337.cx)), **Ely.by** skins and accounts support, **Offline mode (No-Auth)**, unified **CurseForge & Modrinth** catalog browsing, **real-time friend modpack sharing**, **Discord Rich Presence**, and a completely **ad-free** experience.
 
 ---
 
 ## 🌟 Key Features
 
-### 👥 Friends & Real-Time Instance Sharing
-- **Live Friends Sidebar**: See your friends' online status and active instances in real time.
-- **Direct Instance Invites**: Share your custom modpack configurations with friends directly inside the launcher or via shareable web links.
-- **One-Click Install**: When invited, friends receive a live popup notification with preview and one-click modpack installation.
-- **Web Portal Integration**: Manage your shared instances and browse content at [macrosapp.1337.cx](https://macrosapp.1337.cx).
+### 🌐 Native MacrosApp Accounts & Web Platform
+- **Full Account Migration**: Complete transition to the standalone MacrosApp account and backend ecosystem.
+- **Web Portal ([macrosapp.1337.cx](https://macrosapp.1337.cx))**: Manage your account profile, custom avatars, bios, and shared modpacks directly from the web.
+- **Instant Launcher Sync**: Log in seamlessly inside the launcher or via the web portal with session persistence.
+
+### 👥 Friends & Private Modpack Sharing
+- **Live Friends Sidebar**: See your friends' online status and active instances in real time via high-performance WebSockets.
+- **Private & Secure Sharing**: Your shared modpacks are private by design — only accepted friends who are explicitly invited can view and install your packs.
+- **Direct In-Launcher Invites**: Send one-click modpack invitations to friends with real-time popup toast notifications and instant installation.
+- **Web Share Pages**: Convenient `/share/:invite_id` web previews with full mod lists and direct launcher deep-links.
 
 ### 🔔 Smart Update Notifications
 - Non-intrusive update checks powered directly by GitHub Releases API.
