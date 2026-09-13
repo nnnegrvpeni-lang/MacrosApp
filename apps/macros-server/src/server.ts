@@ -18,8 +18,9 @@ import {
 	type UserRow,
 	verifyPassword
 } from './auth.js'
-import { handleSocketConnection, notifyUser } from './socket.js'
-import { renderAccountHtml, renderAuthHtml, renderCatalogHtml, renderDashboardProjectsHtml, renderDownloadHtml, renderLandingHtml, renderModPageHtml, renderSettingsHtml, renderShareHtml } from './web.js'
+import { handleSocketConnection, notifyUser, isUserOnline } from './socket.js'
+import { renderAccountHtml, renderAuthHtml, renderCatalogHtml, renderDashboardProjectsHtml, renderDownloadHtml,
+	renderPublicUserProfileHtml, renderLandingHtml, renderModPageHtml, renderSettingsHtml, renderShareHtml } from './web.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dataDir = process.env.DATA_DIR || path.join(__dirname, '../data')
@@ -117,6 +118,12 @@ function authUser(req: any): UserRow | null {
 server.get('/_internal/launcher_socket', { websocket: true }, (socket, req) => {
 	const query = req.query as { code?: string }
 	const token = query.code || ''
+	handleSocketConnection(socket, token)
+})
+
+server.get('/ws', { websocket: true }, (socket, req) => {
+	const query = req.query as { token?: string; code?: string }
+	const token = query.token || query.code || ''
 	handleSocketConnection(socket, token)
 })
 
@@ -1635,11 +1642,74 @@ server.get('/project/:id', async (req, reply) => {
 })
 
 server.get('/user/:username', async (req, reply) => {
-	return reply.redirect('/account')
+	let { username } = req.params as { username: string }
+	try {
+		username = decodeURIComponent(username).trim()
+	} catch {}
+
+	const targetUser = db
+		.prepare('SELECT id, username, email, avatar_url, bio, role, badges, minecraft_username, created_at FROM users WHERE LOWER(username) = LOWER(?) OR id = ?')
+		.get(username, username) as any
+
+	if (!targetUser) {
+		return reply.redirect('/account')
+	}
+
+	const viewer = authUser(req)
+	if (viewer && viewer.id === targetUser.id) {
+		return reply.redirect('/account')
+	}
+
+	let relation: any = { accepted: false, is_outgoing: false, is_incoming: false }
+	if (viewer) {
+		const friendRow = db
+			.prepare('SELECT * FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)')
+			.get(viewer.id, targetUser.id, targetUser.id, viewer.id) as any
+
+		if (friendRow) {
+			if (friendRow.accepted === 1) {
+				relation.accepted = true
+			} else if (friendRow.user_id === viewer.id) {
+				relation.is_outgoing = true
+			} else {
+				relation.is_incoming = true
+			}
+		}
+	}
+
+	const projects = db
+		.prepare('SELECT id, slug, title, description, project_type, icon_url, downloads FROM projects WHERE user_id = ?')
+		.all(targetUser.id) as any[]
+
+	const sharedInstances = db
+		.prepare(`
+			SELECT si.id, si.name, si.icon_path, siv.game_version, siv.loader,
+				(SELECT id FROM shared_instance_invites WHERE instance_id = si.id ORDER BY created_at DESC LIMIT 1) as invite_id
+			FROM shared_instances si
+			LEFT JOIN shared_instance_versions siv ON siv.instance_id = si.id
+			WHERE si.owner_id = ?
+			ORDER BY si.created_at DESC
+		`)
+		.all(targetUser.id) as any[]
+
+	const targetOnline = isUserOnline(targetUser.id)
+
+	const html = renderPublicUserProfileHtml({
+		targetUser,
+		viewerUser: viewer ? formatPublicUser(viewer) : null,
+		relation,
+		projects,
+		sharedInstances,
+		isOnline: targetOnline
+	})
+
+	reply.type('text/html; charset=utf-8')
+	return reply.send(html)
 })
 
 server.get('/u/:username', async (req, reply) => {
-	return reply.redirect('/account')
+	const { username } = req.params as { username: string }
+	return reply.redirect('/user/' + encodeURIComponent(username))
 })
 
 server.get('/download', async (req, reply) => {

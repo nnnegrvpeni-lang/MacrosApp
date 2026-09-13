@@ -46,6 +46,29 @@ pub async fn handle_url(sublink: &str) -> crate::Result<CommandPayload> {
         Some(("version", id)) => {
             CommandPayload::InstallVersion { id: id.to_string() }
         }
+        // /install/{...} or /install/modrinth/{id}?version={v}
+        Some(("install", rest)) => {
+            let (target, target_query) = rest.split_once('?').unwrap_or((rest, query));
+            let mut version_param = None;
+            for (key, value) in form_urlencoded::parse(target_query.as_bytes()) {
+                if key == "version" {
+                    version_param = Some(value.into_owned());
+                }
+            }
+            if let Some(v_id) = version_param {
+                CommandPayload::InstallVersion { id: v_id }
+            } else if let Some(id) = target.strip_prefix("version/") {
+                CommandPayload::InstallVersion { id: id.to_string() }
+            } else if let Some(id) = target.strip_prefix("modrinth/") {
+                CommandPayload::InstallMod { id: id.to_string() }
+            } else if let Some(id) = target.strip_prefix("mod/") {
+                CommandPayload::InstallMod { id: id.to_string() }
+            } else if let Some(id) = target.strip_prefix("modpack/") {
+                CommandPayload::InstallModpack { id: id.to_string() }
+            } else {
+                CommandPayload::InstallMod { id: target.to_string() }
+            }
+        }
         // /modpack/{id}   -    Installs a modpack of modpack id
         Some(("modpack", id)) => {
             CommandPayload::InstallModpack { id: id.to_string() }

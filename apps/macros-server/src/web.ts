@@ -516,6 +516,76 @@ export function renderNavbarUserScript(): string {
 			}
 		};
 
+		let navWs = null;
+		function initNavbarWs() {
+			const token = localStorage.getItem('macros_token') || (function() {
+				const parts = ('; ' + document.cookie).split('; macros_session=');
+				if (parts.length === 2) return parts.pop().split(';').shift();
+				return null;
+			})();
+			if (!token) return;
+			const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+			const wsUrl = proto + '//' + location.host + '/ws?token=' + encodeURIComponent(token);
+			try {
+				if (navWs && navWs.readyState === WebSocket.OPEN) return;
+				navWs = new WebSocket(wsUrl);
+				navWs.onopen = function() {
+					window.loadNavNotifications();
+				};
+				navWs.onmessage = function(e) {
+					try {
+						const msg = JSON.parse(e.data);
+						if (msg.type === 'friend_request') {
+							window.loadNavNotifications();
+							if (typeof window.reloadFriendsList === 'function') window.reloadFriendsList();
+							if (typeof window.showLiveToast === 'function') window.showLiveToast('Вам отправлена заявка в друзья!', 'info');
+						} else if (msg.type === 'friend_request_accepted') {
+							window.loadNavNotifications();
+							if (typeof window.reloadFriendsList === 'function') window.reloadFriendsList();
+							if (typeof window.showLiveToast === 'function') window.showLiveToast('Заявка в друзья принята!', 'success');
+						} else if (msg.type === 'friend_removed') {
+							window.loadNavNotifications();
+							if (typeof window.reloadFriendsList === 'function') window.reloadFriendsList();
+						} else if (msg.type === 'status_update' || msg.type === 'friend_statuses' || msg.type === 'user_offline') {
+							if (typeof window.handleFriendStatusUpdate === 'function') {
+								window.handleFriendStatusUpdate(msg);
+							}
+						}
+					} catch(err) {}
+				};
+				navWs.onclose = function() {
+					setTimeout(initNavbarWs, 4000);
+				};
+			} catch(e) {}
+		}
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initNavbarWs);
+		} else {
+			initNavbarWs();
+		}
+
+		window.showLiveToast = function(text, type) {
+			let container = document.getElementById('liveToastContainer');
+			if (!container) {
+				container = document.createElement('div');
+				container.id = 'liveToastContainer';
+				container.className = 'fixed bottom-6 right-6 z-[999999] flex flex-col gap-2 pointer-events-none';
+				document.body.appendChild(container);
+			}
+			const toast = document.createElement('div');
+			toast.className = 'pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl bg-zinc-900/95 border ' +
+				(type === 'success' ? 'border-emerald-500/40 text-emerald-300' : 'border-zinc-700/80 text-white') +
+				' shadow-2xl backdrop-blur-md text-xs font-semibold animate-fade-up';
+			toast.innerHTML = '<span class="w-2 h-2 rounded-full ' + (type === 'success' ? 'bg-emerald-400' : 'bg-cyan-400') + '"></span><span>' + text + '</span>';
+			container.appendChild(toast);
+			setTimeout(function() {
+				toast.style.transition = 'opacity 0.3s, transform 0.3s';
+				toast.style.opacity = '0';
+				toast.style.transform = 'translateY(10px)';
+				setTimeout(function() { toast.remove(); }, 300);
+			}, 3500);
+		};
+
 		window.loadNavNotifications = async function() {
 			try {
 				const token = localStorage.getItem('macros_token');
@@ -629,6 +699,13 @@ export function renderNavbarUserScript(): string {
 				}
 			} catch (err) {}
 		};
+
+		// Initial load of notifications if token exists
+		setTimeout(function() {
+			if (localStorage.getItem('macros_token')) {
+				window.loadNavNotifications();
+			}
+		}, 100);
 
 		window.toggleUserMenu = function(e) {
 			if (e) {
@@ -4360,6 +4437,34 @@ export function renderAccountHtml(user?: any): string {
 
 				loadFriends();
 				loadInstances();
+				window.reloadFriendsList = loadFriends;
+				window.onlineFriends = new Map();
+				window.handleFriendStatusUpdate = function(msg) {
+					if (msg.type === 'friend_statuses' && Array.isArray(msg.statuses)) {
+						msg.statuses.forEach(function(st) {
+							window.onlineFriends.set(st.user_id, st);
+							updateFriendStatusRow(st.user_id, true, st.profile_name);
+						});
+					} else if (msg.type === 'status_update' && msg.status) {
+						window.onlineFriends.set(msg.status.user_id, msg.status);
+						updateFriendStatusRow(msg.status.user_id, true, msg.status.profile_name);
+					} else if (msg.type === 'user_offline') {
+						window.onlineFriends.delete(msg.id);
+						updateFriendStatusRow(msg.id, false);
+					}
+				};
+
+				function updateFriendStatusRow(userId, isOnline, profileName) {
+					const el = document.getElementById('friendStatus_' + userId);
+					if (!el) return;
+					if (isOnline) {
+						el.className = 'flex items-center gap-1.5 text-[11px] text-emerald-400';
+						el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> <span>' + (profileName ? ('В игре: ' + profileName) : 'В сети') + '</span>';
+					} else {
+						el.className = 'flex items-center gap-1.5 text-[11px] text-zinc-500';
+						el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> <span>Оффлайн</span>';
+					}
+				}
 				loadUserProjects();
 			} catch (err) {
 				console.error(err);
@@ -4496,8 +4601,9 @@ export function renderAccountHtml(user?: any): string {
 							
 							const meta = document.createElement('div');
 							meta.className = 'min-w-0';
-							const name = document.createElement('div');
-							name.className = 'font-bold text-white truncate text-sm';
+							const name = document.createElement('a');
+							name.href = '/user/' + encodeURIComponent(f.username || f.other_id);
+							name.className = 'font-bold text-white hover:text-emerald-400 transition truncate text-sm block';
 							name.textContent = f.username || f.other_id;
 							const sub = document.createElement('div');
 							sub.className = 'text-[11px] text-zinc-400';
@@ -4542,32 +4648,54 @@ export function renderAccountHtml(user?: any): string {
 							
 							const left = document.createElement('div');
 							left.className = 'flex items-center gap-3 min-w-0';
+							
+							const aAv = document.createElement('a');
+							aAv.href = '/user/' + encodeURIComponent(f.username || f.other_id);
+							aAv.className = 'shrink-0 group';
 							const avatar = document.createElement('img');
 							avatar.src = f.avatar_url || '/assets/logo.png';
-							avatar.className = 'w-8 h-8 rounded-full object-cover border border-white/10 shrink-0';
+							avatar.className = 'w-9 h-9 rounded-full object-cover border border-white/10 group-hover:border-emerald-500/50 transition';
 							avatar.onerror = () => { avatar.src = '/assets/logo.png'; };
+							aAv.appendChild(avatar);
 							
 							const meta = document.createElement('div');
 							meta.className = 'min-w-0';
-							const name = document.createElement('div');
-							name.className = 'font-semibold text-zinc-100 truncate';
-							name.textContent = f.username || f.other_id;
+							const aName = document.createElement('a');
+							aName.href = '/user/' + encodeURIComponent(f.username || f.other_id);
+							aName.className = 'font-semibold text-zinc-100 hover:text-emerald-400 transition truncate block text-sm';
+							aName.textContent = f.username || f.other_id;
+							
 							const sub = document.createElement('div');
-							sub.className = 'flex items-center gap-1.5 text-[11px] text-emerald-400';
-							sub.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> <span>В друзьях</span>';
-							meta.appendChild(name);
+							sub.id = 'friendStatus_' + (f.other_id || f.id);
+							const isOnline = window.onlineFriends && window.onlineFriends.has(f.other_id);
+							const stInfo = window.onlineFriends ? window.onlineFriends.get(f.other_id) : null;
+							if (isOnline) {
+								sub.className = 'flex items-center gap-1.5 text-[11px] text-emerald-400';
+								sub.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> <span>' + (stInfo && stInfo.profile_name ? ('В игре: ' + stInfo.profile_name) : 'В сети') + '</span>';
+							} else {
+								sub.className = 'flex items-center gap-1.5 text-[11px] text-zinc-500';
+								sub.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> <span>Оффлайн</span>';
+							}
+							
+							meta.appendChild(aName);
 							meta.appendChild(sub);
-							left.appendChild(avatar);
+							left.appendChild(aAv);
 							left.appendChild(meta);
 
 							const right = document.createElement('div');
 							right.className = 'flex items-center gap-2 shrink-0';
+
+							const viewBtn = document.createElement('a');
+							viewBtn.href = '/user/' + encodeURIComponent(f.username || f.other_id);
+							viewBtn.className = 'px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white font-medium text-xs transition';
+							viewBtn.textContent = 'Профиль';
 
 							const delBtn = document.createElement('button');
 							delBtn.className = 'px-2.5 py-1 rounded-lg hover:bg-red-500/10 text-zinc-500 hover:text-red-400 font-medium text-xs transition cursor-pointer';
 							delBtn.textContent = 'Удалить';
 							delBtn.onclick = () => removeFriend(f.other_id);
 
+							right.appendChild(viewBtn);
 							right.appendChild(delBtn);
 							item.appendChild(left);
 							item.appendChild(right);
@@ -6282,7 +6410,7 @@ export function renderDownloadPickerModalHtml(): string {
 
 			<!-- Filter Controls -->
 			<div class="p-5 border-b border-zinc-800/80 bg-zinc-950/50 flex flex-col gap-4 shrink-0">
-				<!-- Step 1: Game Version -->
+				<!-- Step 1: Game Version Custom Dropdown -->
 				<div>
 					<div class="flex items-center justify-between mb-2">
 						<label data-i18n="download_modal.game_version" class="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
@@ -6291,17 +6419,26 @@ export function renderDownloadPickerModalHtml(): string {
 						</label>
 						<span id="pickerSupportedVersCount" class="text-[11px] text-zinc-500"></span>
 					</div>
-					<div class="relative">
-						<select id="pickerGameVersionSelect" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:outline-none focus:border-emerald-500 transition cursor-pointer font-mono appearance-none">
-							<option value="">Все поддерживаемые версии</option>
-						</select>
-						<div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+					<div class="relative" id="customGvContainer">
+						<button type="button" id="customGvBtn" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700/80 hover:border-zinc-500 text-xs text-white flex items-center justify-between transition cursor-pointer font-mono select-none">
+							<div class="flex items-center gap-2 truncate">
+								<svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+								<span id="customGvLabel" class="truncate font-sans font-medium">Все поддерживаемые версии</span>
+							</div>
+							<svg id="customGvChevron" class="w-4 h-4 text-zinc-400 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+						</button>
+						<div id="customGvMenu" class="hidden absolute left-0 right-0 top-full mt-1.5 rounded-xl bg-[#0e0e11] border border-zinc-800 shadow-2xl p-2 z-50 flex flex-col gap-1.5 animate-fade-up select-none">
+							<div class="relative">
+								<input type="text" id="customGvSearch" placeholder="Поиск версии (например, 1.21, 26...)..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition">
+								<svg class="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+							</div>
+							<div id="customGvList" class="max-h-56 overflow-y-auto flex flex-col gap-0.5 pr-1">
+							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Step 2: Loader -->
+				<!-- Step 2: Loader Pills -->
 				<div>
 					<div class="flex items-center justify-between mb-2">
 						<label data-i18n="download_modal.loader" class="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
@@ -6367,6 +6504,9 @@ export function renderDownloadPickerModalHtml(): string {
 		let currentModId = '';
 		let selectedGv = '';
 		let selectedLoader = '';
+		let sortedGv = [];
+		let sortedLoaders = [];
+		let displayedLimit = 30;
 
 		window.openDownloadPickerModal = async function(id, provider, title, iconUrl) {
 			const modal = document.getElementById('downloadPickerModal');
@@ -6376,6 +6516,7 @@ export function renderDownloadPickerModalHtml(): string {
 			currentProvider = provider || 'modrinth';
 			selectedGv = '';
 			selectedLoader = '';
+			displayedLimit = 30;
 
 			modal.classList.remove('hidden');
 			const titleEl = document.getElementById('pickerModTitle');
@@ -6394,13 +6535,17 @@ export function renderDownloadPickerModalHtml(): string {
 			const loadingEl = document.getElementById('pickerLoading');
 			const emptyEl = document.getElementById('pickerEmpty');
 			const listEl = document.getElementById('pickerFilesList');
-			const gvSelect = document.getElementById('pickerGameVersionSelect');
+			const gvLabel = document.getElementById('customGvLabel');
+			const gvSearch = document.getElementById('customGvSearch');
+			const gvMenu = document.getElementById('customGvMenu');
 			const loaderPills = document.getElementById('pickerLoaderPills');
 
 			if (loadingEl) loadingEl.classList.remove('hidden');
 			if (emptyEl) emptyEl.classList.add('hidden');
 			if (listEl) listEl.innerHTML = '';
-			if (gvSelect) gvSelect.innerHTML = '<option value="">' + t('download_modal.all_versions', 'Все поддерживаемые версии') + '</option>';
+			if (gvLabel) gvLabel.textContent = t('download_modal.all_versions', 'Все поддерживаемые версии');
+			if (gvSearch) gvSearch.value = '';
+			if (gvMenu) gvMenu.classList.add('hidden');
 			if (loaderPills) loaderPills.innerHTML = '';
 
 			try {
@@ -6430,19 +6575,19 @@ export function renderDownloadPickerModalHtml(): string {
 			}
 
 			const supportedGv = new Set();
-			const supportedLoaders = new Set();
+			const supportedLds = new Set();
 
 			currentVersions.forEach(v => {
 				if (currentProvider === 'modrinth') {
 					(v.game_versions || []).forEach(g => supportedGv.add(g));
-					(v.loaders || []).forEach(l => supportedLoaders.add(l.toLowerCase()));
+					(v.loaders || []).forEach(l => supportedLds.add(l.toLowerCase()));
 				} else {
-					(v.gameVersions || []).filter(g => /^\\d+\\.\\d+/.test(g)).forEach(g => supportedGv.add(g));
-					(v.gameVersions || []).filter(g => ['fabric', 'forge', 'neoforge', 'quilt'].includes(g.toLowerCase())).forEach(g => supportedLoaders.add(g.toLowerCase()));
+					(v.gameVersions || []).filter(g => /^\d+\.\d+/.test(g)).forEach(g => supportedGv.add(g));
+					(v.gameVersions || []).filter(g => ['fabric', 'forge', 'neoforge', 'quilt'].includes(g.toLowerCase())).forEach(g => supportedLds.add(g.toLowerCase()));
 				}
 			});
 
-			const sortedGv = Array.from(supportedGv).sort((a, b) => {
+			sortedGv = Array.from(supportedGv).sort((a, b) => {
 				const pa = a.split('.').map(n => parseInt(n, 10) || 0);
 				const pb = b.split('.').map(n => parseInt(n, 10) || 0);
 				for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
@@ -6453,62 +6598,162 @@ export function renderDownloadPickerModalHtml(): string {
 				return b.localeCompare(a);
 			});
 
-			const sortedLoaders = Array.from(supportedLoaders);
+			sortedLoaders = Array.from(supportedLds);
 
 			const countVersEl = document.getElementById('pickerSupportedVersCount');
 			if (countVersEl) countVersEl.textContent = sortedGv.length + ' версий';
 			const countLoadersEl = document.getElementById('pickerSupportedLoadersCount');
 			if (countLoadersEl) countLoadersEl.textContent = sortedLoaders.length + ' загрузчиков';
 
-			if (gvSelect) {
-				sortedGv.forEach(gv => {
-					const opt = document.createElement('option');
-					opt.value = gv;
-					opt.textContent = gv;
-					gvSelect.appendChild(opt);
-				});
-
-				gvSelect.onchange = () => {
-					selectedGv = gvSelect.value;
-					renderMatchingFiles();
-				};
-			}
-
-			function renderLoaderPills() {
-				if (!loaderPills) return;
-				loaderPills.innerHTML = '';
-
-				const allBtn = document.createElement('button');
-				allBtn.type = 'button';
-				allBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ' +
-					(!selectedLoader ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
-				allBtn.textContent = t('download_modal.all_loaders', 'Все');
-				allBtn.onclick = () => {
-					selectedLoader = '';
-					renderLoaderPills();
-					renderMatchingFiles();
-				};
-				loaderPills.appendChild(allBtn);
-
-				sortedLoaders.forEach(l => {
-					const isSel = selectedLoader === l;
-					const btn = document.createElement('button');
-					btn.type = 'button';
-					btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition cursor-pointer ' +
-						(isSel ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
-					btn.textContent = l;
-					btn.onclick = () => {
-						selectedLoader = isSel ? '' : l;
-						renderLoaderPills();
-						renderMatchingFiles();
-					};
-					loaderPills.appendChild(btn);
-				});
-			}
-
+			renderGvOptions('');
 			renderLoaderPills();
 			renderMatchingFiles();
 		};
+
+		function renderGvOptions(search) {
+			const listContainer = document.getElementById('customGvList');
+			if (!listContainer) return;
+			listContainer.innerHTML = '';
+
+			const allBtn = document.createElement('button');
+			allBtn.type = 'button';
+			allBtn.className = 'w-full px-3 py-2 rounded-lg text-xs font-medium text-left flex items-center justify-between transition cursor-pointer ' +
+				(!selectedGv ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-zinc-300 hover:bg-zinc-800/80 hover:text-white');
+			allBtn.innerHTML = '<span>' + t('download_modal.all_versions', 'Все поддерживаемые версии') + '</span>' +
+				(!selectedGv ? '<span class="text-emerald-400 text-xs font-bold">✓</span>' : '');
+			allBtn.onclick = () => {
+				selectedGv = '';
+				const lbl = document.getElementById('customGvLabel');
+				if (lbl) lbl.textContent = t('download_modal.all_versions', 'Все поддерживаемые версии');
+				closeGvDropdown();
+				displayedLimit = 30;
+				renderMatchingFiles();
+			};
+			listContainer.appendChild(allBtn);
+
+			const filtered = search ? sortedGv.filter(v => v.toLowerCase().includes(search.toLowerCase())) : sortedGv;
+			filtered.forEach(v => {
+				const isSel = selectedGv === v;
+				const btn = document.createElement('button');
+				btn.type = 'button';
+				btn.className = 'w-full px-3 py-2 rounded-lg text-xs font-mono text-left flex items-center justify-between transition cursor-pointer ' +
+					(isSel ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-zinc-300 hover:bg-zinc-800/80 hover:text-white');
+				btn.innerHTML = '<span>' + v + '</span>' + (isSel ? '<span class="text-emerald-400 text-xs font-bold">✓</span>' : '');
+				btn.onclick = () => {
+					selectedGv = v;
+					const lbl = document.getElementById('customGvLabel');
+					if (lbl) lbl.textContent = v;
+					closeGvDropdown();
+					displayedLimit = 30;
+					renderMatchingFiles();
+				};
+				listContainer.appendChild(btn);
+			});
+
+			if (filtered.length === 0 && search) {
+				const empty = document.createElement('div');
+				empty.className = 'py-4 text-center text-xs text-zinc-500';
+				empty.textContent = 'Версия "' + search + '" не найдена';
+				listContainer.appendChild(empty);
+			}
+		}
+
+		function toggleGvDropdown() {
+			const menu = document.getElementById('customGvMenu');
+			const chev = document.getElementById('customGvChevron');
+			const search = document.getElementById('customGvSearch');
+			if (!menu) return;
+			const isHidden = menu.classList.toggle('hidden');
+			if (chev) chev.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+			if (!isHidden && search) {
+				search.value = '';
+				renderGvOptions('');
+				setTimeout(() => search.focus(), 60);
+			}
+		}
+
+		function closeGvDropdown() {
+			const menu = document.getElementById('customGvMenu');
+			const chev = document.getElementById('customGvChevron');
+			if (menu) menu.classList.add('hidden');
+			if (chev) chev.style.transform = 'rotate(0deg)';
+		}
+
+		const gvBtn = document.getElementById('customGvBtn');
+		if (gvBtn) {
+			gvBtn.onclick = (e) => {
+				e.stopPropagation();
+				toggleGvDropdown();
+			};
+		}
+		const gvSearchInput = document.getElementById('customGvSearch');
+		if (gvSearchInput) {
+			gvSearchInput.oninput = (e) => {
+				renderGvOptions(e.target.value.trim());
+			};
+			gvSearchInput.onclick = (e) => e.stopPropagation();
+		}
+
+		document.addEventListener('click', (e) => {
+			const container = document.getElementById('customGvContainer');
+			if (container && !container.contains(e.target)) {
+				closeGvDropdown();
+			}
+		});
+
+		function renderLoaderPills() {
+			const loaderPills = document.getElementById('pickerLoaderPills');
+			if (!loaderPills) return;
+			loaderPills.innerHTML = '';
+
+			const allBtn = document.createElement('button');
+			allBtn.type = 'button';
+			allBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ' +
+				(!selectedLoader ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
+			allBtn.textContent = t('download_modal.all_loaders', 'Все');
+			allBtn.onclick = () => {
+				if (!selectedLoader) return;
+				selectedLoader = '';
+				updateLoaderPillsActiveState();
+				displayedLimit = 30;
+				renderMatchingFiles();
+			};
+			loaderPills.appendChild(allBtn);
+
+			sortedLoaders.forEach(l => {
+				const isSel = selectedLoader === l;
+				const btn = document.createElement('button');
+				btn.type = 'button';
+				btn.dataset.loader = l;
+				btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition cursor-pointer ' +
+					(isSel ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
+				btn.textContent = l;
+				btn.onclick = () => {
+					selectedLoader = selectedLoader === l ? '' : l;
+					updateLoaderPillsActiveState();
+					displayedLimit = 30;
+					renderMatchingFiles();
+				};
+				loaderPills.appendChild(btn);
+			});
+		}
+
+		function updateLoaderPillsActiveState() {
+			const loaderPills = document.getElementById('pickerLoaderPills');
+			if (!loaderPills) return;
+			const btns = loaderPills.querySelectorAll('button');
+			btns.forEach((b, idx) => {
+				if (idx === 0) {
+					b.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ' +
+						(!selectedLoader ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
+				} else {
+					const l = b.dataset.loader;
+					const isSel = selectedLoader === l;
+					b.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition cursor-pointer ' +
+						(isSel ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
+				}
+			});
+		}
 
 		function renderMatchingFiles() {
 			const listEl = document.getElementById('pickerFilesList');
@@ -6521,7 +6766,7 @@ export function renderDownloadPickerModalHtml(): string {
 					if (selectedGv && !(v.game_versions || []).includes(selectedGv)) return false;
 					if (selectedLoader && !(v.loaders || []).map(l => l.toLowerCase()).includes(selectedLoader)) return false;
 				} else {
-					const gvs = (v.gameVersions || []).filter(g => /^\\d+\\.\\d+/.test(g));
+					const gvs = (v.gameVersions || []).filter(g => /^\d+\.\d+/.test(g));
 					const lds = (v.gameVersions || []).filter(g => ['fabric', 'forge', 'neoforge', 'quilt'].includes(g.toLowerCase())).map(l => l.toLowerCase());
 					if (selectedGv && !gvs.includes(selectedGv)) return false;
 					if (selectedLoader && !lds.includes(selectedLoader)) return false;
@@ -6535,7 +6780,10 @@ export function renderDownloadPickerModalHtml(): string {
 			}
 			if (emptyEl) emptyEl.classList.add('hidden');
 
-			filtered.forEach(v => {
+			const fragment = document.createDocumentFragment();
+			const batch = filtered.slice(0, displayedLimit);
+
+			batch.forEach(v => {
 				let name = '';
 				let typeBadge = '';
 				let gameVers = [];
@@ -6568,7 +6816,7 @@ export function renderDownloadPickerModalHtml(): string {
 					else if (r === 2) typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">Beta</span>';
 					else typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20">Alpha</span>';
 
-					gameVers = (v.gameVersions || []).filter(g => /^\\d+\\.\\d+/.test(g));
+					gameVers = (v.gameVersions || []).filter(g => /^\d+\.\d+/.test(g));
 					loaders = (v.gameVersions || []).filter(g => ['fabric', 'forge', 'neoforge', 'quilt'].includes(g.toLowerCase()));
 					size = formatFileSize(v.fileLength);
 					date = formatRelativeDate(v.fileDate);
@@ -6577,7 +6825,7 @@ export function renderDownloadPickerModalHtml(): string {
 				}
 
 				const row = document.createElement('div');
-				row.className = 'p-3 rounded-xl bg-zinc-950/80 border border-zinc-850 hover:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition';
+				row.className = 'p-3 rounded-xl bg-zinc-950/80 border border-zinc-800/80 hover:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition';
 
 				const info = document.createElement('div');
 				info.className = 'min-w-0 flex-1';
@@ -6606,15 +6854,33 @@ export function renderDownloadPickerModalHtml(): string {
 				btns.appendChild(aDl);
 
 				const aLch = document.createElement('a');
-				aLch.href = 'macros://install/' + currentProvider + '/' + encodeURIComponent(currentModId) + (fileId ? '?version=' + fileId : '');
-				aLch.className = 'px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-750 text-zinc-300 hover:text-white font-medium text-xs transition active:scale-95';
+				if (currentProvider === 'modrinth') {
+					aLch.href = fileId ? ('macros://version/' + encodeURIComponent(fileId)) : ('macros://mod/' + encodeURIComponent(currentModId));
+				} else {
+					aLch.href = 'macros://install/curseforge/' + encodeURIComponent(currentModId) + (fileId ? '?version=' + encodeURIComponent(fileId) : '');
+				}
+				aLch.className = 'px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white font-medium text-xs transition active:scale-95 cursor-pointer';
 				aLch.title = t('download_modal.in_launcher', 'В лаунчер');
 				aLch.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
 				btns.appendChild(aLch);
 
 				row.appendChild(btns);
-				listEl.appendChild(row);
+				fragment.appendChild(row);
 			});
+
+			listEl.appendChild(fragment);
+
+			if (filtered.length > displayedLimit) {
+				const moreBtn = document.createElement('button');
+				moreBtn.type = 'button';
+				moreBtn.className = 'w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition cursor-pointer mt-1';
+				moreBtn.textContent = 'Показать ещё (' + (filtered.length - displayedLimit) + ' версий)';
+				moreBtn.onclick = () => {
+					displayedLimit += 50;
+					renderMatchingFiles();
+				};
+				listEl.appendChild(moreBtn);
+			}
 		}
 
 		const closeBtn = document.getElementById('closeDownloadPickerModal');
@@ -6782,28 +7048,28 @@ export function renderCatalogHtml(user?: any): string {
 							<span data-i18n="catalog.filter.any_loader">Any loader</span>
 							<span class="loader-check text-emerald-400 font-bold">✓</span>
 						</button>
-						<button type="button" data-loader="fabric" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-loader="fabric" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
 								<span>Fabric</span>
 							</div>
 							<span class="loader-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-loader="forge" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-loader="forge" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 5h12l-2 4H8L6 5zM8 9v6l-3 4h14l-3-4V9"/></svg>
 								<span>Forge</span>
 							</div>
 							<span class="loader-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-loader="neoforge" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-loader="neoforge" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15 8 21 9 17 14 18 20 12 17 6 20 7 14 3 9 9 8 12 2"/></svg>
 								<span>NeoForge</span>
 							</div>
 							<span class="loader-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-loader="quilt" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-loader="quilt" class="loader-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
 								<span>Quilt</span>
@@ -6827,49 +7093,49 @@ export function renderCatalogHtml(user?: any): string {
 							</div>
 							<span class="tag-check text-emerald-400 font-bold">✓</span>
 						</button>
-						<button type="button" data-tag="optimization" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-tag="optimization" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
 								<span>Optimization</span>
 							</div>
 							<span class="tag-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-tag="adventure" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-tag="adventure" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
 								<span>Adventure</span>
 							</div>
 							<span class="tag-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-tag="technology" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-tag="technology" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg>
 								<span>Technology</span>
 							</div>
 							<span class="tag-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-tag="magic" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-tag="magic" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"></path><path d="M15 16v-2"></path><path d="M8 9h2"></path><path d="M20 9h2"></path><path d="M17.8 11.8 19 13"></path><path d="M15 9h0"></path><path d="M17.8 6.2 19 5"></path><path d="m3 21 9-9"></path><path d="M12.2 6.2 11 5"></path></svg>
 								<span>Magic</span>
 							</div>
 							<span class="tag-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-tag="decoration" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-tag="decoration" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
 								<span>Decoration</span>
 							</div>
 							<span class="tag-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-tag="utility" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-tag="utility" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
 								<span>Utility</span>
 							</div>
 							<span class="tag-check text-emerald-400 font-bold hidden">✓</span>
 						</button>
-						<button type="button" data-tag="library" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-850/70 cursor-pointer">
+						<button type="button" data-tag="library" class="tag-filter-btn group w-full px-3 py-2 rounded-xl text-left font-medium transition flex items-center justify-between text-zinc-300 hover:text-white hover:bg-zinc-800/70 cursor-pointer">
 							<div class="flex items-center gap-2.5">
 								<svg class="w-4 h-4 text-zinc-400 group-hover:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
 								<span>Library</span>
@@ -7168,7 +7434,7 @@ export function renderCatalogHtml(user?: any): string {
 			const anyBtn = document.createElement('button');
 			anyBtn.type = 'button';
 			anyBtn.className = 'version-filter-btn w-full px-3 py-1.5 rounded-xl text-left font-medium transition flex items-center justify-between ' +
-				(!state.gameVersion ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-zinc-400 hover:text-white hover:bg-zinc-850');
+				(!state.gameVersion ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-zinc-400 hover:text-white hover:bg-zinc-800');
 			anyBtn.innerHTML = '<span>' + t('catalog.filter.any_version', 'Any version') + '</span>' +
 				'<span class="ver-check text-emerald-400 font-bold text-xs ' + (!state.gameVersion ? '' : 'hidden') + '">✓</span>';
 			anyBtn.onclick = () => {
@@ -7185,7 +7451,7 @@ export function renderCatalogHtml(user?: any): string {
 				const btn = document.createElement('button');
 				btn.type = 'button';
 				btn.className = 'version-filter-btn w-full px-3 py-1.5 rounded-xl text-left font-medium transition flex items-center justify-between ' +
-					(isSel ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-zinc-400 hover:text-white hover:bg-zinc-850');
+					(isSel ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-zinc-400 hover:text-white hover:bg-zinc-800');
 				btn.innerHTML = '<span class="font-mono">' + v + '</span>' +
 					'<span class="ver-check text-emerald-400 font-bold text-xs ' + (isSel ? '' : 'hidden') + '">✓</span>';
 				btn.onclick = () => {
@@ -7593,7 +7859,7 @@ export function renderCatalogHtml(user?: any): string {
 				e.preventDefault();
 				window.openDownloadPickerModal(id, provider, modalTitle.textContent, modalIcon.src);
 			};
-			modalLauncherBtn.href = 'macros://install/' + provider + '/' + encodeURIComponent(id);
+			modalLauncherBtn.href = provider === 'modrinth' ? ('macros://mod/' + encodeURIComponent(id)) : ('macros://install/curseforge/' + encodeURIComponent(id));
 
 			modalTabDesc.innerHTML = '<div class="py-12 text-center text-zinc-500 text-xs flex flex-col items-center gap-3">' +
 				'<svg class="w-6 h-6 animate-spin text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>' +
@@ -7904,7 +8170,7 @@ export function renderCatalogHtml(user?: any): string {
 				document.querySelectorAll('.loader-filter-btn').forEach(b => {
 					const isSel = (b.getAttribute('data-loader') || '') === state.loader;
 					b.className = 'loader-filter-btn w-full px-3 py-1.5 rounded-xl text-left font-medium transition flex items-center justify-between ' +
-						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-850');
+						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800');
 					const chk = b.querySelector('.loader-check');
 					if (chk) chk.classList.toggle('hidden', !isSel);
 				});
@@ -7923,7 +8189,7 @@ export function renderCatalogHtml(user?: any): string {
 				document.querySelectorAll('.tag-filter-btn').forEach(b => {
 					const isSel = (b.getAttribute('data-tag') || '') === state.tag;
 					b.className = 'tag-filter-btn w-full px-3 py-1.5 rounded-xl text-left font-medium transition flex items-center justify-between ' +
-						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-850');
+						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800');
 					const chk = b.querySelector('.tag-check');
 					if (chk) chk.classList.toggle('hidden', !isSel);
 				});
@@ -7958,7 +8224,7 @@ export function renderCatalogHtml(user?: any): string {
 				document.querySelectorAll('.loader-filter-btn').forEach(b => {
 					const isSel = (b.getAttribute('data-loader') || '') === '';
 					b.className = 'loader-filter-btn w-full px-3 py-1.5 rounded-xl text-left font-medium transition flex items-center justify-between ' +
-						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-850');
+						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800');
 					const chk = b.querySelector('.loader-check');
 					if (chk) chk.classList.toggle('hidden', !isSel);
 				});
@@ -7966,7 +8232,7 @@ export function renderCatalogHtml(user?: any): string {
 				document.querySelectorAll('.tag-filter-btn').forEach(b => {
 					const isSel = (b.getAttribute('data-tag') || '') === '';
 					b.className = 'tag-filter-btn w-full px-3 py-1.5 rounded-xl text-left font-medium transition flex items-center justify-between ' +
-						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-850');
+						(isSel ? 'bg-zinc-800 text-white font-semibold border border-zinc-700' : 'text-zinc-400 hover:text-white hover:bg-zinc-800');
 					const chk = b.querySelector('.tag-check');
 					if (chk) chk.classList.toggle('hidden', !isSel);
 				});
@@ -8443,7 +8709,7 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 						document.getElementById('heroCategoryPill').textContent = proj.categories[0].charAt(0).toUpperCase() + proj.categories[0].slice(1);
 					}
 
-					document.getElementById('heroLauncherBtn').href = 'macros://install/modrinth/' + MOD_ID;
+					document.getElementById('heroLauncherBtn').href = 'macros://mod/' + MOD_ID;
 
 					// Description markdown
 					document.getElementById('descBody').innerHTML = renderMarkdown(proj.body);
@@ -8763,8 +9029,8 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 				right.appendChild(dlBtn);
 
 				const instBtn = document.createElement('a');
-				instBtn.href = 'macros://install/' + PROVIDER + '/' + MOD_ID + (fileId ? '?version=' + fileId : '');
-				instBtn.className = 'px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-zinc-300 hover:text-white font-medium text-xs transition flex items-center gap-1.5 active:scale-95';
+				instBtn.href = PROVIDER === 'modrinth' ? (fileId ? ('macros://version/' + fileId) : ('macros://mod/' + MOD_ID)) : ('macros://install/curseforge/' + MOD_ID + (fileId ? '?version=' + fileId : ''));
+				instBtn.className = 'px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white font-medium text-xs transition flex items-center gap-1.5 active:scale-95';
 				instBtn.title = 'Install in Launcher';
 				instBtn.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
 				right.appendChild(instBtn);
@@ -8790,6 +9056,363 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 	${renderNavbarUserScript()}
 	${renderCreateProjectModalHtml()}
 	${renderDownloadPickerModalHtml()}
+</body>
+</html>`
+}
+
+
+export function renderPublicUserProfileHtml(params: {
+	targetUser: any
+	viewerUser?: any
+	relation: { accepted: boolean; is_outgoing: boolean; is_incoming: boolean }
+	projects: any[]
+	sharedInstances: any[]
+	isOnline: boolean
+}): string {
+	const { targetUser, viewerUser, relation, projects, sharedInstances, isOnline } = params
+	const safeUsername = escapeHtml(targetUser.username || '')
+	const initial = safeUsername ? safeUsername.charAt(0).toUpperCase() : 'U'
+	const bio = escapeHtml(targetUser.bio || '')
+	const joinedDate = targetUser.created_at ? new Date(targetUser.created_at).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }) : ''
+	const hasEarlyBadge = (targetUser.badges || 0) & 1
+
+	let friendActionHtml = ''
+	if (!viewerUser) {
+		friendActionHtml = `
+		<a href="/auth/sign-in" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition active:scale-95 shadow-lg shadow-emerald-500/10">
+			Войти, чтобы добавить в друзья
+		</a>`
+	} else if (relation.accepted) {
+		friendActionHtml = `
+		<div class="flex items-center gap-2">
+			<span class="px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1.5 select-none">
+				<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+				<span>В друзьях</span>
+			</span>
+			<button type="button" onclick="handleRemoveFriend('${targetUser.id}')" class="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 border border-zinc-800 text-xs font-medium transition cursor-pointer active:scale-95">
+				Удалить
+			</button>
+		</div>`
+	} else if (relation.is_outgoing) {
+		friendActionHtml = `
+		<div class="flex items-center gap-2">
+			<span class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-semibold select-none">
+				Запрос отправлен
+			</span>
+			<button type="button" onclick="handleRemoveFriend('${targetUser.id}')" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 text-xs transition cursor-pointer">
+				Отменить
+			</button>
+		</div>`
+	} else if (relation.is_incoming) {
+		friendActionHtml = `
+		<div class="flex items-center gap-2">
+			<button type="button" onclick="handleAcceptFriend('${targetUser.id}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition cursor-pointer active:scale-95 shadow-lg shadow-emerald-500/10">
+				Принять заявку
+			</button>
+			<button type="button" onclick="handleRemoveFriend('${targetUser.id}')" class="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs transition cursor-pointer">
+				Отклонить
+			</button>
+		</div>`
+	} else {
+		friendActionHtml = `
+		<button id="btnPublicAddFriend" type="button" onclick="handleAddFriend('${targetUser.id}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 cursor-pointer active:scale-95">
+			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+			<span>Добавить в друзья</span>
+		</button>`
+	}
+
+	return `<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>${safeUsername} — Профиль пользователя | MacrosApp</title>
+	<link rel="icon" type="image/png" href="/assets/favicon.png">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			darkMode: 'class',
+			theme: {
+				extend: {
+					fontFamily: {
+						sans: ['Inter', 'system-ui', 'sans-serif'],
+					}
+				}
+			}
+		}
+	</script>
+	${THEME_HEAD_SCRIPT}
+	<style>
+		${OLED_SCROLLBAR_CSS}
+		${THEME_CSS}
+		body { background-color: var(--theme-bg-page, #000000); color: var(--theme-text-primary, #f4f4f5); font-family: 'Inter', sans-serif; }
+		.oled-card {
+			background: #09090b;
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+		.oled-card:hover {
+			border-color: rgba(255, 255, 255, 0.14);
+		}
+	</style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-400">
+	<!-- Top Bar -->
+	<header class="border-b border-zinc-900 sticky top-0 z-50 bg-[#000000]/80 backdrop-blur-xl">
+		<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+			<div class="flex items-center gap-8">
+				<a href="/" class="flex items-center gap-2.5 group shrink-0">
+					<img src="/assets/logo.png" alt="MacrosApp" class="w-8 h-8 rounded-lg object-contain group-hover:scale-105 transition-transform">
+					<span class="text-base font-bold tracking-tight text-white">MacrosApp</span>
+				</a>
+
+				<nav class="hidden md:flex items-center gap-6 text-sm text-zinc-400">
+					<a href="/catalog" data-i18n="nav.catalog" class="hover:text-white transition">Discover</a>
+					<a href="/#features" data-i18n="nav.features" class="hover:text-white transition">Features</a>
+					<a href="/download" data-i18n="nav.download" class="hover:text-white transition">Download</a>
+					<a href="https://github.com/nnnegrvpeni-lang/MacrosApp" target="_blank" data-i18n="nav.github" class="hover:text-white transition flex items-center gap-1.5">GitHub</a>
+				</nav>
+			</div>
+
+			<div id="navUserSlot" class="flex items-center gap-3 shrink-0">
+				${renderNavbarUserHtml(viewerUser)}
+			</div>
+		</div>
+	</header>
+
+	<main class="flex-1 max-w-5xl mx-auto px-6 py-10 w-full">
+		<!-- Profile Header Card -->
+		<div class="flex flex-col sm:flex-row items-start justify-between gap-6 pb-8 border-b border-zinc-900">
+			<div class="flex items-start gap-6 min-w-0">
+				<!-- Avatar with status indicator -->
+				<div class="relative shrink-0">
+					<div class="w-24 h-24 rounded-full bg-cyan-600 text-white flex items-center justify-center font-bold text-3xl overflow-hidden shadow-xl border border-white/10 select-none">
+						${targetUser.avatar_url ? `<img src="${targetUser.avatar_url}" alt="${safeUsername}" class="w-full h-full object-cover">` : `<span>${initial}</span>`}
+					</div>
+					<div id="userLiveDot" class="absolute bottom-1 right-1 w-5 h-5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-zinc-600'} border-3 border-[#000000] shadow-md flex items-center justify-center" title="${isOnline ? 'В сети' : 'Не в сети'}"></div>
+				</div>
+
+				<!-- User Info -->
+				<div class="min-w-0">
+					<div class="flex items-center gap-2.5 flex-wrap mb-1">
+						<h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight truncate">${safeUsername}</h1>
+						${hasEarlyBadge ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 select-none">Early Adopter</span>' : ''}
+						${targetUser.role === 'admin' ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20 select-none">Admin</span>' : ''}
+					</div>
+
+					<p class="text-xs sm:text-sm text-zinc-300 max-w-xl leading-relaxed whitespace-pre-line mb-3">${bio || '<span class="text-zinc-500 italic">Пользователь пока не добавил описание о себе.</span>'}</p>
+
+					<div class="flex items-center gap-4 text-xs text-zinc-500 flex-wrap">
+						${joinedDate ? `<span>На MacrosApp с ${joinedDate}</span>` : ''}
+						<span>•</span>
+						<span id="userOnlineStatusText" class="${isOnline ? 'text-emerald-400 font-medium' : 'text-zinc-500'}">${isOnline ? 'В сети' : 'Был(а) недавно'}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Header Actions -->
+			<div class="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
+				<div id="friendActionContainer">
+					${friendActionHtml}
+				</div>
+				<button type="button" onclick="copyProfileLink()" class="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer active:scale-95" title="Поделиться профилем">
+					<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+					<span id="copyLinkBtnText">Поделиться</span>
+				</button>
+			</div>
+		</div>
+
+		<!-- Navigation Tabs -->
+		<div class="flex items-center gap-2 border-b border-zinc-900 my-6 select-none">
+			<button type="button" onclick="switchPublicTab('projects')" id="tabBtnProjects" class="px-4 py-3 text-xs font-bold border-b-2 border-emerald-500 text-emerald-400 -mb-px transition flex items-center gap-2 cursor-pointer">
+				<span>Проекты</span>
+				<span class="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 font-bold">${projects.length}</span>
+			</button>
+			<button type="button" onclick="switchPublicTab('instances')" id="tabBtnInstances" class="px-4 py-3 text-xs font-semibold border-b-2 border-transparent text-zinc-400 hover:text-white -mb-px transition flex items-center gap-2 cursor-pointer">
+				<span>Общие сборки</span>
+				<span class="px-1.5 py-0.5 rounded-full text-[10px] bg-zinc-900 text-zinc-400 font-bold">${sharedInstances.length}</span>
+			</button>
+		</div>
+
+		<!-- Tab: Projects -->
+		<div id="tabContentProjects" class="flex flex-col gap-4">
+			${projects.length > 0 ? `
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				${projects.map(p => {
+					const safeTitle = escapeHtml(p.title || p.slug || '');
+					const safeSlug = escapeHtml(p.slug || '');
+					const safeDesc = escapeHtml(p.description || '');
+					const type = (p.project_type || 'mod').toLowerCase();
+					return `
+					<div class="oled-card p-5 rounded-2xl flex flex-col justify-between gap-3 hover:border-emerald-500/40 transition">
+						<div>
+							<div class="flex items-center justify-between gap-2 mb-1.5">
+								<a href="/mod/${safeSlug}" class="font-bold text-white hover:text-emerald-400 transition text-sm truncate">${safeTitle}</a>
+								<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-white/5 border border-white/10 text-zinc-300 shrink-0">${type}</span>
+							</div>
+							<p class="text-xs text-zinc-400 line-clamp-2 leading-relaxed">${safeDesc || 'Описание отсутствует.'}</p>
+						</div>
+						<div class="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-[11px] text-zinc-500">
+							<span>/${safeSlug}</span>
+							<a href="/mod/${safeSlug}" class="text-emerald-400 hover:text-emerald-300 font-medium">Открыть &rarr;</a>
+						</div>
+					</div>`
+				}).join('')}
+			</div>` : `
+			<div class="py-16 text-center text-zinc-500 text-xs flex flex-col items-center gap-2">
+				<svg class="w-10 h-10 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+				<p>У этого пользователя пока нет опубликованных проектов.</p>
+			</div>`}
+		</div>
+
+		<!-- Tab: Shared Instances -->
+		<div id="tabContentInstances" class="hidden flex flex-col gap-3">
+			${sharedInstances.length > 0 ? `
+			<div class="flex flex-col gap-2.5">
+				${sharedInstances.map(inst => {
+					const name = escapeHtml(inst.name || 'Сборка');
+					const gv = escapeHtml(inst.game_version || '1.20.1');
+					const ld = escapeHtml(inst.loader || 'Fabric');
+					const invite = inst.invite_id || inst.id;
+					return `
+					<div class="flex items-center justify-between p-4 rounded-xl bg-zinc-950 border border-zinc-900 text-xs hover:border-zinc-800 transition">
+						<div class="flex items-center gap-3.5">
+							<div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+							</div>
+							<div>
+								<div class="font-bold text-white text-sm">${name}</div>
+								<div class="text-[11px] text-zinc-500">${gv} • ${ld}</div>
+							</div>
+						</div>
+						<a href="/share/${encodeURIComponent(invite)}" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white font-medium transition">
+							Открыть сборку
+						</a>
+					</div>`
+				}).join('')}
+			</div>` : `
+			<div class="py-16 text-center text-zinc-500 text-xs flex flex-col items-center gap-2">
+				<svg class="w-10 h-10 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+				<p>У этого пользователя нет доступных общих сборок.</p>
+			</div>`}
+		</div>
+	</main>
+
+	${renderNavbarUserScript()}
+	${renderCreateProjectModalHtml()}
+
+	<script>
+	(function() {
+		const targetUserId = '${targetUser.id}';
+
+		window.switchPublicTab = function(tab) {
+			const isProjects = tab === 'projects';
+			const cP = document.getElementById('tabContentProjects');
+			const cI = document.getElementById('tabContentInstances');
+			const bP = document.getElementById('tabBtnProjects');
+			const bI = document.getElementById('tabBtnInstances');
+
+			if (cP) cP.classList.toggle('hidden', !isProjects);
+			if (cI) cI.classList.toggle('hidden', isProjects);
+
+			if (bP) {
+				bP.className = 'px-4 py-3 text-xs font-bold border-b-2 -mb-px transition flex items-center gap-2 cursor-pointer ' +
+					(isProjects ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-400 hover:text-white');
+			}
+			if (bI) {
+				bI.className = 'px-4 py-3 text-xs font-bold border-b-2 -mb-px transition flex items-center gap-2 cursor-pointer ' +
+					(!isProjects ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-zinc-400 hover:text-white');
+			}
+		};
+
+		window.copyProfileLink = function() {
+			const link = window.location.href;
+			if (navigator.clipboard) {
+				navigator.clipboard.writeText(link).then(function() {
+					const btnText = document.getElementById('copyLinkBtnText');
+					if (btnText) {
+						const orig = btnText.textContent;
+						btnText.textContent = 'Скопировано! ✓';
+						setTimeout(() => btnText.textContent = orig, 2000);
+					}
+					if (window.showLiveToast) window.showLiveToast('Ссылка на профиль скопирована!', 'success');
+				});
+			}
+		};
+
+		window.handleAddFriend = async function(userId) {
+			const token = localStorage.getItem('macros_token');
+			if (!token) {
+				window.location.href = '/auth/sign-in';
+				return;
+			}
+			try {
+				const res = await fetch('/v3/friend/' + encodeURIComponent(userId), {
+					method: 'POST',
+					headers: { 'Authorization': 'Bearer ' + token }
+				});
+				if (res.ok) {
+					const container = document.getElementById('friendActionContainer');
+					if (container) {
+						container.innerHTML = '<span class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-semibold select-none">Запрос отправлен</span>';
+					}
+					if (window.showLiveToast) window.showLiveToast('Запрос в друзья отправлен!', 'success');
+				}
+			} catch(e) {}
+		};
+
+		window.handleAcceptFriend = async function(userId) {
+			const token = localStorage.getItem('macros_token');
+			if (!token) return;
+			try {
+				const res = await fetch('/v3/friend/' + encodeURIComponent(userId), {
+					method: 'POST',
+					headers: { 'Authorization': 'Bearer ' + token }
+				});
+				if (res.ok) {
+					window.location.reload();
+				}
+			} catch(e) {}
+		};
+
+		window.handleRemoveFriend = async function(userId) {
+			const token = localStorage.getItem('macros_token');
+			if (!token) return;
+			try {
+				const res = await fetch('/v3/friend/' + encodeURIComponent(userId), {
+					method: 'DELETE',
+					headers: { 'Authorization': 'Bearer ' + token }
+				});
+				if (res.ok) {
+					window.location.reload();
+				}
+			} catch(e) {}
+		};
+
+		window.handleFriendStatusUpdate = function(msg) {
+			if (msg.type === 'status_update' && msg.status && msg.status.user_id === targetUserId) {
+				updateLiveDot(true, msg.status.profile_name);
+			} else if (msg.type === 'user_offline' && msg.id === targetUserId) {
+				updateLiveDot(false);
+			}
+		};
+
+		function updateLiveDot(isOnline, profileName) {
+			const dot = document.getElementById('userLiveDot');
+			const txt = document.getElementById('userOnlineStatusText');
+			if (dot) {
+				dot.className = 'absolute bottom-1 right-1 w-5 h-5 rounded-full ' + (isOnline ? 'bg-emerald-500' : 'bg-zinc-600') + ' border-3 border-[#000000] shadow-md flex items-center justify-center';
+			}
+			if (txt) {
+				txt.className = isOnline ? 'text-emerald-400 font-medium' : 'text-zinc-500';
+				txt.textContent = isOnline ? (profileName ? ('В игре: ' + profileName) : 'В сети') : 'Был(а) недавно';
+			}
+		}
+	})();
+	</script>
 </body>
 </html>`
 }
