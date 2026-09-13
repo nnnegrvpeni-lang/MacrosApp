@@ -915,6 +915,16 @@ export function renderNavbarUserScript(): string {
 				'catalog.modal.date': 'Date',
 				'catalog.modal.loaders': 'Loaders',
 				'catalog.modal.game_versions': 'Game versions',
+				'download_modal.title': 'Download {name}',
+				'download_modal.subtitle': 'Select Minecraft version and mod loader to download',
+				'download_modal.game_version': 'Minecraft version',
+				'download_modal.loader': 'Mod loader',
+				'download_modal.all_versions': 'All supported versions',
+				'download_modal.all_loaders': 'All loaders',
+				'download_modal.download_file': 'Download',
+				'download_modal.in_launcher': 'In launcher',
+				'download_modal.no_files': 'No matching files found for the selected version and loader.',
+				'download_modal.loading': 'Loading available versions...',
 
 				'modal.edit.title': 'Edit Profile',
 				'modal.tab.profile': 'Profile',
@@ -1178,6 +1188,16 @@ export function renderNavbarUserScript(): string {
 				'catalog.modal.date': 'Дата',
 				'catalog.modal.loaders': 'Загрузчики',
 				'catalog.modal.game_versions': 'Версии игры',
+				'download_modal.title': 'Скачать {name}',
+				'download_modal.subtitle': 'Выберите версию Minecraft и загрузчик для скачивания',
+				'download_modal.game_version': 'Версия игры',
+				'download_modal.loader': 'Загрузчик модов',
+				'download_modal.all_versions': 'Все поддерживаемые версии',
+				'download_modal.all_loaders': 'Все загрузчики',
+				'download_modal.download_file': 'Скачать',
+				'download_modal.in_launcher': 'В лаунчер',
+				'download_modal.no_files': 'Нет файлов для выбранной версии и загрузчика.',
+				'download_modal.loading': 'Загрузка доступных версий...',
 
 				'modal.edit.title': 'Редактирование профиля',
 				'modal.tab.profile': 'Профиль',
@@ -4022,27 +4042,27 @@ export function renderAccountHtml(user?: any): string {
 
 				<!-- Right Action Buttons: [Edit] and [...] -->
 				<div class="flex items-center gap-2 shrink-0 self-start">
-					<button id="openEditProfileBtn" type="button" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/70 text-zinc-200 text-xs font-semibold transition active:scale-95 shadow-sm">
+					<button id="openEditProfileBtn" type="button" onclick="window.openEditProfileModal && window.openEditProfileModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/70 text-zinc-200 text-xs font-semibold transition active:scale-95 shadow-sm cursor-pointer">
 						<svg class="w-3.5 h-3.5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
 						<span data-i18n="account.edit.btn">Edit</span>
 					</button>
 
 					<!-- 3-dots Menu (media_1789235563116.png) -->
 					<div class="relative inline-block text-left" id="profileActionsContainer">
-						<button id="profileActionsTrigger" type="button" class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/70 text-zinc-300 text-xs transition active:scale-95" title="More options">
+						<button id="profileActionsTrigger" type="button" class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/70 text-zinc-300 text-xs transition active:scale-95 cursor-pointer" title="More options">
 							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="12" cy="19" r="1.75"/></svg>
 						</button>
 						<div id="profileActionsDropdown" class="hidden absolute right-0 mt-2 w-52 rounded-2xl bg-[#09090b]/95 backdrop-blur-2xl border border-zinc-800 shadow-2xl p-1.5 z-50 animate-fade-up select-none">
-							<button type="button" id="btnActionManageProjects" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition text-left">
+							<button type="button" id="btnActionManageProjects" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition text-left cursor-pointer">
 								<svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
 								<span data-i18n="account.menu.manage_projects">Manage projects</span>
 							</button>
 							<div class="my-1 border-t border-zinc-800/80"></div>
-							<button type="button" id="btnActionCopyId" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition text-left">
+							<button type="button" id="btnActionCopyId" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition text-left cursor-pointer">
 								<svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
 								<span data-i18n="account.menu.copy_id">Copy ID</span>
 							</button>
-							<button type="button" id="btnActionCopyLink" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition text-left">
+							<button type="button" id="btnActionCopyLink" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition text-left cursor-pointer">
 								<svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
 								<span data-i18n="account.menu.copy_link">Copy permanent link</span>
 							</button>
@@ -4053,15 +4073,15 @@ export function renderAccountHtml(user?: any): string {
 
 			<!-- Navigation Tabs (Projects, Shared Modpacks, Friends) -->
 			<div class="border-b border-zinc-800/80 flex items-center gap-8 text-sm select-none">
-				<button id="accTabProjects" type="button" class="pb-3 text-emerald-400 font-semibold border-b-2 border-emerald-500 transition -mb-px flex items-center gap-2">
+				<button id="accTabProjects" type="button" onclick="window.switchAccountTab && window.switchAccountTab('projects')" class="pb-3 text-emerald-400 font-semibold border-b-2 border-emerald-500 transition -mb-px flex items-center gap-2 cursor-pointer">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
 					<span data-i18n="account.tab.projects">Projects</span>
 				</button>
-				<button id="accTabInstances" type="button" class="pb-3 text-zinc-400 hover:text-white font-medium border-b-2 border-transparent transition -mb-px flex items-center gap-2">
+				<button id="accTabInstances" type="button" onclick="window.switchAccountTab && window.switchAccountTab('instances')" class="pb-3 text-zinc-400 hover:text-white font-medium border-b-2 border-transparent transition -mb-px flex items-center gap-2 cursor-pointer">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
 					<span data-i18n="account.tab.instances">Shared Modpacks</span>
 				</button>
-				<button id="accTabFriends" type="button" class="pb-3 text-zinc-400 hover:text-white font-medium border-b-2 border-transparent transition -mb-px flex items-center gap-2">
+				<button id="accTabFriends" type="button" onclick="window.switchAccountTab && window.switchAccountTab('friends')" class="pb-3 text-zinc-400 hover:text-white font-medium border-b-2 border-transparent transition -mb-px flex items-center gap-2 cursor-pointer">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
 					<span data-i18n="account.tab.friends">Friends</span>
 				</button>
@@ -4341,17 +4361,15 @@ export function renderAccountHtml(user?: any): string {
 		}
 
 		async function loadUserProjects() {
+			const loadingEl = document.getElementById('accProjectsLoading');
+			const emptyEl = document.getElementById('accProjectsEmpty');
+			const listEl = document.getElementById('accProjectsList');
+			const cardsEl = document.getElementById('accProjectsCards');
+			const statsEl = document.getElementById('statsProjects');
 			try {
 				const headers = {};
 				if (token) headers['Authorization'] = 'Bearer ' + token;
 				const res = await fetch('/api/v1/projects/my', { headers });
-				const loadingEl = document.getElementById('accProjectsLoading');
-				const emptyEl = document.getElementById('accProjectsEmpty');
-				const listEl = document.getElementById('accProjectsList');
-				const cardsEl = document.getElementById('accProjectsCards');
-				const statsEl = document.getElementById('statsProjects');
-
-				if (loadingEl) loadingEl.classList.add('hidden');
 
 				if (res.ok) {
 					const projects = await res.json();
@@ -4392,10 +4410,9 @@ export function renderAccountHtml(user?: any): string {
 					if (emptyEl) emptyEl.classList.remove('hidden');
 				}
 			} catch (e) {
-				const loadingEl = document.getElementById('accProjectsLoading');
-				const emptyEl = document.getElementById('accProjectsEmpty');
-				if (loadingEl) loadingEl.classList.add('hidden');
 				if (emptyEl) emptyEl.classList.remove('hidden');
+			} finally {
+				if (loadingEl) loadingEl.classList.add('hidden');
 			}
 		}
 
@@ -4621,7 +4638,7 @@ export function renderAccountHtml(user?: any): string {
 			} catch (err) {}
 		}
 
-		async function removeFriend(friendId) {async function removeFriend(friendId) {
+		async function removeFriend(friendId) {
 			const headers = {};
 			if (token) headers['Authorization'] = 'Bearer ' + token;
 			await fetch('/v3/friend/' + encodeURIComponent(friendId), {
@@ -4631,6 +4648,9 @@ export function renderAccountHtml(user?: any): string {
 			showToast('toast.friend_removed', 'info');
 			loadFriends();
 		}
+
+		window.acceptFriendRequest = acceptFriendRequest;
+		window.removeFriend = removeFriend;
 
 		document.getElementById('addFriendBtn').onclick = async () => {
 			const nick = document.getElementById('addFriendInput').value.trim();
@@ -4682,6 +4702,9 @@ export function renderAccountHtml(user?: any): string {
 		function closeEditProfileModal() {
 			document.getElementById('editProfileModal').classList.add('hidden');
 		}
+
+		window.openEditProfileModal = openEditProfileModal;
+		window.closeEditProfileModal = closeEditProfileModal;
 
 		let pendingAvatarDataUrl = null;
 
@@ -4820,6 +4843,8 @@ export function renderAccountHtml(user?: any): string {
 			if (tabInst) tabInst.className = isInstances ? activeCls : inactiveCls;
 			if (tabFr) tabFr.className = isFriends ? activeCls : inactiveCls;
 		}
+
+		window.switchAccountTab = switchAccountTab;
 
 		const tabProjBtn = document.getElementById('accTabProjects');
 		const tabInstBtn = document.getElementById('accTabInstances');
@@ -6194,6 +6219,377 @@ export function renderDownloadHtml(user?: any): string {
 </html>`
 }
 
+export function renderDownloadPickerModalHtml(): string {
+	return `
+	<div id="downloadPickerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden overflow-y-auto">
+		<div class="w-full max-w-xl oled-card rounded-2xl shadow-2xl border border-zinc-800/80 bg-[#09090b] text-left flex flex-col max-h-[88vh] overflow-hidden my-auto animate-fade-up">
+			<!-- Header -->
+			<div class="flex items-center justify-between px-6 py-4 border-b border-zinc-800/80 shrink-0 bg-zinc-950/40">
+				<div class="flex items-center gap-3.5 min-w-0">
+					<img id="pickerModIcon" src="/assets/logo.png" alt="Icon" class="w-11 h-11 rounded-xl bg-zinc-900 border border-zinc-700/60 object-cover shrink-0">
+					<div class="min-w-0">
+						<div class="flex items-center gap-2">
+							<h3 id="pickerModTitle" class="text-base font-bold text-white truncate">Mod</h3>
+							<span id="pickerProviderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider provider-badge-modrinth shrink-0">Modrinth</span>
+						</div>
+						<p data-i18n="download_modal.subtitle" class="text-xs text-zinc-400 truncate mt-0.5">Выберите версию Minecraft и загрузчик для скачивания</p>
+					</div>
+				</div>
+				<button id="closeDownloadPickerModal" type="button" class="w-8 h-8 flex items-center justify-center rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white transition shrink-0 ml-2 cursor-pointer">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+				</button>
+			</div>
+
+			<!-- Filter Controls -->
+			<div class="p-5 border-b border-zinc-800/80 bg-zinc-950/50 flex flex-col gap-4 shrink-0">
+				<!-- Step 1: Game Version -->
+				<div>
+					<div class="flex items-center justify-between mb-2">
+						<label data-i18n="download_modal.game_version" class="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+							<span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">1</span>
+							<span>Версия игры</span>
+						</label>
+						<span id="pickerSupportedVersCount" class="text-[11px] text-zinc-500"></span>
+					</div>
+					<div class="relative">
+						<select id="pickerGameVersionSelect" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:outline-none focus:border-emerald-500 transition cursor-pointer font-mono appearance-none">
+							<option value="">Все поддерживаемые версии</option>
+						</select>
+						<div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+						</div>
+					</div>
+				</div>
+
+				<!-- Step 2: Loader -->
+				<div>
+					<div class="flex items-center justify-between mb-2">
+						<label data-i18n="download_modal.loader" class="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+							<span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">2</span>
+							<span>Загрузчик модов</span>
+						</label>
+						<span id="pickerSupportedLoadersCount" class="text-[11px] text-zinc-500"></span>
+					</div>
+					<div id="pickerLoaderPills" class="flex flex-wrap items-center gap-2">
+					</div>
+				</div>
+			</div>
+
+			<!-- Files / Versions List -->
+			<div class="flex-1 overflow-y-auto p-5 flex flex-col gap-2.5 max-h-80" id="pickerFilesListContainer">
+				<div id="pickerLoading" class="py-12 text-center text-zinc-500 text-xs flex flex-col items-center gap-3">
+					<svg class="w-6 h-6 animate-spin text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>
+					<span data-i18n="download_modal.loading">Загрузка доступных версий...</span>
+				</div>
+				<div id="pickerEmpty" class="hidden py-10 text-center text-zinc-500 text-xs flex flex-col items-center gap-2">
+					<svg class="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+					<span data-i18n="download_modal.no_files">Нет файлов для выбранной версии и загрузчика.</span>
+				</div>
+				<div id="pickerFilesList" class="flex flex-col gap-2">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	(function() {
+		function t(key, fallback) {
+			const lang = localStorage.getItem('macros_lang') || 'en';
+			const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || (window.TRANSLATIONS && window.TRANSLATIONS.en) || {};
+			return dict[key] || fallback || key;
+		}
+
+		function formatFileSize(bytes) {
+			if (!bytes) return '';
+			if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+			if (bytes >= 1024) return (bytes / 1024).toFixed(0) + ' KB';
+			return bytes + ' B';
+		}
+
+		function formatRelativeDate(dateStr) {
+			if (!dateStr) return '';
+			try {
+				const d = new Date(dateStr);
+				const diffDays = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+				const lang = localStorage.getItem('macros_lang') || 'en';
+				if (diffDays < 1) return lang === 'ru' ? 'Сегодня' : 'Today';
+				if (diffDays === 1) return lang === 'ru' ? 'Вчера' : 'Yesterday';
+				if (diffDays < 30) return lang === 'ru' ? diffDays + ' дн. назад' : diffDays + ' days ago';
+				const months = Math.floor(diffDays / 30);
+				return lang === 'ru' ? months + ' мес. назад' : months + ' months ago';
+			} catch (e) {
+				return '';
+			}
+		}
+
+		let currentVersions = [];
+		let currentProvider = 'modrinth';
+		let currentModId = '';
+		let selectedGv = '';
+		let selectedLoader = '';
+
+		window.openDownloadPickerModal = async function(id, provider, title, iconUrl) {
+			const modal = document.getElementById('downloadPickerModal');
+			if (!modal) return;
+
+			currentModId = id;
+			currentProvider = provider || 'modrinth';
+			selectedGv = '';
+			selectedLoader = '';
+
+			modal.classList.remove('hidden');
+			const titleEl = document.getElementById('pickerModTitle');
+			if (titleEl) titleEl.textContent = title || id;
+			const iconEl = document.getElementById('pickerModIcon');
+			if (iconEl) {
+				if (iconUrl) iconEl.src = iconUrl;
+				else iconEl.src = '/assets/logo.png';
+			}
+			const badge = document.getElementById('pickerProviderBadge');
+			if (badge) {
+				badge.textContent = currentProvider === 'curseforge' ? 'CurseForge' : 'Modrinth';
+				badge.className = currentProvider === 'curseforge' ? 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider provider-badge-curseforge shrink-0' : 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider provider-badge-modrinth shrink-0';
+			}
+
+			const loadingEl = document.getElementById('pickerLoading');
+			const emptyEl = document.getElementById('pickerEmpty');
+			const listEl = document.getElementById('pickerFilesList');
+			const gvSelect = document.getElementById('pickerGameVersionSelect');
+			const loaderPills = document.getElementById('pickerLoaderPills');
+
+			if (loadingEl) loadingEl.classList.remove('hidden');
+			if (emptyEl) emptyEl.classList.add('hidden');
+			if (listEl) listEl.innerHTML = '';
+			if (gvSelect) gvSelect.innerHTML = '<option value="">' + t('download_modal.all_versions', 'Все поддерживаемые версии') + '</option>';
+			if (loaderPills) loaderPills.innerHTML = '';
+
+			try {
+				if (currentProvider === 'modrinth') {
+					const res = await fetch('/v2/project/' + encodeURIComponent(id) + '/version');
+					if (res.ok) currentVersions = await res.json();
+					else currentVersions = [];
+				} else {
+					const res = await fetch('/api/v1/curseforge/mod/' + encodeURIComponent(id) + '/files');
+					if (res.ok) {
+						const data = await res.json();
+						currentVersions = data.data || [];
+					} else {
+						currentVersions = [];
+					}
+				}
+			} catch (err) {
+				console.error('Failed to load versions for modal:', err);
+				currentVersions = [];
+			}
+
+			if (loadingEl) loadingEl.classList.add('hidden');
+
+			if (!Array.isArray(currentVersions) || currentVersions.length === 0) {
+				if (emptyEl) emptyEl.classList.remove('hidden');
+				return;
+			}
+
+			const supportedGv = new Set();
+			const supportedLoaders = new Set();
+
+			currentVersions.forEach(v => {
+				if (currentProvider === 'modrinth') {
+					(v.game_versions || []).forEach(g => supportedGv.add(g));
+					(v.loaders || []).forEach(l => supportedLoaders.add(l.toLowerCase()));
+				} else {
+					(v.gameVersions || []).filter(g => /^\\d+\\.\\d+/.test(g)).forEach(g => supportedGv.add(g));
+					(v.gameVersions || []).filter(g => ['fabric', 'forge', 'neoforge', 'quilt'].includes(g.toLowerCase())).forEach(g => supportedLoaders.add(g.toLowerCase()));
+				}
+			});
+
+			const sortedGv = Array.from(supportedGv).sort((a, b) => {
+				const pa = a.split('.').map(n => parseInt(n, 10) || 0);
+				const pb = b.split('.').map(n => parseInt(n, 10) || 0);
+				for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+					const na = pa[i] !== undefined ? pa[i] : 0;
+					const nb = pb[i] !== undefined ? pb[i] : 0;
+					if (na !== nb) return nb - na;
+				}
+				return b.localeCompare(a);
+			});
+
+			const sortedLoaders = Array.from(supportedLoaders);
+
+			const countVersEl = document.getElementById('pickerSupportedVersCount');
+			if (countVersEl) countVersEl.textContent = sortedGv.length + ' версий';
+			const countLoadersEl = document.getElementById('pickerSupportedLoadersCount');
+			if (countLoadersEl) countLoadersEl.textContent = sortedLoaders.length + ' загрузчиков';
+
+			if (gvSelect) {
+				sortedGv.forEach(gv => {
+					const opt = document.createElement('option');
+					opt.value = gv;
+					opt.textContent = gv;
+					gvSelect.appendChild(opt);
+				});
+
+				gvSelect.onchange = () => {
+					selectedGv = gvSelect.value;
+					renderMatchingFiles();
+				};
+			}
+
+			function renderLoaderPills() {
+				if (!loaderPills) return;
+				loaderPills.innerHTML = '';
+
+				const allBtn = document.createElement('button');
+				allBtn.type = 'button';
+				allBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ' +
+					(!selectedLoader ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
+				allBtn.textContent = t('download_modal.all_loaders', 'Все');
+				allBtn.onclick = () => {
+					selectedLoader = '';
+					renderLoaderPills();
+					renderMatchingFiles();
+				};
+				loaderPills.appendChild(allBtn);
+
+				sortedLoaders.forEach(l => {
+					const isSel = selectedLoader === l;
+					const btn = document.createElement('button');
+					btn.type = 'button';
+					btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition cursor-pointer ' +
+						(isSel ? 'bg-emerald-500 text-black shadow-sm' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800');
+					btn.textContent = l;
+					btn.onclick = () => {
+						selectedLoader = isSel ? '' : l;
+						renderLoaderPills();
+						renderMatchingFiles();
+					};
+					loaderPills.appendChild(btn);
+				});
+			}
+
+			renderLoaderPills();
+			renderMatchingFiles();
+		};
+
+		function renderMatchingFiles() {
+			const listEl = document.getElementById('pickerFilesList');
+			const emptyEl = document.getElementById('pickerEmpty');
+			if (!listEl) return;
+			listEl.innerHTML = '';
+
+			const filtered = currentVersions.filter(v => {
+				if (currentProvider === 'modrinth') {
+					if (selectedGv && !(v.game_versions || []).includes(selectedGv)) return false;
+					if (selectedLoader && !(v.loaders || []).map(l => l.toLowerCase()).includes(selectedLoader)) return false;
+				} else {
+					const gvs = (v.gameVersions || []).filter(g => /^\\d+\\.\\d+/.test(g));
+					const lds = (v.gameVersions || []).filter(g => ['fabric', 'forge', 'neoforge', 'quilt'].includes(g.toLowerCase())).map(l => l.toLowerCase());
+					if (selectedGv && !gvs.includes(selectedGv)) return false;
+					if (selectedLoader && !lds.includes(selectedLoader)) return false;
+				}
+				return true;
+			});
+
+			if (filtered.length === 0) {
+				if (emptyEl) emptyEl.classList.remove('hidden');
+				return;
+			}
+			if (emptyEl) emptyEl.classList.add('hidden');
+
+			filtered.forEach(v => {
+				let name = '';
+				let typeBadge = '';
+				let gameVers = [];
+				let loaders = [];
+				let size = '';
+				let date = '';
+				let dlUrl = '';
+				let fileId = '';
+
+				if (currentProvider === 'modrinth') {
+					name = v.name || v.version_number;
+					const tType = v.version_type || 'release';
+					if (tType === 'release') typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Release</span>';
+					else if (tType === 'beta') typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">Beta</span>';
+					else typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20">Alpha</span>';
+
+					gameVers = v.game_versions || [];
+					loaders = v.loaders || [];
+					const f = (v.files || []).find(f => f.primary) || (v.files && v.files[0]);
+					if (f) {
+						size = formatFileSize(f.size);
+						dlUrl = f.url;
+					}
+					date = formatRelativeDate(v.date_published);
+					fileId = v.id;
+				} else {
+					name = v.displayName || v.fileName;
+					const r = v.releaseType;
+					if (r === 1) typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Release</span>';
+					else if (r === 2) typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">Beta</span>';
+					else typeBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20">Alpha</span>';
+
+					gameVers = (v.gameVersions || []).filter(g => /^\\d+\\.\\d+/.test(g));
+					loaders = (v.gameVersions || []).filter(g => ['fabric', 'forge', 'neoforge', 'quilt'].includes(g.toLowerCase()));
+					size = formatFileSize(v.fileLength);
+					date = formatRelativeDate(v.fileDate);
+					dlUrl = '/api/v1/curseforge/download/' + encodeURIComponent(currentModId) + '?fileId=' + encodeURIComponent(v.id);
+					fileId = v.id;
+				}
+
+				const row = document.createElement('div');
+				row.className = 'p-3 rounded-xl bg-zinc-950/80 border border-zinc-850 hover:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition';
+
+				const info = document.createElement('div');
+				info.className = 'min-w-0 flex-1';
+				info.innerHTML = '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
+					'<span class="text-xs font-bold text-white truncate">' + name + '</span>' +
+					typeBadge +
+					'</div>' +
+					'<div class="flex flex-wrap items-center gap-2 text-[11px] text-zinc-400">' +
+					(gameVers.length > 0 ? '<span class="font-mono text-zinc-300">' + gameVers.slice(0, 4).join(', ') + (gameVers.length > 4 ? ' +' + (gameVers.length - 4) : '') + '</span>' : '') +
+					(loaders.length > 0 ? '<span class="text-zinc-600">•</span><span class="capitalize text-zinc-300 font-medium">' + loaders.join(', ') + '</span>' : '') +
+					(size ? '<span class="text-zinc-600">•</span><span>' + size + '</span>' : '') +
+					(date ? '<span class="text-zinc-600">•</span><span>' + date + '</span>' : '') +
+					'</div>';
+				row.appendChild(info);
+
+				const btns = document.createElement('div');
+				btns.className = 'flex items-center gap-2 shrink-0';
+
+				const aDl = document.createElement('a');
+				aDl.href = dlUrl || '#';
+				aDl.target = '_blank';
+				aDl.setAttribute('download', '');
+				aDl.className = 'px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition flex items-center gap-1.5 active:scale-95 shadow-sm cursor-pointer';
+				aDl.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>' +
+					'<span>' + t('download_modal.download_file', 'Скачать') + '</span>';
+				btns.appendChild(aDl);
+
+				const aLch = document.createElement('a');
+				aLch.href = 'macros://install/' + currentProvider + '/' + encodeURIComponent(currentModId) + (fileId ? '?version=' + fileId : '');
+				aLch.className = 'px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-750 text-zinc-300 hover:text-white font-medium text-xs transition active:scale-95';
+				aLch.title = t('download_modal.in_launcher', 'В лаунчер');
+				aLch.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+				btns.appendChild(aLch);
+
+				row.appendChild(btns);
+				listEl.appendChild(row);
+			});
+		}
+
+		const closeBtn = document.getElementById('closeDownloadPickerModal');
+		if (closeBtn) closeBtn.onclick = () => document.getElementById('downloadPickerModal').classList.add('hidden');
+		const pickerModal = document.getElementById('downloadPickerModal');
+		if (pickerModal) {
+			pickerModal.addEventListener('click', (e) => {
+				if (e.target === pickerModal) pickerModal.classList.add('hidden');
+			});
+		}
+	})();
+	</script>
+	`
+}
+
 export function renderCatalogHtml(user?: any): string {
 	return `<!DOCTYPE html>
 <html lang="ru" class="dark">
@@ -7152,9 +7548,11 @@ export function renderCatalogHtml(user?: any): string {
 			}
 
 			// Download & In Launcher buttons
-			modalDownloadBtn.href = '/api/v1/' + provider + '/download/' + encodeURIComponent(id) +
-				'?gameVersion=' + encodeURIComponent(state.gameVersion) +
-				'&loader=' + encodeURIComponent(state.loader);
+			modalDownloadBtn.href = '#';
+			modalDownloadBtn.onclick = (e) => {
+				e.preventDefault();
+				window.openDownloadPickerModal(id, provider, modalTitle.textContent, modalIcon.src);
+			};
 			modalLauncherBtn.href = 'macros://install/' + provider + '/' + encodeURIComponent(id);
 
 			modalTabDesc.innerHTML = '<div class="py-12 text-center text-zinc-500 text-xs flex flex-col items-center gap-3">' +
@@ -7561,6 +7959,7 @@ export function renderCatalogHtml(user?: any): string {
 	</script>
 	${renderNavbarUserScript()}
 	${renderCreateProjectModalHtml()}
+	${renderDownloadPickerModalHtml()}
 </body>
 </html>`
 }
@@ -7695,7 +8094,7 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 
 			<!-- Right Action Buttons -->
 			<div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
-				<a id="heroDownloadBtn" href="#" target="_blank" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer">
+				<a id="heroDownloadBtn" href="#" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
 					<span data-i18n="catalog.btn.download">Download</span>
 				</a>
@@ -8088,15 +8487,6 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 						document.getElementById('tabVersionsBadge').textContent = String(allVersions.length);
 						populateVersionFilters(allVersions);
 						renderVersionsTable(allVersions);
-
-						// Hook up hero download button to latest primary file
-						if (allVersions.length > 0) {
-							const latest = allVersions[0];
-							const prim = (latest.files || []).find(f => f.primary) || (latest.files && latest.files[0]);
-							if (prim && prim.url) {
-								document.getElementById('heroDownloadBtn').href = prim.url;
-							}
-						}
 					}
 				} else {
 					// CurseForge Provider
@@ -8176,10 +8566,6 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 						document.getElementById('tabVersionsBadge').textContent = String(allVersions.length);
 						populateVersionFilters(allVersions);
 						renderVersionsTable(allVersions);
-
-						if (allVersions.length > 0) {
-							document.getElementById('heroDownloadBtn').href = '/api/v1/curseforge/download/' + MOD_ID + '?fileId=' + allVersions[0].id;
-						}
 					}
 				}
 			} catch (err) {
@@ -8348,11 +8734,22 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 			});
 		}
 
+		const heroDl = document.getElementById('heroDownloadBtn');
+		if (heroDl) {
+			heroDl.onclick = (e) => {
+				e.preventDefault();
+				const title = projectData ? (projectData.title || projectData.name || MOD_ID) : MOD_ID;
+				const icon = projectData ? (projectData.icon_url || (projectData.logo && projectData.logo.url) || '') : '';
+				window.openDownloadPickerModal(MOD_ID, PROVIDER, title, icon);
+			};
+		}
+
 		loadProjectData();
 	})();
 	</script>
 	${renderNavbarUserScript()}
 	${renderCreateProjectModalHtml()}
+	${renderDownloadPickerModalHtml()}
 </body>
 </html>`
 }
