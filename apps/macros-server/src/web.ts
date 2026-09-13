@@ -52,6 +52,29 @@ export const THEME_HEAD_SCRIPT = `
 				} else {
 					document.documentElement.classList.add('dark');
 				}
+
+				var lang = localStorage.getItem('macros_lang');
+				if (!lang) {
+					var match = document.cookie.match(/macros_lang=([^;]+)/);
+					if (match) lang = decodeURIComponent(match[1]);
+				}
+				if (!lang) lang = 'en';
+				document.documentElement.lang = lang;
+				if (lang !== 'en') {
+					var style = document.createElement('style');
+					style.id = 'i18n-flash-prevention';
+					style.innerHTML = 'body { visibility: hidden !important; opacity: 0 !important; }';
+					document.head.appendChild(style);
+					window.__revealPage = function() {
+						var s = document.getElementById('i18n-flash-prevention');
+						if (s) s.remove();
+						if (document.body) {
+							document.body.style.visibility = '';
+							document.body.style.opacity = '';
+						}
+					};
+					setTimeout(window.__revealPage, 150);
+				}
 			} catch(e) {}
 		})();
 	</script>
@@ -538,11 +561,16 @@ export function renderNavbarUserScript(): string {
 						if (msg.type === 'friend_request') {
 							window.loadNavNotifications();
 							if (typeof window.reloadFriendsList === 'function') window.reloadFriendsList();
-							if (typeof window.showLiveToast === 'function') window.showLiveToast('Вам отправлена заявка в друзья!', 'info');
+							const lang = localStorage.getItem('macros_lang') || 'en';
+							const toastMsg = lang === 'ru' ? 'Вам отправлена заявка в друзья!' : 'You received a friend request!';
+							if (typeof window.showLiveToast === 'function') window.showLiveToast(toastMsg, 'info');
 						} else if (msg.type === 'friend_request_accepted') {
 							window.loadNavNotifications();
 							if (typeof window.reloadFriendsList === 'function') window.reloadFriendsList();
-							if (typeof window.showLiveToast === 'function') window.showLiveToast('Заявка в друзья принята!', 'success');
+							const lang = localStorage.getItem('macros_lang') || 'en';
+							const toastMsg = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['toast.friend_accepted']) ||
+								(lang === 'ru' ? 'Заявка в друзья принята!' : 'Friend request accepted!');
+							if (typeof window.showLiveToast === 'function') window.showLiveToast(toastMsg, 'success');
 						} else if (msg.type === 'friend_removed') {
 							window.loadNavNotifications();
 							if (typeof window.reloadFriendsList === 'function') window.reloadFriendsList();
@@ -911,6 +939,7 @@ export function renderNavbarUserScript(): string {
 				'account.empty.create_btn': 'Create a project',
 				'mod.back': 'Discover content',
 				'mod.tab.description': 'Description',
+				'mod.tab.changelog': 'Changelog',
 				'mod.tab.versions': 'Versions',
 				'mod.tab.gallery': 'Gallery',
 				'mod.compatibility': 'Compatibility',
@@ -923,6 +952,14 @@ export function renderNavbarUserScript(): string {
 				'mod.filter.all_loaders': 'All loaders',
 				'mod.filter.all_channels': 'All channels',
 				'mod.share_copied': 'Project link copied to clipboard!',
+				'download_modal.game_version': 'Game version',
+				'download_modal.loader': 'Mod loader',
+				'download_modal.subtitle': 'Select Minecraft version and loader to download',
+				'download_modal.subtitle_no_loaders': 'Select Minecraft version to download',
+				'download_modal.all_versions': 'All supported versions',
+				'download_modal.all_loaders': 'All',
+				'download_modal.no_files': 'No files found for selected version.',
+				'download_modal.loading': 'Loading available versions...',
 				'account.friends.title': 'Online Friends',
 				'account.friends.placeholder': "Friend's username...",
 				'account.friends.add': 'Add',
@@ -1184,6 +1221,7 @@ export function renderNavbarUserScript(): string {
 				'account.empty.create_btn': 'Создать проект',
 				'mod.back': 'Каталог',
 				'mod.tab.description': 'Описание',
+				'mod.tab.changelog': 'Список изменений',
 				'mod.tab.versions': 'Версии',
 				'mod.tab.gallery': 'Галерея',
 				'mod.compatibility': 'Совместимость',
@@ -1196,6 +1234,14 @@ export function renderNavbarUserScript(): string {
 				'mod.filter.all_loaders': 'Все загрузчики',
 				'mod.filter.all_channels': 'Все каналы',
 				'mod.share_copied': 'Ссылка на проект скопирована в буфер обмена!',
+				'download_modal.game_version': 'Версия игры',
+				'download_modal.loader': 'Загрузчик модов',
+				'download_modal.subtitle': 'Выберите версию Minecraft и загрузчик для скачивания',
+				'download_modal.subtitle_no_loaders': 'Выберите версию Minecraft для скачивания',
+				'download_modal.all_versions': 'Все поддерживаемые версии',
+				'download_modal.all_loaders': 'Все',
+				'download_modal.no_files': 'Нет файлов для выбранной версии.',
+				'download_modal.loading': 'Загрузка доступных версий...',
 				'account.friends.title': 'Друзья в сети',
 				'account.friends.placeholder': 'Никнейм друга...',
 				'account.friends.add': 'Добавить',
@@ -1413,6 +1459,9 @@ export function renderNavbarUserScript(): string {
 		function setAppLanguage(lang) {
 			if (!TRANSLATIONS[lang]) lang = 'en';
 			localStorage.setItem('macros_lang', lang);
+			try {
+				document.cookie = 'macros_lang=' + encodeURIComponent(lang) + '; path=/; max-age=31536000; SameSite=Lax';
+			} catch(e) {}
 			document.documentElement.lang = lang;
 
 			const label = document.getElementById('currentLangLabel');
@@ -1474,6 +1523,10 @@ export function renderNavbarUserScript(): string {
 			if (currentSortLabel && sortLabels[lang] && sortLabels[lang][curVal]) {
 				currentSortLabel.textContent = sortLabels[lang][curVal];
 			}
+
+			if (typeof window.__revealPage === 'function') {
+				window.__revealPage();
+			}
 		}
 
 		window.setAppLanguage = setAppLanguage;
@@ -1512,8 +1565,14 @@ export function renderNavbarUserScript(): string {
 		});
 
 		// Initialize Language on DOMContentLoaded
-		const initialLang = localStorage.getItem('macros_lang') || 'en';
+		const initialLang = localStorage.getItem('macros_lang') || (function() {
+			const m = document.cookie.match(/macros_lang=([^;]+)/);
+			return m ? decodeURIComponent(m[1]) : 'en';
+		})();
 		setAppLanguage(initialLang);
+		if (typeof window.__revealPage === 'function') {
+			window.__revealPage();
+		}
 
 		if (typeof window.loadNavNotifications === 'function') {
 			window.loadNavNotifications();
@@ -4542,9 +4601,10 @@ export function renderAccountHtml(user?: any): string {
 							div.className = 'flex items-center justify-between p-3.5 rounded-xl bg-zinc-950 border border-zinc-900 text-xs';
 							const left = document.createElement('div');
 							left.className = 'flex items-center gap-3';
-							left.innerHTML = '<div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">' +
-								'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>' +
-								'</div>' +
+							const iconHtml = inst.icon_path
+								? '<img src="' + inst.icon_path + '" alt="' + (inst.name || 'Сборка') + '" class="w-8 h-8 rounded-lg object-cover border border-white/10 shrink-0" onerror="this.onerror=null;this.parentElement.innerHTML=\'<div class=\\\'w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold\\\'><svg class=\\\'w-4 h-4\\\' fill=\\\'none\\\' stroke=\\\'currentColor\\\' viewBox=\\\'0 0 24 24\\\'><path stroke-linecap=\\\'round\\\' stroke-linejoin=\\\'round\\\' stroke-width=\\\'2\\\' d=\\\'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\\\'/></svg></div>\';" />'
+								: '<div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>';
+							left.innerHTML = iconHtml +
 								'<div>' +
 								'<div class="font-bold text-white">' + (inst.name || 'Сборка') + '</div>' +
 								'<div class="text-[11px] text-zinc-500">' + (inst.game_version || '1.20.1') + ' • ' + (inst.loader || 'Fabric') + '</div>' +
@@ -4561,6 +4621,19 @@ export function renderAccountHtml(user?: any): string {
 					}
 				}
 			} catch (e) {}
+		}
+
+		function showToast(keyOrText, type = 'info') {
+			const lang = localStorage.getItem('macros_lang') || 'en';
+			let msg = keyOrText;
+			if (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][keyOrText]) {
+				msg = window.TRANSLATIONS[lang][keyOrText];
+			} else if (window.TRANSLATIONS && window.TRANSLATIONS['en'] && window.TRANSLATIONS['en'][keyOrText]) {
+				msg = window.TRANSLATIONS['en'][keyOrText];
+			}
+			if (typeof window.showLiveToast === 'function') {
+				window.showLiveToast(msg, type);
+			}
 		}
 
 		async function loadFriends() {
@@ -4590,6 +4663,7 @@ export function renderAccountHtml(user?: any): string {
 						incList.innerHTML = '';
 						incoming.forEach(f => {
 							const item = document.createElement('div');
+							item.id = 'incReq_' + (f.other_id || f.id);
 							item.className = 'flex items-center justify-between p-3 rounded-xl bg-zinc-950/90 border border-yellow-500/20 text-xs shadow-md';
 							
 							const left = document.createElement('div');
@@ -4644,6 +4718,7 @@ export function renderAccountHtml(user?: any): string {
 						list.innerHTML = '';
 						accepted.forEach(f => {
 							const item = document.createElement('div');
+							item.id = 'friendRow_' + (f.other_id || f.id);
 							item.className = 'flex items-center justify-between p-3 rounded-xl bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-xs transition';
 							
 							const left = document.createElement('div');
@@ -4715,6 +4790,7 @@ export function renderAccountHtml(user?: any): string {
 						pendList.innerHTML = '';
 						pending.forEach(f => {
 							const item = document.createElement('div');
+							item.id = 'pendReq_' + (f.other_id || f.id);
 							item.className = 'flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-900 text-xs text-zinc-400';
 							
 							const left = document.createElement('div');
@@ -4758,6 +4834,18 @@ export function renderAccountHtml(user?: any): string {
 		}
 
 		async function acceptFriendRequest(userId) {
+			const reqEl = document.getElementById('incReq_' + userId);
+			if (reqEl) reqEl.remove();
+			const incCount = document.getElementById('incomingCount');
+			if (incCount) {
+				const current = parseInt(incCount.textContent.replace(/\D/g, '') || '1') - 1;
+				if (current <= 0) {
+					const incSection = document.getElementById('accIncomingSection');
+					if (incSection) incSection.classList.add('hidden');
+				} else {
+					incCount.textContent = '(' + current + ')';
+				}
+			}
 			try {
 				const headers = {};
 				if (token) headers['Authorization'] = 'Bearer ' + token;
@@ -4767,22 +4855,41 @@ export function renderAccountHtml(user?: any): string {
 				});
 				if (res.ok) {
 					showToast('toast.friend_accepted', 'success');
-					loadFriends();
 				}
 			} catch (err) {}
+			loadFriends();
+			if (typeof window.loadNavNotifications === 'function') {
+				window.loadNavNotifications();
+			}
 		}
 
 		async function removeFriend(friendId) {
-			const headers = {};
-			if (token) headers['Authorization'] = 'Bearer ' + token;
-			await fetch('/v3/friend/' + encodeURIComponent(friendId), {
-				method: 'DELETE',
-				headers
-			});
-			showToast('toast.friend_removed', 'info');
+			const row = document.getElementById('friendRow_' + friendId) ||
+				document.getElementById('incReq_' + friendId) ||
+				document.getElementById('pendReq_' + friendId);
+			if (row) row.remove();
+			const cntEl = document.getElementById('friendsCount');
+			if (cntEl && document.getElementById('friendRow_' + friendId)) {
+				const current = Math.max(0, parseInt(cntEl.textContent || '1') - 1);
+				cntEl.textContent = current;
+			}
+			try {
+				const headers = {};
+				if (token) headers['Authorization'] = 'Bearer ' + token;
+				await fetch('/v3/friend/' + encodeURIComponent(friendId), {
+					method: 'DELETE',
+					headers
+				});
+				showToast('toast.friend_removed', 'info');
+			} catch (err) {}
 			loadFriends();
+			if (typeof window.loadNavNotifications === 'function') {
+				window.loadNavNotifications();
+			}
 		}
 
+		window.loadFriends = loadFriends;
+		window.reloadFriendsList = loadFriends;
 		window.acceptFriendRequest = acceptFriendRequest;
 		window.removeFriend = removeFriend;
 
@@ -6439,7 +6546,7 @@ export function renderDownloadPickerModalHtml(): string {
 				</div>
 
 				<!-- Step 2: Loader Pills -->
-				<div>
+				<div id="pickerLoaderStep">
 					<div class="flex items-center justify-between mb-2">
 						<label data-i18n="download_modal.loader" class="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
 							<span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">2</span>
@@ -6598,7 +6705,28 @@ export function renderDownloadPickerModalHtml(): string {
 				return b.localeCompare(a);
 			});
 
-			sortedLoaders = Array.from(supportedLds);
+			// Filter out 'minecraft' since it is the game engine, not a mod loader
+			sortedLoaders = Array.from(supportedLds).filter(l => l !== 'minecraft');
+
+			const loaderStep = document.getElementById('pickerLoaderStep');
+			const subtitleEl = document.querySelector('#downloadPickerModal p[data-i18n="download_modal.subtitle"], #downloadPickerModal p[data-i18n="download_modal.subtitle_no_loaders"]');
+			const isNoLoaders = sortedLoaders.length === 0;
+
+			if (loaderStep) {
+				if (isNoLoaders) {
+					loaderStep.classList.add('hidden');
+					if (subtitleEl) {
+						subtitleEl.textContent = t('download_modal.subtitle_no_loaders', 'Выберите версию Minecraft для скачивания');
+						subtitleEl.setAttribute('data-i18n', 'download_modal.subtitle_no_loaders');
+					}
+				} else {
+					loaderStep.classList.remove('hidden');
+					if (subtitleEl) {
+						subtitleEl.textContent = t('download_modal.subtitle', 'Выберите версию Minecraft и загрузчик для скачивания');
+						subtitleEl.setAttribute('data-i18n', 'download_modal.subtitle');
+					}
+				}
+			}
 
 			const countVersEl = document.getElementById('pickerSupportedVersCount');
 			if (countVersEl) countVersEl.textContent = sortedGv.length + ' версий';
@@ -6829,13 +6957,14 @@ export function renderDownloadPickerModalHtml(): string {
 
 				const info = document.createElement('div');
 				info.className = 'min-w-0 flex-1';
+				const displayLoaders = loaders.filter(l => l.toLowerCase() !== 'minecraft');
 				info.innerHTML = '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
 					'<span class="text-xs font-bold text-white truncate">' + name + '</span>' +
 					typeBadge +
 					'</div>' +
 					'<div class="flex flex-wrap items-center gap-2 text-[11px] text-zinc-400">' +
 					(gameVers.length > 0 ? '<span class="font-mono text-zinc-300">' + gameVers.slice(0, 4).join(', ') + (gameVers.length > 4 ? ' +' + (gameVers.length - 4) : '') + '</span>' : '') +
-					(loaders.length > 0 ? '<span class="text-zinc-600">•</span><span class="capitalize text-zinc-300 font-medium">' + loaders.join(', ') + '</span>' : '') +
+					(displayLoaders.length > 0 ? '<span class="text-zinc-600">•</span><span class="capitalize text-zinc-300 font-medium">' + displayLoaders.join(', ') + '</span>' : '') +
 					(size ? '<span class="text-zinc-600">•</span><span>' + size + '</span>' : '') +
 					(date ? '<span class="text-zinc-600">•</span><span>' + date + '</span>' : '') +
 					'</div>';
@@ -6920,10 +7049,19 @@ export function renderCatalogHtml(user?: any): string {
 			}
 		}
 	</script>
+	<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.2/dist/purify.min.js"></script>
 	${THEME_HEAD_SCRIPT}
 	<style>
 		${OLED_SCROLLBAR_CSS}
 		${THEME_CSS}
+		.prose-desc center { text-align: center; margin: 1rem auto; }
+		.prose-desc details { background: #09090b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 0.75rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
+		.prose-desc details[open] { border-color: rgba(255, 255, 255, 0.16); }
+		.prose-desc summary { cursor: pointer; font-weight: 600; color: #ffffff; user-select: none; padding: 0.25rem 0; }
+		.prose-desc summary:hover { color: #10b981; }
+		.prose-desc img { display: inline-block; max-width: 100%; border-radius: 0.75rem; margin: 0.5rem auto; vertical-align: middle; border: 1px solid rgba(255, 255, 255, 0.08); }
+		.prose-desc hr { border-color: rgba(255, 255, 255, 0.08); margin: 1.5rem 0; }
 
 		body { background-color: var(--theme-bg-page, #000000); color: var(--theme-text-primary, #f4f4f5); font-family: 'Inter', sans-serif; }
 		.oled-card {
@@ -7407,23 +7545,18 @@ export function renderCatalogHtml(user?: any): string {
 
 		function renderMarkdown(md) {
 			if (!md) return '<p class="text-zinc-500 italic">' + t('catalog.modal.no_description', 'No description provided.') + '</p>';
-			let html = md
-				.replace(/&/g, '&amp;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;');
-			html = html.replace(new RegExp('\\\\x60{3}([a-z]*)\\\\n([\\\\s\\\\S]*?)\\\\x60{3}', 'g'), '<pre class="bg-zinc-950 p-4 rounded-xl border border-zinc-800 text-xs font-mono overflow-x-auto text-zinc-300 my-3"><code>$2</code></pre>');
-			html = html.replace(new RegExp('\\\\x60([^\\\\x60]+)\\\\x60', 'g'), '<code class="bg-zinc-900 text-emerald-400 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
-			html = html.replace(/^### (.*$)/gim, '<h3 class="text-base font-bold text-white mt-4 mb-2">$1</h3>');
-			html = html.replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-white mt-5 mb-2">$1</h2>');
-			html = html.replace(/^# (.*$)/gim, '<h1 class="text-xl font-extrabold text-white mt-6 mb-3">$1</h1>');
-			html = html.replace(/\\*\\*([^*]+)\\*\\*/g, '<strong class="font-bold text-white">$1</strong>');
-			html = html.replace(/\\*([^*]+)\\*/g, '<em class="italic text-zinc-300">$1</em>');
-			html = html.replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)/g, '<img src="$2" alt="$1" class="rounded-xl my-3 max-w-full border border-zinc-800 shadow-md">');
-			html = html.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-emerald-400 hover:underline font-medium">$1</a>');
-			html = html.replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-emerald-500/50 pl-4 py-1 text-zinc-400 italic my-2">$1</blockquote>');
-			html = html.replace(/^\\s*[-*]\\s+(.*$)/gim, '<li class="ml-4 list-disc text-zinc-300 my-1">$1</li>');
-			html = html.replace(/\\n\\n+/g, '</p><p class="my-2 leading-relaxed text-zinc-300">');
-			return '<p class="my-2 leading-relaxed text-zinc-300">' + html + '</p>';
+			let clean = md.replace(/\\<([a-zA-Z/])/g, '<$1');
+			if (window.marked && typeof window.marked.parse === 'function') {
+				const parsed = window.marked.parse(clean, { gfm: true, breaks: true });
+				if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+					return window.DOMPurify.sanitize(parsed, {
+						ADD_TAGS: ['center', 'details', 'summary', 'iframe'],
+						ADD_ATTR: ['target', 'align', 'width', 'height', 'loading', 'rel']
+					});
+				}
+				return parsed;
+			}
+			return '<div class="whitespace-pre-wrap text-zinc-300">' + clean + '</div>';
 		}
 
 		function populateVersionsList(filter = '') {
@@ -8295,10 +8428,19 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 			}
 		}
 	</script>
+	<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.2/dist/purify.min.js"></script>
 	${THEME_HEAD_SCRIPT}
 	<style>
 		${OLED_SCROLLBAR_CSS}
 		${THEME_CSS}
+		.prose-desc center { text-align: center; margin: 1rem auto; }
+		.prose-desc details { background: #09090b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 0.75rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
+		.prose-desc details[open] { border-color: rgba(255, 255, 255, 0.16); }
+		.prose-desc summary { cursor: pointer; font-weight: 600; color: #ffffff; user-select: none; padding: 0.25rem 0; }
+		.prose-desc summary:hover { color: #10b981; }
+		.prose-desc img { display: inline-block; max-width: 100%; border-radius: 0.75rem; margin: 0.5rem auto; vertical-align: middle; border: 1px solid rgba(255, 255, 255, 0.08); }
+		.prose-desc hr { border-color: rgba(255, 255, 255, 0.08); margin: 1.5rem 0; }
 
 		body { background-color: var(--theme-bg-page, #000000); color: var(--theme-text-primary, #f4f4f5); font-family: 'Inter', sans-serif; }
 		.oled-card {
@@ -8420,7 +8562,7 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 				<span data-i18n="mod.tab.description">Description</span>
 			</button>
 			<button type="button" id="tabBtnChangelog" class="px-5 py-1.5 rounded-full text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition">
-				<span>Changelog</span>
+				<span data-i18n="mod.tab.changelog">Changelog</span>
 			</button>
 			<button type="button" id="tabBtnVersions" class="px-5 py-1.5 rounded-full text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition flex items-center gap-1.5">
 				<span data-i18n="mod.tab.versions">Versions</span>
@@ -8604,7 +8746,10 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 
 		document.getElementById('heroShareBtn').onclick = () => {
 			navigator.clipboard.writeText(window.location.href);
-			showToast('Link copied to clipboard!');
+			const lang = localStorage.getItem('macros_lang') || 'en';
+			const msg = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['mod.share_copied']) ||
+				(lang === 'ru' ? 'Ссылка на проект скопирована в буфер обмена!' : 'Project link copied to clipboard!');
+			showToast(msg);
 		};
 
 		// Tabs Switching
@@ -8657,35 +8802,31 @@ export function renderModPageHtml(modId: string, provider: string, user?: any): 
 			try {
 				const d = new Date(dateStr);
 				const diffDays = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
-				if (diffDays < 1) return 'Today';
-				if (diffDays === 1) return 'Yesterday';
-				if (diffDays < 30) return diffDays + ' days ago';
+				const lang = localStorage.getItem('macros_lang') || 'en';
+				if (diffDays < 1) return lang === 'ru' ? 'Сегодня' : 'Today';
+				if (diffDays === 1) return lang === 'ru' ? 'Вчера' : 'Yesterday';
+				if (diffDays < 30) return lang === 'ru' ? diffDays + ' дн. назад' : diffDays + ' days ago';
 				const months = Math.floor(diffDays / 30);
-				return months + ' months ago';
+				return lang === 'ru' ? months + ' мес. назад' : months + ' months ago';
 			} catch (e) {
 				return '';
 			}
 		}
 
 		function renderMarkdown(md) {
-			if (!md) return '<p class="text-zinc-500 italic">No description provided.</p>';
-			let html = md
-				.replace(/&/g, '&amp;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;');
-			html = html.replace(new RegExp('\\\\x60{3}([a-z]*)\\\\n([\\\\s\\\\S]*?)\\\\x60{3}', 'g'), '<pre class="bg-zinc-950 p-4 rounded-xl border border-zinc-800 text-xs font-mono overflow-x-auto text-zinc-300 my-3"><code>$2</code></pre>');
-			html = html.replace(new RegExp('\\\\x60([^\\\\x60]+)\\\\x60', 'g'), '<code class="bg-zinc-900 text-emerald-400 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
-			html = html.replace(/^### (.*$)/gim, '<h3 class="text-base font-bold text-white mt-4 mb-2">$1</h3>');
-			html = html.replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-white mt-5 mb-2">$1</h2>');
-			html = html.replace(/^# (.*$)/gim, '<h1 class="text-xl font-extrabold text-white mt-6 mb-3">$1</h1>');
-			html = html.replace(/\\*\\*([^*]+)\\*\\*/g, '<strong class="font-bold text-white">$1</strong>');
-			html = html.replace(/\\*([^*]+)\\*/g, '<em class="italic text-zinc-300">$1</em>');
-			html = html.replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)/g, '<img src="$2" alt="$1" class="rounded-xl my-3 max-w-full border border-zinc-800 shadow-md">');
-			html = html.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-emerald-400 hover:underline font-medium">$1</a>');
-			html = html.replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-emerald-500/50 pl-4 py-1 text-zinc-400 italic my-2">$1</blockquote>');
-			html = html.replace(/^\\s*[-*]\\s+(.*$)/gim, '<li class="ml-4 list-disc text-zinc-300 my-1">$1</li>');
-			html = html.replace(/\\n\\n+/g, '</p><p class="my-2 leading-relaxed text-zinc-300">');
-			return '<p class="my-2 leading-relaxed text-zinc-300">' + html + '</p>';
+			if (!md) return '<p class="text-zinc-500 italic">' + (localStorage.getItem('macros_lang') === 'ru' ? 'Описание отсутствует.' : 'No description provided.') + '</p>';
+			let clean = md.replace(/\\<([a-zA-Z/])/g, '<$1');
+			if (window.marked && typeof window.marked.parse === 'function') {
+				const parsed = window.marked.parse(clean, { gfm: true, breaks: true });
+				if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+					return window.DOMPurify.sanitize(parsed, {
+						ADD_TAGS: ['center', 'details', 'summary', 'iframe'],
+						ADD_ATTR: ['target', 'align', 'width', 'height', 'loading', 'rel']
+					});
+				}
+				return parsed;
+			}
+			return '<div class="whitespace-pre-wrap text-zinc-300">' + clean + '</div>';
 		}
 
 		async function loadProjectData() {
@@ -9277,12 +9418,15 @@ export function renderPublicUserProfileHtml(params: {
 					const gv = escapeHtml(inst.game_version || '1.20.1');
 					const ld = escapeHtml(inst.loader || 'Fabric');
 					const invite = inst.invite_id || inst.id;
+					const iconHtml = inst.icon_path
+						? `<img src="${escapeHtml(inst.icon_path)}" alt="${name}" class="w-9 h-9 rounded-xl object-cover border border-white/10 shrink-0" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\\'w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold\\\'><svg class=\\\'w-4 h-4\\\' fill=\\\'none\\\' stroke=\\\'currentColor\\\' viewBox=\\\'0 0 24 24\\\'><path stroke-linecap=\\\'round\\\' stroke-linejoin=\\\'round\\\' stroke-width=\\\'2\\\' d=\\\'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\\\'/></svg></div>';" />`
+						: `<div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+						</div>`;
 					return `
 					<div class="flex items-center justify-between p-4 rounded-xl bg-zinc-950 border border-zinc-900 text-xs hover:border-zinc-800 transition">
 						<div class="flex items-center gap-3.5">
-							<div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-							</div>
+							${iconHtml}
 							<div>
 								<div class="font-bold text-white text-sm">${name}</div>
 								<div class="text-[11px] text-zinc-500">${gv} • ${ld}</div>
@@ -9332,13 +9476,17 @@ export function renderPublicUserProfileHtml(params: {
 			const link = window.location.href;
 			if (navigator.clipboard) {
 				navigator.clipboard.writeText(link).then(function() {
+					const lang = localStorage.getItem('macros_lang') || 'en';
+					const isRu = lang === 'ru';
 					const btnText = document.getElementById('copyLinkBtnText');
 					if (btnText) {
 						const orig = btnText.textContent;
-						btnText.textContent = 'Скопировано! ✓';
+						btnText.textContent = isRu ? 'Скопировано! ✓' : 'Copied! ✓';
 						setTimeout(() => btnText.textContent = orig, 2000);
 					}
-					if (window.showLiveToast) window.showLiveToast('Ссылка на профиль скопирована!', 'success');
+					const toastMsg = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['toast.link_copied']) ||
+						(isRu ? 'Ссылка на профиль скопирована!' : 'Profile link copied to clipboard!');
+					if (window.showLiveToast) window.showLiveToast(toastMsg, 'success');
 				});
 			}
 		};
@@ -9349,46 +9497,75 @@ export function renderPublicUserProfileHtml(params: {
 				window.location.href = '/auth/sign-in';
 				return;
 			}
+			const lang = localStorage.getItem('macros_lang') || 'en';
+			const isRu = lang === 'ru';
+			const container = document.getElementById('friendActionContainer');
+			if (container) {
+				container.innerHTML = '<span class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-semibold select-none">' +
+					(isRu ? 'Запрос отправлен' : 'Request sent') + '</span>';
+			}
+			const toastMsg = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['toast.friend_request_sent']) ||
+				(isRu ? 'Запрос в друзья отправлен!' : 'Friend request sent!');
+			if (window.showLiveToast) window.showLiveToast(toastMsg, 'success');
 			try {
-				const res = await fetch('/v3/friend/' + encodeURIComponent(userId), {
+				await fetch('/v3/friend/' + encodeURIComponent(userId), {
 					method: 'POST',
 					headers: { 'Authorization': 'Bearer ' + token }
 				});
-				if (res.ok) {
-					const container = document.getElementById('friendActionContainer');
-					if (container) {
-						container.innerHTML = '<span class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-semibold select-none">Запрос отправлен</span>';
-					}
-					if (window.showLiveToast) window.showLiveToast('Запрос в друзья отправлен!', 'success');
-				}
+				if (typeof window.loadNavNotifications === 'function') window.loadNavNotifications();
 			} catch(e) {}
 		};
 
 		window.handleAcceptFriend = async function(userId) {
 			const token = localStorage.getItem('macros_token');
 			if (!token) return;
+			const lang = localStorage.getItem('macros_lang') || 'en';
+			const isRu = lang === 'ru';
+			const container = document.getElementById('friendActionContainer');
+			if (container) {
+				container.innerHTML = '<div class="flex items-center gap-2">' +
+					'<span class="px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1.5 select-none">' +
+					'<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' +
+					'<span>' + (isRu ? 'В друзьях' : 'Friends') + '</span>' +
+					'</span>' +
+					'<button type="button" onclick="handleRemoveFriend(\'' + userId + '\')" class="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 border border-zinc-800 text-xs font-medium transition cursor-pointer active:scale-95">' +
+					(isRu ? 'Удалить' : 'Remove') +
+					'</button>' +
+					'</div>';
+			}
+			const toastMsg = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['toast.friend_accepted']) ||
+				(isRu ? 'Заявка в друзья принята!' : 'Friend request accepted!');
+			if (window.showLiveToast) window.showLiveToast(toastMsg, 'success');
 			try {
-				const res = await fetch('/v3/friend/' + encodeURIComponent(userId), {
+				await fetch('/v3/friend/' + encodeURIComponent(userId), {
 					method: 'POST',
 					headers: { 'Authorization': 'Bearer ' + token }
 				});
-				if (res.ok) {
-					window.location.reload();
-				}
+				if (typeof window.loadNavNotifications === 'function') window.loadNavNotifications();
 			} catch(e) {}
 		};
 
 		window.handleRemoveFriend = async function(userId) {
 			const token = localStorage.getItem('macros_token');
 			if (!token) return;
+			const lang = localStorage.getItem('macros_lang') || 'en';
+			const isRu = lang === 'ru';
+			const container = document.getElementById('friendActionContainer');
+			if (container) {
+				container.innerHTML = '<button id="btnPublicAddFriend" type="button" onclick="handleAddFriend(\'' + userId + '\')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 cursor-pointer active:scale-95">' +
+					'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>' +
+					'<span>' + (isRu ? 'Добавить в друзья' : 'Add friend') + '</span>' +
+					'</button>';
+			}
+			const toastMsg = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['toast.friend_removed']) ||
+				(isRu ? 'Друг удален' : 'Friend removed');
+			if (window.showLiveToast) window.showLiveToast(toastMsg, 'info');
 			try {
-				const res = await fetch('/v3/friend/' + encodeURIComponent(userId), {
+				await fetch('/v3/friend/' + encodeURIComponent(userId), {
 					method: 'DELETE',
 					headers: { 'Authorization': 'Bearer ' + token }
 				});
-				if (res.ok) {
-					window.location.reload();
-				}
+				if (typeof window.loadNavNotifications === 'function') window.loadNavNotifications();
 			} catch(e) {}
 		};
 

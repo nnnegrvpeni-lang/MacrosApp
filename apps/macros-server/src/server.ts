@@ -1026,6 +1026,11 @@ server.post('/v3/friend/:friend_id', async (req, reply) => {
 				from: user.id,
 				body: { type: 'friend_request_accepted', from: user.id }
 			})
+			notifyUser(user.id, {
+				type: 'friend_request_accepted',
+				from: target.id,
+				body: { type: 'friend_request_accepted', from: target.id }
+			})
 		}
 		return reply.status(204).send()
 	}
@@ -1070,6 +1075,11 @@ server.delete('/v3/friend/:friend_id', async (req, reply) => {
 		type: 'friend_removed',
 		from: user.id,
 		body: { type: 'friend_removed', from: user.id }
+	})
+	notifyUser(user.id, {
+		type: 'friend_removed',
+		from: targetId,
+		body: { type: 'friend_removed', from: targetId }
 	})
 	return reply.status(204).send()
 })
@@ -1411,6 +1421,33 @@ registerInstanceRoute('get', '/invites/:invite_id', async (req, reply) => {
 	})
 })
 
+// List Shared Instances for Current User
+const handleListInstances = async (req: any, reply: any) => {
+	const user = authUser(req)
+	if (!user) return reply.status(401).send({ error: 'unauthorized', description: 'Unauthorized' })
+
+	const instances = db
+		.prepare(
+			`
+			SELECT si.id, si.name, si.icon_path, siv.game_version, siv.loader,
+				(SELECT id FROM shared_instance_invites WHERE instance_id = si.id ORDER BY created_at DESC LIMIT 1) as invite_id,
+				si.created_at
+			FROM shared_instances si
+			LEFT JOIN shared_instance_versions siv ON siv.instance_id = si.id AND siv.version = (
+				SELECT MAX(version) FROM shared_instance_versions WHERE instance_id = si.id
+			)
+			WHERE si.owner_id = ? OR si.id IN (SELECT instance_id FROM shared_instance_users WHERE user_id = ?)
+			ORDER BY si.created_at DESC
+		`
+		)
+		.all(user.id, user.id) as any[]
+
+	return reply.send(instances)
+}
+
+server.get('/v3/share/instances', handleListInstances)
+registerInstanceRoute('get', '/instances', handleListInstances)
+
 // ----------------------------------------------------------------------
 // Playtime Analytics
 // ----------------------------------------------------------------------
@@ -1686,7 +1723,9 @@ server.get('/user/:username', async (req, reply) => {
 			SELECT si.id, si.name, si.icon_path, siv.game_version, siv.loader,
 				(SELECT id FROM shared_instance_invites WHERE instance_id = si.id ORDER BY created_at DESC LIMIT 1) as invite_id
 			FROM shared_instances si
-			LEFT JOIN shared_instance_versions siv ON siv.instance_id = si.id
+			INNER JOIN shared_instance_versions siv ON siv.instance_id = si.id AND siv.version = (
+				SELECT MAX(version) FROM shared_instance_versions WHERE instance_id = si.id
+			)
 			WHERE si.owner_id = ?
 			ORDER BY si.created_at DESC
 		`)
