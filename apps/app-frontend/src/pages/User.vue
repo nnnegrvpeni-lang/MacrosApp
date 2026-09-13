@@ -51,7 +51,7 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, inject, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 
-import config from '@/config'
+import { config } from '@/config'
 import {
 	block_user,
 	change_user_avatar,
