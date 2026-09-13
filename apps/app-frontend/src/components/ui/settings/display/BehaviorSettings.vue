@@ -51,7 +51,7 @@ const messages = defineMessages({
 	},
 	syncAcrossDevicesSignedOutTooltip: {
 		id: 'app.behavior-settings.sync-across-devices.signed-out-tooltip',
-		defaultMessage: 'Sign into a Modrinth account to sync settings.',
+		defaultMessage: 'Sign into a Macros account to sync settings.',
 	},
 	startupAndNavigationTitle: {
 		id: 'app.behavior-settings.startup-and-navigation.title',
@@ -231,18 +231,22 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 		const value = current.value
 
 		if (value.syncBehaviorAcrossDevices && auth.user.value) {
-			await updatePreferences({
-				behavior: {
-					minimize_app: value.minimizeApp,
-					hide_right_sidebar: value.hideRightSidebar,
-					show_jump_in: value.showJumpIn,
-					compact_instance_cards: value.compactInstanceCards,
-					show_play_time: value.showPlayTime,
-					hide_nametag: value.hideNametag,
-					warn_on_unknown_modpacks: value.warnOnUnknownModpacks,
-					skip_non_essential_warnings: value.skipNonEssentialWarnings,
-				},
-			})
+			try {
+				await updatePreferences({
+					behavior: {
+						minimize_app: value.minimizeApp,
+						hide_right_sidebar: value.hideRightSidebar,
+						show_jump_in: value.showJumpIn,
+						compact_instance_cards: value.compactInstanceCards,
+						show_play_time: value.showPlayTime,
+						hide_nametag: value.hideNametag,
+						warn_on_unknown_modpacks: value.warnOnUnknownModpacks,
+						skip_non_essential_warnings: value.skipNonEssentialWarnings,
+					},
+				})
+			} catch (err) {
+				console.error('Failed to sync behavior preferences remotely:', err)
+			}
 		}
 
 		const nextSettings: AppSettings = {
@@ -485,7 +489,7 @@ function manualCheckUpdate() {
 					</div>
 				</div>
 				<a
-					:href="macrosAppUpdate.downloadUrl"
+					:href="macrosAppUpdate.releaseUrl"
 					target="_blank"
 					class="px-4 py-2 rounded-lg bg-brand text-black font-semibold hover:brightness-110 no-underline transition-all flex items-center gap-2 shrink-0"
 				>

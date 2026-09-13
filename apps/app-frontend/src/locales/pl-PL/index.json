@@ -707,9 +707,6 @@
   "app.nav.modrinth-account": {
     "message": "Konto Modrinth"
   },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
-  },
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Zaloguj się na konto Modrinth"
   },

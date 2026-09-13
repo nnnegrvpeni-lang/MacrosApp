@@ -5915,9 +5915,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Este usuario ha estado presente desde la Beta de Modrinth, la cuál terminó en febrero de 2022."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Haz click para leer sobre el lanzamiento de Modrinth Beta."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta Tester"
   },
@@ -5981,17 +5978,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Este usuario está haciendo un esfuerzo adicional para apoyar a Modrinth y a los creadores de la plataforma."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Haz click para saber más de como puedes volverte miembro."
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Miembro de Modrinth+"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Este usuario participó en al menos uno de las Fundaciones Orgullo de Modrinth para la comunidad LGBTQ+."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Haz click para ver la última Fundación Orgullo."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Soporte de la Fundacion Orgullo"

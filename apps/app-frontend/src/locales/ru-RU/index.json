@@ -165,7 +165,7 @@
     "message": "Миры на главной"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Сворачивать окно Modrinth App при запуске Minecraft."
+    "message": "Сворачивать окно Macros App при запуске Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Сворачивание приложения"
@@ -540,13 +540,13 @@
     "message": "Войти как"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Необходимо войти в Modrinth"
+    "message": "Необходимо войти в Macros"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "для получения обновлений сборки."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Вы используете неправильную учетную запись Modrinth"
+    "message": "Вы используете другой аккаунт Macros"
   },
   "app.instance.worlds.add-server": {
     "message": "Добавить сервер"
@@ -672,7 +672,7 @@
     "message": "Установить"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "Это приглашение создано другим пользователем Modrinth. Принимайте приглашения только от тех, кому доверяете."
+    "message": "Это приглашение создано другим пользователем Macros. Принимайте приглашения только от тех, кому доверяете."
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
     "message": "Это приглашение создано <creator>{username}</creator>. Принимайте приглашения только от тех, кому доверяете."
@@ -762,19 +762,16 @@
     "message": "Главная"
   },
   "app.nav.modrinth-account": {
-    "message": "Аккаунт Modrinth"
-  },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Аккаунт Macros"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Войти в аккаунт Modrinth"
+    "message": "Войти в аккаунт Macros"
   },
   "app.nav.signed-in-as": {
     "message": "Текущий аккаунт: <user>{username}</user>"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Перейти на Modrinth+"
+    "message": "Перейти на Macros+"
   },
   "app.news.title": {
     "message": "Новости"
@@ -816,7 +813,7 @@
     "message": "Перезапуск..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Macros App {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Переменные среды при запуске игры."
@@ -912,13 +909,13 @@
     "message": "Реклама обеспечивает работу Modrinth и выплаты авторам. Для персонализации и анализа рекламы наши партнёры могут использовать куки. Отказаться и настроить куки можно ниже."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Показывать Modrinth App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
+    "message": "Показывать Macros App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth собирает анонимные данные об использовании для персонализации и улучшения сервиса. Отключите этот параметр, чтобы отказаться от сбора данных."
+    "message": "MacrosApp собирает анонимные данные об использовании для персонализации и улучшения сервиса. Отключите этот параметр, чтобы отказаться от сбора данных."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Телеметрия"
@@ -936,7 +933,7 @@
     "message": "Очистить кеш приложения?"
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "Удаляет кешированные данные и повторно скачивает их с Modrinth. Приложение может замедлиться, пока кеш не восстановится."
+    "message": "Удаляет кешированные данные и повторно скачивает их с MacrosApp. Приложение может замедлиться, пока кеш не восстановится."
   },
   "app.settings.resource-management.app-cache.purge": {
     "message": "Очистить кеш"
@@ -957,7 +954,7 @@
     "message": "Выбрать каталог приложения"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Здесь Modrinth App хранит сборки и другие файлы. Изменения вступят в силу после перезапуска."
+    "message": "Здесь Macros App хранит сборки и другие файлы. Изменения вступят в силу после перезапуска."
   },
   "app.settings.resource-management.app-directory.select": {
     "message": "Выбор нового каталога приложения"
@@ -1161,10 +1158,10 @@
     "message": "Включить"
   },
   "app.survey.body": {
-    "message": "Не хотите ответить на несколько вопросов о вашем опыте с Modrinth App?"
+    "message": "Не хотите ответить на несколько вопросов о вашем опыте с Macros App?"
   },
   "app.survey.footer": {
-    "message": "Этот отзыв будет доставлен напрямую команде Modrinth и поможет разрабатывать будущие обновления!"
+    "message": "Этот отзыв будет доставлен напрямую команде Macros и поможет разрабатывать будущие обновления!"
   },
   "app.survey.no-thanks": {
     "message": "Нет, спасибо"
@@ -1173,16 +1170,16 @@
     "message": "Пройти опрос"
   },
   "app.survey.title": {
-    "message": "Привет, пользователь Modrinth!"
+    "message": "Привет, пользователь Macros!"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Скачивание версии Modrinth App {version} завершено. Перезапустите приложение, чтобы обновить его, или оно обновится автоматически после закрытия."
+    "message": "Скачивание версии Macros App {version} завершено. Перезапустите приложение, чтобы обновить его, или оно обновится автоматически после закрытия."
   },
   "app.update-popup.body.linux": {
-    "message": "Доступна версия Modrinth App {version}. Обновите приложение через менеджер пакетов, чтобы получить последние улучшения и исправления!"
+    "message": "Доступна версия Macros App {version}. Обновите приложение через менеджер пакетов, чтобы получить последние улучшения и исправления!"
   },
   "app.update-popup.body.metered": {
-    "message": "Версия Modrinth App {version} доступна для скачивания! Используется сеть с лимитным тарифным планом, поэтому скачивание не началось автоматически."
+    "message": "Версия Macros App {version} доступна для скачивания! Используется сеть с лимитным тарифным планом, поэтому скачивание не началось автоматически."
   },
   "app.update-popup.changelog": {
     "message": "Список изменений"
@@ -1208,9 +1205,6 @@
   "app.update.toast.default-summary": {
     "message": "Доступна новая версия лаунчера с улучшениями и исправлениями."
   },
-  "app.update.toast.download-installer": {
-    "message": "Скачать установщик"
-  },
   "app.update.toast.no-updates.text": {
     "message": "У вас установлена последняя версия MacrosApp ({version})."
   },
@@ -1219,9 +1213,6 @@
   },
   "app.update.toast.title": {
     "message": "Доступно обновление MacrosApp {version}!"
-  },
-  "app.update.toast.whats-new": {
-    "message": "Что нового"
   },
   "app.user.project.install-to-instance": {
     "message": "Установить в сборку"
@@ -1290,10 +1281,10 @@
     "message": "Оно может быть не таким, как в Minecraft!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Введите имя с Modrinth..."
+    "message": "Введите никнейм в Macros..."
   },
   "friends.add-friend.username.title": {
-    "message": "Какое имя у друга на Modrinth?"
+    "message": "Какой никнейм у друга в Macros?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Добавьте друзей</link> и следите за ними!"
@@ -1335,7 +1326,7 @@
     "message": "{title} — {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Войдите в аккаунт Modrinth</link>, чтобы добавлять друзей и следить за ними!"
+    "message": "<link>Войдите в аккаунт Macros</link>, чтобы добавлять друзей и следить за ними!"
   },
   "installation-settings.shared-instance.linked-title": {
     "message": "Связанная сборка"

@@ -1,6 +1,6 @@
 <template>
 	<img
-		v-if="src && !failed"
+		v-if="effectiveSrc && !failed"
 		ref="img"
 		class="avatar shrink-0"
 		:style="`--_size: ${cssSize}`"
@@ -12,7 +12,7 @@
 			raised: raised,
 			pixelated: pixelated,
 		}"
-		:src="src"
+		:src="effectiveSrc"
 		:alt="alt"
 		:loading="loading"
 		@load="onLoad"
@@ -100,8 +100,16 @@ const LEGACY_PRESETS: Record<string, string> = {
 
 const cssSize = computed(() => LEGACY_PRESETS[props.size] ?? props.size)
 
+const effectiveSrc = computed(() => {
+	if (!props.src) return null
+	if (props.src.startsWith('/assets/')) {
+		return `https://macrosapp.1337.cx${props.src}`
+	}
+	return props.src
+})
+
 watch(
-	() => props.src,
+	() => effectiveSrc.value,
 	() => {
 		clearDetectionTimeout()
 		detectingSource = undefined

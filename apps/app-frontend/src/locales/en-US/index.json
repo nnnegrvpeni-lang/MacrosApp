@@ -249,7 +249,7 @@
     "message": "Use these behavior settings everywhere you're signed in. Turn this off to keep separate settings on this device."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Sign into a Modrinth account to sync settings."
+    "message": "Sign into a Macros account to sync settings."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Sync behavior across devices"
@@ -756,13 +756,13 @@
     "message": "Sign in as"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "You need to sign in to Modrinth"
+    "message": "You need to sign in to Macros"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "to receive updates for this shared instance."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "You are using the wrong Modrinth account"
+    "message": "You are using the wrong Macros account"
   },
   "app.instance.shortcut.created": {
     "message": "Shortcut created"
@@ -1257,19 +1257,16 @@
     "message": "Home"
   },
   "app.nav.modrinth-account": {
-    "message": "Modrinth account"
-  },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Macros account"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Sign in to a Modrinth account"
+    "message": "Sign in to a Macros account"
   },
   "app.nav.signed-in-as": {
     "message": "Signed in as <user>{username}</user>"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Upgrade to Modrinth+"
+    "message": "Upgrade to Macros+"
   },
   "app.navigation.go-back": {
     "message": "Go back"
@@ -1754,9 +1751,6 @@
   "app.update.toast.default-summary": {
     "message": "A new launcher version is available with improvements and fixes."
   },
-  "app.update.toast.download-installer": {
-    "message": "Download installer"
-  },
   "app.update.toast.no-updates.text": {
     "message": "You are running the latest version of MacrosApp ({version})."
   },
@@ -1766,8 +1760,8 @@
   "app.update.toast.title": {
     "message": "MacrosApp update {version} is available!"
   },
-  "app.update.toast.whats-new": {
-    "message": "What's new"
+  "app.update.toast.view-release": {
+    "message": "View release"
   },
   "app.user.project.install-to-instance": {
     "message": "Install to instance"
@@ -1902,7 +1896,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Sign in to a Modrinth account</link> to add friends and see what they're playing!"
+    "message": "<link>Sign in to a Macros account</link> to add friends and see what they're playing!"
   },
   "installation-settings.shared-instance.linked-title": {
     "message": "Linked shared instance"

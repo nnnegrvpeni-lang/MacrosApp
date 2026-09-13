@@ -60,8 +60,13 @@ export async function getFriendsWithUserData(
 ): Promise<FriendWithUserData[]> {
 	if (!credentials) return []
 
-	const friendsList = await friends()
-	return await transformFriends(friendsList, credentials)
+	try {
+		const friendsList = await friends()
+		return await transformFriends(friendsList, credentials)
+	} catch (e) {
+		console.warn('Failed to load friends:', e)
+		return []
+	}
 }
 
 export function createPendingFriend(

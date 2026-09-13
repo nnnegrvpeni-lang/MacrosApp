@@ -5915,9 +5915,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "這個使用者自 Modrinth Beta 時期便已加入，早在該版本於2022年2月結束之前。"
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "按這裡了解 Modrinth Beta 推出的相關資訊。"
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta 測試者"
   },
@@ -5981,17 +5978,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "這個使用者盡其所能支持了 Modrinth 以及平臺上的創作者。"
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "按這裡了解如何成為會員。"
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Modrinth+ 會員"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "這個使用者參與了至少一場 Modrinth 為 LGBTQ+ 社群舉辦的驕傲月籌款活動。"
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "按這裡前往我們最新的驕傲月籌款活動。"
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "驕傲月籌款活動捐款者"

@@ -737,9 +737,6 @@
   "app.nav.modrinth-account": {
     "message": "Modrinth 계정"
   },
-  "app.nav.modrinth-hosting": {
-    "message": "Modrinth 호스팅"
-  },
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Modrinth 계정으로 로그인"
   },

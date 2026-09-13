@@ -86,12 +86,12 @@ const BADGES = [
 		icon: StaffBadge,
 		name: defineMessage({
 			id: 'user.profile.badge.staff.name',
-			defaultMessage: 'Modrinth Team',
+			defaultMessage: 'MacrosApp Team',
 		}),
 		about: [
 			defineMessage({
 				id: 'user.profile.badge.staff.about.1',
-				defaultMessage: `This user works for Modrinth.`,
+				defaultMessage: `This user works for MacrosApp.`,
 			}),
 		],
 		criteria: [
@@ -169,24 +169,17 @@ const BADGES = [
 				cutoff: new Date('2022-02-27T08:00:00.000Z'),
 			},
 		],
-		link: {
-			href: 'https://modrinth.com/news/article/modrinth-beta/',
-			message: defineMessage({
-				id: 'user.profile.badge.beta.link',
-				defaultMessage: `Click to read about the launch of Modrinth Beta.`,
-			}),
-		},
 	},
 	{
 		icon: PlusBadge,
 		name: defineMessage({
 			id: 'user.profile.badge.plus.name',
-			defaultMessage: 'Modrinth+ Member',
+			defaultMessage: 'MacrosApp Supporter',
 		}),
 		about: [
 			defineMessage({
 				id: 'user.profile.badge.plus.about.1',
-				defaultMessage: `This user is going the extra mile to support Modrinth and the creators on the platform.`,
+				defaultMessage: `This user is going the extra mile to support MacrosApp.`,
 			}),
 		],
 		criteria: [
@@ -198,24 +191,17 @@ const BADGES = [
 				type: 'midas',
 			},
 		],
-		link: {
-			href: 'https://modrinth.com/plus',
-			message: defineMessage({
-				id: 'user.profile.badge.plus.link',
-				defaultMessage: `Click to learn more about how you can become a member.`,
-			}),
-		},
 	},
 	{
 		icon: PrideBadge,
 		name: defineMessage({
 			id: 'user.profile.badge.pride.name',
-			defaultMessage: 'Pride Fundraiser Supporter',
+			defaultMessage: 'Pride Supporter',
 		}),
 		about: [
 			defineMessage({
 				id: 'user.profile.badge.pride.about.1',
-				defaultMessage: `This user participated in at least one of Modrinth's Pride fundraisers for the LGBTQ+ community.`,
+				defaultMessage: `This user participated in at least one Pride fundraiser for the LGBTQ+ community.`,
 			}),
 		],
 		criteria: [
@@ -223,13 +209,6 @@ const BADGES = [
 				type: 'pride',
 			},
 		],
-		link: {
-			href: 'https://modrinth.com/pride?from=badge',
-			message: defineMessage({
-				id: 'user.profile.badge.pride.link',
-				defaultMessage: `Click to visit our latest Pride fundraiser.`,
-			}),
-		},
 	},
 	{
 		icon: EarlyModpackBadge,
@@ -481,27 +460,4 @@ const earnedBadges = computed(() => {
 })
 </script>
 
-<template>
-	<div v-if="earnedBadges.length > 0 || !!downloadsBadge" class="flex flex-col">
-		<h2 class="text-lg font-semibold text-contrast m-0 mb-2">
-			{{ formatMessage(messages.title) }}
-		</h2>
-		<div class="grid grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-2">
-			<UserBadge
-				v-for="badge in earnedBadges"
-				:key="badge.name.id"
-				:name="badge.name"
-				:icon="badge.icon"
-				:about="badge.about"
-				:link="badge.link"
-			/>
-			<UserBadge
-				v-if="downloadsBadge"
-				:name="messages.downloadsBadgeName"
-				:icon="downloadsBadge.icon"
-				:about="[messages.downloadsBadgeAbout1]"
-				:values="{ download_sum: formatNumber(downloadsBadge.threshold) }"
-			/>
-		</div>
-	</div>
-</template>
+<template></template>

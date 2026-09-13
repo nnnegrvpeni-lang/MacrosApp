@@ -98,3 +98,11 @@ packages/tooling-config/script-utils/import-sort.js
 
 # Executables
 *.exe
+
+# Databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+apps/macros-server/data/
+apps/macros-server/dist/

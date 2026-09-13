@@ -5522,9 +5522,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Bu kullanıcı, Şubat 2022'de sona eren Modrinth Beta sürümünden beri aktif durumda."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Modrinth Beta'nın lansmanı hakkında bilgi edinmek için tıklayın."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Deneme Kullanıcısı"
   },
@@ -5588,17 +5585,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Bu kullanıcı, Modrinth ve platformdaki yaratıcıları desteklemek için elinden geleni yapmaktadır."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Üyeliğe nasıl katılabileceğiniz hakkında daha fazla bilgi edinmek için tıklayın."
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Modrinth+ Üyesi"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Bu kullanıcı, Modrinth'in LGBTQ+ topluluğu için düzenlediği en az bir Pride bağış kampanyasına katılmıştır."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "En son Onur Ayı bağış kampanyamızı ziyaret etmek için tıklayın."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Onur Ayı Bağış Toplama Etkinliği Destekçisi"

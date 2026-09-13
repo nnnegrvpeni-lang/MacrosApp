@@ -45,10 +45,10 @@ pub async fn direct_modrinth_login(
 ) -> Result<DirectLoginResult> {
     let client = reqwest::Client::new();
     let resp = client
-        .post("https://api.modrinth.com/v2/auth/login")
-        .header("User-Agent", "modrinth/theseus/1.0.0 (contact@modrinth.com)")
+        .post("https://macrosapp.1337.cx/api/v1/auth/login")
+        .header("User-Agent", "MacrosApp/1.0")
         .json(&serde_json::json!({
-            "username": username,
+            "login": username,
             "password": password,
         }))
         .send()
@@ -168,160 +168,14 @@ pub async fn modrinth_login<R: Runtime>(
 
     let loopback_port = auth_code_recv_socket.port();
     let auth_request_uri = format!(
-        "{}?launcher=true&ipver={}&port={}",
-        mr_auth::authenticate_begin_flow(flow),
-        if auth_code_recv_socket.is_ipv4() {
-            "4"
-        } else {
-            "6"
-        },
+        "https://macrosapp.1337.cx/auth/sign-in?flow=launcher&port={}",
         loopback_port
     );
 
-    if let Some(existing) = app.get_webview_window("modrinth_signin") {
-        let _ = existing.close();
-    }
+    tracing::info!("Opening system browser for OAuth: {}", auth_request_uri);
+    let _ = app.opener().open_url(&auth_request_uri, None::<&str>);
 
-    let parsed_url = match auth_request_uri.parse() {
-        Ok(u) => u,
-        Err(_) => {
-            return Err(TheseusSerializableError::Theseus(
-                theseus::ErrorKind::OtherError("Error parsing auth redirect URL".into()).into(),
-            ));
-        }
-    };
-
-    let injection_script = format!(
-        r#"
-(function() {{
-    var port = {};
-    var intercepted = false;
-
-    function notifyCode(code) {{
-        if (intercepted || !code) return;
-        if (code.indexOf('mra_') !== 0 && code.indexOf('mrp_') !== 0) return;
-        intercepted = true;
-        try {{
-            window.location.href = 'http://127.0.0.1:' + port + '/?code=' + encodeURIComponent(code);
-        }} catch(e) {{}}
-    }}
-
-    function scan() {{
-        if (intercepted) return;
-        try {{
-            var iframes = document.querySelectorAll('iframe');
-            for (var i = 0; i < iframes.length; i++) {{
-                var src = iframes[i].src || '';
-                var match = src.match(/(mr[ap]_[a-zA-Z0-9_\-]+)/);
-                if (match && match[1]) {{
-                    notifyCode(match[1]);
-                    return;
-                }}
-            }}
-
-            var cookies = document.cookie.split(';');
-            for (var j = 0; j < cookies.length; j++) {{
-                var parts = cookies[j].trim().split('=');
-                if (parts[0] === 'auth-token' && parts[1]) {{
-                    var token = decodeURIComponent(parts[1]);
-                    if (token.indexOf('mra_') === 0 || token.indexOf('mrp_') === 0) {{
-                        notifyCode(token);
-                        return;
-                    }}
-                }}
-            }}
-
-            for (var k = 0; k < localStorage.length; k++) {{
-                var key = localStorage.key(k);
-                var val = localStorage.getItem(key) || '';
-                if (val.indexOf('mra_') !== -1 || val.indexOf('mrp_') !== -1) {{
-                    var match = val.match(/(mr[ap]_[a-zA-Z0-9_\-]+)/);
-                    if (match && match[1]) {{
-                        notifyCode(match[1]);
-                        return;
-                    }}
-                }}
-            }}
-        }} catch(e) {{}}
-    }}
-
-    try {{
-        var observer = new MutationObserver(scan);
-        observer.observe(document.documentElement || document.body, {{
-            childList: true,
-            subtree: true,
-            attributes: true
-        }});
-    }} catch(e) {{}}
-
-    setInterval(scan, 200);
-}})();
-"#,
-        loopback_port
-    );
-
-    let window_res = tauri::WebviewWindowBuilder::new(
-        &app,
-        "modrinth_signin",
-        tauri::WebviewUrl::External(parsed_url),
-    )
-    .title("Вход в Modrinth - Macros")
-    .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0")
-    .min_inner_size(480.0, 580.0)
-    .inner_size(540.0, 720.0)
-    .focused(true)
-    .center()
-    .initialization_script(&injection_script)
-    .on_navigation({
-        move |url| {
-            let url_str = url.as_str();
-            if url_str.contains("mra_") || url_str.contains("mrp_") || url.scheme() == "modrinth" || url.scheme() == "macros" {
-                let code = oauth_utils::auth_code_reply::extract_auth_code(url_str);
-                if !code.is_empty() {
-                    oauth_utils::auth_code_reply::submit_auth_code(code);
-                }
-            }
-            true
-        }
-    })
-    .build();
-
-    let (cancel_tx, mut cancel_rx) = oneshot::channel::<()>();
-
-    match window_res {
-        Ok(win) => {
-            let win_watcher = win.clone();
-            tokio::spawn(async move {
-                loop {
-                    tokio::time::sleep(std::time::Duration::from_millis(300)).await;
-                    if win_watcher.title().is_err() {
-                        let _ = cancel_tx.send(());
-                        break;
-                    }
-                }
-            });
-        }
-        Err(e) => {
-            tracing::warn!("Failed to create modrinth_signin webview window: {e}, falling back to default browser");
-            let _ = app.opener().open_url(&auth_request_uri, None::<&str>);
-        }
-    };
-
-    let auth_code_res = tokio::select! {
-        res = auth_code_task => {
-            res
-        }
-        _ = &mut cancel_rx => {
-            oauth_utils::auth_code_reply::stop_listeners();
-            return Err(TheseusSerializableError::Theseus(
-                theseus::ErrorKind::OtherError("Вход отменён".into()).into(),
-            ));
-        }
-    };
-
-    if let Some(win) = app.get_webview_window("modrinth_signin") {
-        let _ = win.close();
-    }
+    let auth_code_res = auth_code_task.await;
 
     let auth_code = match auth_code_res {
         Ok(Ok(Some(code))) => code,

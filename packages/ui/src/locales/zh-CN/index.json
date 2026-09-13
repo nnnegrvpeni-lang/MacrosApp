@@ -5915,9 +5915,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "该用户自 Modrinth 公测时期便已加入平台，该测试版于 2022 年 2 月收官。"
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "点击阅读关于 Modrinth 公测版本发布的信息。"
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "公测用户"
   },
@@ -5981,17 +5978,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "该用户尽心尽力支持 Modrinth 平台与站内创作者。"
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "点击了解如何成为会员。"
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Modrinth+ 会员成员"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "该用户至少参与过一次 Modrinth 为 LGBTQ+ 群体举办的骄傲月公益募捐活动。"
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "点击访问我们最新的骄傲月筹款活动。"
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "骄傲月活动筹款支持者"

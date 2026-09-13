@@ -14,7 +14,13 @@ pub fn init<R: tauri::Runtime>() -> TauriPlugin<R> {
 
 #[tauri::command]
 pub async fn friends() -> crate::api::Result<Vec<UserFriend>> {
-    Ok(theseus::friends::friends().await?)
+    match theseus::friends::friends().await {
+        Ok(f) => Ok(f),
+        Err(e) => {
+            tracing::warn!("Failed to fetch friends from API: {e}");
+            Ok(Vec::new())
+        }
+    }
 }
 
 #[tauri::command]

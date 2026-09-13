@@ -115,7 +115,7 @@ watch([showUpdatePill, finishedDownloading], async ([show, ready], [wasShown, wa
 })
 async function handleUpdateClick() {
 	if (macrosAppUpdate.value) {
-		void openUrl(macrosAppUpdate.value.downloadUrl)
+		void openUrl(macrosAppUpdate.value.releaseUrl)
 		return
 	}
 

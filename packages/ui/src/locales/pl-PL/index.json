@@ -5828,9 +5828,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Ten użytkownik utworzył konto za czasów wersji beta Modrinth, trwającej do lutego 2022 r."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Kliknij, aby przeczytać o uruchomieniu wersji beta Modrinth."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Tester wersji beta"
   },
@@ -5894,17 +5891,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Ten użytkownik wspiera Modrinth i wszystkich twórców na platformie."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Dowiedz się, jak zostać członkiem Modrinth+."
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Członek Modrinth+"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Ten użytkownik wspierał choć jedną z naszych zbiórek na rzecz osób LGBTQ+."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Odwiedź naszą najnowszą zbiórkę na rzecz miesiąca dumy."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Wsparcie zbiórki na miesiąc dumy"

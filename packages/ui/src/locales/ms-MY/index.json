@@ -4871,9 +4871,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Pengguna ini telah wujud sejak Modrinth Beta, yang berakhir pada Februari 2022."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Klik untuk membaca tentang pelancaran Modrinth Beta."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Penguji Beta"
   },
@@ -4906,9 +4903,6 @@
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Pengguna ini telah menyertai sekurang-kurangnya satu daripada pengumpulan dana Modrinth's Pride untuk komuniti LGBTQ+."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Klik untuk melawati pengumpulan dana Pride terkini kami."
   },
   "user.profile.badge.staff.name": {
     "defaultMessage": "Pasukan Modrinth"

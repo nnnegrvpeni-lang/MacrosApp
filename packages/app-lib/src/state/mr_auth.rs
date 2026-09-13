@@ -192,11 +192,11 @@ impl ModrinthCredentials {
 }
 
 pub const fn get_login_url() -> &'static str {
-    concat!(env!("MODRINTH_URL"), "auth/sign-in")
+    "https://macrosapp.1337.cx/auth/sign-in"
 }
 
 pub const fn get_signup_url() -> &'static str {
-    concat!(env!("MODRINTH_URL"), "auth/sign-up")
+    "https://macrosapp.1337.cx/auth/sign-up"
 }
 
 pub async fn finish_login_flow(

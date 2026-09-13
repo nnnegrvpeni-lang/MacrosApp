@@ -241,10 +241,12 @@
 					type="empty"
 					:heading="formatMessage(messages.profileNoProjectsLabel)"
 					:description="
-						isSelf ? formatMessage(messages.profileNoProjectsAuthDescription) : undefined
+						isSelf && variant === 'web'
+							? formatMessage(messages.profileNoProjectsAuthDescription)
+							: undefined
 					"
 				>
-					<template v-if="isSelf" #actions>
+					<template v-if="isSelf && variant === 'web'" #actions>
 						<Button type="colored" color="brand" native-type="button" @click="createProject">
 							{{ formatMessage(messages.createProjectButton) }}
 						</Button>
@@ -356,17 +358,6 @@
 							</AutoLink>
 						</div>
 					</div>
-
-					<UserBadges
-						:downloads="sumDownloads"
-						:join-date="new Date(user.created)"
-						:role="user.role"
-						:badges="user.badges"
-						:has-midas="hasMidas"
-						:has-pride="hasPride26Badge(user)"
-						:earliest-project-by-type="earliestProjectByType"
-						:class="sidebarSectionClass"
-					/>
 
 					<slot name="sidebar" />
 				</div>
@@ -561,11 +552,11 @@ const messages = defineMessages({
 	},
 	bioFallbackUser: {
 		id: 'profile.bio.fallback.user',
-		defaultMessage: 'A Modrinth user.',
+		defaultMessage: 'A MacrosApp user.',
 	},
 	bioFallbackCreator: {
 		id: 'profile.bio.fallback.creator',
-		defaultMessage: 'A Modrinth creator.',
+		defaultMessage: 'A MacrosApp creator.',
 	},
 	collectionLabel: {
 		id: 'profile.label.collection',

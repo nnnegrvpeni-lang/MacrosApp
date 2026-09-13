@@ -4877,9 +4877,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Người dùng nãy đã có mặt từ thời Beta, kết thúc vào tháng hai năm 2022."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Nhấp để tìm hiểu thêm vào sự ra mắt phiên bản Beta của Modrinth."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Người thử nghiệm Beta"
   },
@@ -4943,17 +4940,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Người dùng này đang đóng góp và hỗ trợ cho Modrinth và Nhà sáng tạo trên nên tảng."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Nhấp vào để xem cách làm thành viên."
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Thành viên Modrinth+"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Người dùng này đã tham gia ít nhất một trong các hoạt động gây quỹ của Modrinth dành cho cộng đồng LGBTQ+."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Nhấp vào để ghé qua quỹ LGBT của chúng tôi."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Người ủng hộ quỹ LGBT"

@@ -5894,9 +5894,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Цей користувач з нами від Modrinth Beta, який завершився в лютому 2022."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Натисніть, аби прочитати про запуск Modrinth Beta."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta-тестувальник"
   },
@@ -5960,17 +5957,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Цей користувач активно підтримує Modrinth та творців на платформі."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Натисніть, аби дізнатися, як стати нашим підписником."
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Підписник Modrinth+"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Цей користувач брав участь у принаймні одній благодійній акції Modrinth на підтримку спільноти ЛҐБТК+."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Натисніть, аби переглянути останні акції."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Підтримувач прайду"

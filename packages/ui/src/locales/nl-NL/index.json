@@ -5906,9 +5906,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Deze gebruiker is al actief sinds Modrinth Beta, dat in februari 2022 afliep."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Klik hier om meer te lezen over de lancering van Modrinth Beta."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta-tester"
   },
@@ -5972,17 +5969,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Deze gebruiker doet zijn uiterste best om Modrinth en de makers op het platform te steunen."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Klik hier voor meer informatie over hoe je lid kunt worden."
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Modrinth+ lid"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Deze gebruiker heeft deelgenomen aan minstens één van de Pride-inzamelingsacties van Modrinth voor de LGBTQ+-gemeenschap."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Klik hier om onze nieuwste Pride-inzamelingsactie te bekijken."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Supporter van de Pride-inzamelingsactie"

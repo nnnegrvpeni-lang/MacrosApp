@@ -740,9 +740,6 @@
   "app.nav.modrinth-account": {
     "message": "Обліковий запис Modrinth"
   },
-  "app.nav.modrinth-hosting": {
-    "message": "Хостинг Modrinth"
-  },
   "app.nav.sign-in-to-modrinth-account": {
     "message": "Увійти в обліковий запис Modrinth"
   },

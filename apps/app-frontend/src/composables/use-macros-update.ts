@@ -25,13 +25,9 @@ export const updateMessages = defineMessages({
 		id: 'app.update.toast.default-summary',
 		defaultMessage: 'A new launcher version is available with improvements and fixes.',
 	},
-	downloadInstaller: {
-		id: 'app.update.toast.download-installer',
-		defaultMessage: 'Download installer',
-	},
-	whatsNew: {
-		id: 'app.update.toast.whats-new',
-		defaultMessage: "What's new",
+	viewRelease: {
+		id: 'app.update.toast.view-release',
+		defaultMessage: 'View release',
 	},
 	noUpdatesTitle: {
 		id: 'app.update.toast.no-updates.title',
@@ -127,17 +123,6 @@ export async function checkForMacrosUpdate(
 		const latestTag = release.tag_name || ''
 
 		if (isVersionNewer(latestTag, currentVersion)) {
-			let downloadUrl = release.html_url
-			if (Array.isArray(release.assets)) {
-				const exeAsset = release.assets.find(
-					(a: { name?: string; browser_download_url?: string }) =>
-						typeof a.name === 'string' && a.name.endsWith('.exe'),
-				)
-				if (exeAsset?.browser_download_url) {
-					downloadUrl = exeAsset.browser_download_url
-				}
-			}
-
 			let summary = (release.body || '')
 				.replace(/#{1,6}\s+/g, '')
 				.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -152,7 +137,7 @@ export async function checkForMacrosUpdate(
 				version: latestTag,
 				releaseName: release.name || latestTag,
 				summary: summary || safeFormatMessage(updateMessages.defaultSummary),
-				downloadUrl,
+				downloadUrl: release.html_url,
 				releaseUrl: release.html_url,
 				publishedAt: release.published_at || release.created_at,
 			}
@@ -193,14 +178,9 @@ function showUpdateToast(popupManager: any, update: MacrosAppUpdateInfo) {
 		dismissible: true,
 		buttons: [
 			{
-				label: safeFormatMessage(updateMessages.downloadInstaller),
-				action: () => void openUrl(update.downloadUrl),
-				color: 'brand',
-			},
-			{
-				label: safeFormatMessage(updateMessages.whatsNew),
+				label: safeFormatMessage(updateMessages.viewRelease),
 				action: () => void openUrl(update.releaseUrl),
-				keepOpen: true,
+				color: 'brand',
 			},
 		],
 	})

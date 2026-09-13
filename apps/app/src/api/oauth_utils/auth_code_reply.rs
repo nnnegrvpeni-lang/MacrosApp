@@ -237,7 +237,155 @@ async fn handle_reply(
         *auth_code_out.lock().unwrap() = Some(auth_code.clone());
 
         let html = format!(
-            r#"<!doctype html><html><head><meta charset="utf-8"><title>Macros - Авторизация успешна</title><style>body{{font-family:system-ui,-apple-system,sans-serif;background:#121212;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}}.card{{background:#1f1f1f;border:1px solid #333;border-radius:16px;padding:32px;text-align:center;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.5);}}.icon{{width:60px;height:60px;background:#00af5c22;color:#00af5c;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px;font-weight:bold;}}h1{{margin:0 0 12px;font-size:22px;color:#fff;}}p{{color:#a1a1aa;font-size:14px;line-height:1.5;margin:0 0 24px;}}.btn{{display:inline-block;background:#00af5c;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-weight:600;font-size:14px;border:none;cursor:pointer;}}</style></head><body><div class="card"><div class="icon">✓</div><h1>Вход выполнен!</h1><p>Вы успешно вошли в аккаунт. Лаунчер Macros уже завершил вход. Можете закрыть эту страницу.</p><button class="btn" onclick="window.close()">Закрыть страницу</button></div><script>try{{window.location.href="modrinth://{auth_code}";}}catch(e){{}}setTimeout(function(){{window.close();}},2000);</script></body></html>"#
+            r#"<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macros — Авторизация успешна</title>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.12) 0%, rgba(5, 5, 7, 0) 65%), #050507;
+	color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 20px;
+	overflow: hidden;
+}}
+.card {{
+	background: linear-gradient(180deg, rgba(22, 22, 26, 0.8) 0%, rgba(12, 12, 15, 0.95) 100%);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 28px;
+	padding: 48px 36px 40px;
+	text-align: center;
+	max-width: 420px;
+	width: 100%;
+	backdrop-filter: blur(24px);
+	box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.85), 0 0 50px rgba(16, 185, 129, 0.08);
+	animation: pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}}
+@keyframes pop {{
+	0% {{ opacity: 0; transform: scale(0.94) translateY(10px); }}
+	100% {{ opacity: 1; transform: scale(1) translateY(0); }}
+}}
+.icon-wrap {{
+	width: 72px;
+	height: 72px;
+	border-radius: 22px;
+	background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+	border: 1px solid rgba(16, 185, 129, 0.35);
+	box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 24px;
+}}
+.icon-wrap svg {{
+	width: 36px;
+	height: 36px;
+	stroke: #10b981;
+}}
+.status-pill {{
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: rgba(16, 185, 129, 0.1);
+	border: 1px solid rgba(16, 185, 129, 0.25);
+	color: #34d399;
+	font-size: 12px;
+	font-weight: 500;
+	padding: 4px 12px;
+	border-radius: 9999px;
+	margin-bottom: 16px;
+}}
+.status-pill .dot {{
+	width: 6px;
+	height: 6px;
+	background: #10b981;
+	border-radius: 50%;
+	box-shadow: 0 0 8px #10b981;
+	animation: pulse 2s infinite;
+}}
+@keyframes pulse {{
+	0%, 100% {{ opacity: 1; transform: scale(1); }}
+	50% {{ opacity: 0.4; transform: scale(0.85); }}
+}}
+h1 {{
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	color: #f4f4f5;
+	margin-bottom: 10px;
+}}
+p {{
+	color: #a1a1aa;
+	font-size: 13.5px;
+	line-height: 1.55;
+	margin-bottom: 28px;
+}}
+.btn {{
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	background: #10b981;
+	color: #041309;
+	font-weight: 600;
+	font-size: 14px;
+	padding: 13px 24px;
+	border-radius: 14px;
+	border: none;
+	cursor: pointer;
+	text-decoration: none;
+	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
+}}
+.btn:hover {{
+	background: #059669;
+	transform: translateY(-1px);
+	box-shadow: 0 6px 24px rgba(16, 185, 129, 0.35);
+}}
+.btn:active {{
+	transform: translateY(0);
+}}
+.footnote {{
+	margin-top: 18px;
+	font-size: 12px;
+	color: #52525b;
+}}
+</style>
+</head>
+<body>
+<div class="card">
+	<div class="icon-wrap">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+			<polyline points="20 6 9 17 4 12"></polyline>
+		</svg>
+	</div>
+	<div class="status-pill">
+		<span class="dot"></span>
+		<span>Синхронизировано</span>
+	</div>
+	<h1>Авторизация успешна</h1>
+	<p>Ваш аккаунт Macros ID успешно подключен к лаунчеру. Теперь вы можете закрыть эту страницу.</p>
+	<button class="btn" onclick="window.close()">Закрыть страницу</button>
+	<div class="footnote" id="timerText">Вкладка закроется автоматически...</div>
+</div>
+<script>
+setTimeout(function() {{
+	window.close();
+	setTimeout(function() {{
+		var t = document.getElementById('timerText');
+		if (t) t.innerText = 'Вы можете безопасно закрыть эту вкладку вручную';
+	}}, 500);
+}}, 1200);
+</script>
+</body>
+</html>"#
         );
 
         hyper::Response::builder()
@@ -253,7 +401,7 @@ async fn handle_reply(
             .header("Access-Control-Allow-Origin", "*")
             .header("Access-Control-Allow-Private-Network", "true")
             .body(
-                r#"<!doctype html><html><head><meta charset="utf-8"><title>Ошибка</title><style>body{font-family:sans-serif;background:#121212;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}.card{background:#1f1f1f;border:1px solid #333;border-radius:16px;padding:32px;text-align:center;max-width:400px;}</style></head><body><div class="card"><h1 style="color:#cb2245;">Ошибка</h1><p>Код авторизации не найден. Попробуйте войти снова.</p></div></body></html>"#.to_string()
+                r#"<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Ошибка авторизации</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#050507;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}.card{background:#121215;border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:40px 32px;text-align:center;max-width:400px;width:100%;}h1{font-size:20px;color:#ef4444;margin-bottom:8px;}p{color:#a1a1aa;font-size:13.5px;line-height:1.5;}</style></head><body><div class="card"><h1>Ошибка авторизации</h1><p>Код авторизации не найден или устарел. Попробуйте войти снова через лаунчер.</p></div></body></html>"#.to_string()
             )
     }?;
 

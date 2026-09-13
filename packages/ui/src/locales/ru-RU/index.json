@@ -225,7 +225,7 @@
     "defaultMessage": "Открыть в папке"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Открыть в Modrinth"
+    "defaultMessage": "Открыть на сайте"
   },
   "button.play": {
     "defaultMessage": "Играть"
@@ -2697,13 +2697,13 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Автор на Modrinth."
+    "defaultMessage": "Создатель в MacrosApp."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Пользователь Modrinth."
+    "defaultMessage": "Пользователь MacrosApp."
   },
   "profile.block-user.admonition-body": {
-    "defaultMessage": "{username} не сможет отправлять вам запросы в друзья, приглашать вас в сборки или приглашать вас управлять сервером Modrinth Hosting."
+    "defaultMessage": "{username} не сможет отправлять вам запросы в друзья, приглашать вас в сборки или приглашать вас управлять сервером Macros Hosting."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Вы действительно хотите заблокировать этого пользователя?"
@@ -4986,7 +4986,7 @@
     "defaultMessage": "Тёмная"
   },
   "settings.display.theme.description": {
-    "defaultMessage": "Выберите тему для Modrinth на этом устройстве."
+    "defaultMessage": "Выберите тему для Macros на этом устройстве."
   },
   "settings.display.theme.light": {
     "defaultMessage": "Светлая"
@@ -5058,7 +5058,7 @@
     "defaultMessage": "Изображение профиля"
   },
   "settings.profile.public-information.description": {
-    "defaultMessage": "Информация в вашем профиле <profile-link>доступна публично на Modrinth</profile-link> и через <docs-link>API Modrinth</docs-link>."
+    "defaultMessage": "Информация вашего профиля является публичной, <profile-link>отображается в Macros</profile-link> и через <docs-link>Macros API</docs-link>."
   },
   "settings.profile.save-error": {
     "defaultMessage": "Не удалось обновить профиль"
@@ -5067,10 +5067,10 @@
     "defaultMessage": "Произошла ошибка при обновлении профиля. Попробуйте снова."
   },
   "settings.profile.sign-in-required.description": {
-    "defaultMessage": "Войдите в аккаунт Modrinth для кастомизации вашего публичного профиля."
+    "defaultMessage": "Войдите в аккаунт Macros для кастомизации вашего публичного профиля."
   },
   "settings.profile.sign-in-required.title": {
-    "defaultMessage": "Требуется аккаунт Modrinth"
+    "defaultMessage": "Требуется аккаунт Macros"
   },
   "settings.profile.username.description": {
     "defaultMessage": "Уникальное имя для идентификации профиля."
@@ -5085,7 +5085,7 @@
     "defaultMessage": "Пользователь"
   },
   "settings.social.blocked-users.description": {
-    "defaultMessage": "Это пользователи, которых вы заблокировали на Modrinth. Они не могут:"
+    "defaultMessage": "Это пользователи, которых вы заблокировали на Macros. Они не могут:"
   },
   "settings.social.blocked-users.empty": {
     "defaultMessage": "Вы никого не заблокировали."
@@ -5124,7 +5124,7 @@
     "defaultMessage": "Аватар {username}"
   },
   "settings.social.friend-requests.description": {
-    "defaultMessage": "Настройте, кто может отправить вам заявку в друзья на Modrinth."
+    "defaultMessage": "Настройте, кто вам может отправлять заявки в друзья на Macros."
   },
   "settings.social.friend-requests.title": {
     "defaultMessage": "Запросы в друзья"
@@ -5148,10 +5148,10 @@
     "defaultMessage": "Приглашения"
   },
   "settings.social.sign-in-required.description": {
-    "defaultMessage": "С помощью аккаунта Modrinth, вы можете настраивать кто может взаимодействовать с вами, а также управлять заблокированными пользователями"
+    "defaultMessage": "С помощью аккаунта Macros, вы можете настраивать кто может взаимодействовать с вами, а также управлять заблокированными пользователями"
   },
   "settings.social.sign-in-required.title": {
-    "defaultMessage": "Требуется аккаунт Modrinth"
+    "defaultMessage": "Требуется аккаунт Macros"
   },
   "settings.social.title": {
     "defaultMessage": "Общение"
@@ -5241,7 +5241,7 @@
     "defaultMessage": "Сохранить"
   },
   "sharing.invite-players-modal.search-placeholder": {
-    "defaultMessage": "Введите имя пользователя Modrinth"
+    "defaultMessage": "Имя пользователя Macros"
   },
   "sharing.invite-players-modal.searching": {
     "defaultMessage": "Поиск..."
@@ -5825,9 +5825,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Этот пользователь присоединился к Modrinth до завершения бета‑тестирования в феврале 2022 года."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Нажмите, чтобы узнать о запуске бета‑версии Modrinth."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Участник беты"
   },
@@ -5891,17 +5888,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Этот пользователь активно поддерживает Modrinth и авторов на платформе."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Нажмите, чтобы узнать, как стать подписчиком."
-  },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Подписчик Modrinth+"
+    "defaultMessage": "Участник MacrosApp"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Этот пользователь поддержал сообщество ЛГБТК+ в благотворительной акции Modrinth."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Нажмите, чтобы узнать о последнем сборе средств."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Поддержка сообщества ЛГБТК+"
@@ -5910,7 +5901,7 @@
     "defaultMessage": "Этот пользователь работает в Modrinth."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "Команда Modrinth"
+    "defaultMessage": "Команда MacrosApp"
   },
   "version.content.name": {
     "defaultMessage": "Название"

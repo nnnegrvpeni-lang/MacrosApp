@@ -4,6 +4,7 @@ use std::process::{Command, exit};
 use std::{env, fs};
 
 fn main() {
+    println!("cargo::rerun-if-changed=build.rs");
     println!("cargo::rerun-if-changed=.env");
     println!("cargo::rerun-if-changed=java/gradle");
     println!("cargo::rerun-if-changed=java/src");
@@ -22,30 +23,29 @@ fn set_env() {
     let _ = dotenvy::dotenv();
 
     let vars = [
-        ("MODRINTH_URL", "https://modrinth.com/"),
-        ("MODRINTH_API_BASE_URL", "https://api.modrinth.com/"),
-        ("SHARED_INSTANCES_API_BASE_URL", "https://shared-instances.modrinth.com/"),
+        ("MODRINTH_URL", "https://macrosapp.1337.cx/"),
+        ("MODRINTH_API_BASE_URL", "https://macrosapp.1337.cx/"),
+        ("SHARED_INSTANCES_API_BASE_URL", "https://macrosapp.1337.cx/"),
         ("MODRINTH_ARCHON_BASE_URL", "https://archon.modrinth.com/"),
-        ("MODRINTH_API_URL", "https://api.modrinth.com/v2/"),
-        ("MODRINTH_API_URL_V3", "https://api.modrinth.com/v3/"),
-        ("MODRINTH_SOCKET_URL", "wss://api.modrinth.com/"),
+        ("MODRINTH_API_URL", "https://macrosapp.1337.cx/v2/"),
+        ("MODRINTH_API_URL_V3", "https://macrosapp.1337.cx/v3/"),
+        ("MODRINTH_SOCKET_URL", "wss://macrosapp.1337.cx/"),
         ("MODRINTH_LAUNCHER_META_URL", "https://launcher-meta.modrinth.com/"),
     ];
-
-    for (k, v) in vars {
-        let val = env::var(k).unwrap_or_else(|_| v.to_string());
-        println!("cargo::rustc-env={k}={val}");
-    }
 
     for (var_name, var_value) in
         dotenvy::dotenv_iter().into_iter().flatten().flatten()
     {
-        if var_name == "DATABASE_URL" {
-            // The sqlx database URL is a build-time detail that should not be exposed to the crate
+        if var_name == "DATABASE_URL" || vars.iter().any(|(k, _)| *k == var_name) {
             continue;
         }
 
         println!("cargo::rustc-env={var_name}={var_value}");
+    }
+
+    for (k, v) in vars {
+        let val = env::var(k).unwrap_or_else(|_| v.to_string());
+        println!("cargo::rustc-env={k}={val}");
     }
 }
 

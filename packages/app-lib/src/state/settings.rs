@@ -39,7 +39,7 @@ pub struct Settings {
     pub migrated: bool,
 
     pub developer_mode: bool,
-    pub feature_flags: HashMap<FeatureFlag, bool>,
+    pub feature_flags: HashMap<String, bool>,
 
     pub skipped_update: Option<String>,
     pub pending_update_toast_for_version: Option<String>,
@@ -50,6 +50,7 @@ pub struct Settings {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Eq, Hash, PartialEq)]
 #[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub enum FeatureFlag {
     PagePath,
     ProjectBackground,

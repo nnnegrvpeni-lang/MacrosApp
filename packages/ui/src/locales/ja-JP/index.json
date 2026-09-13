@@ -5399,9 +5399,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "2022年2月までのModrinthがBeta版の頃から活動しています"
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "クリックするとModrinthのBeta版リリース記事を読むことができます"
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta Tester"
   },
@@ -5416,9 +5413,6 @@
   },
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Modrinthとクリエイターに特別なサポートを贈っています！"
-  },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "クリックしてModrinth+のメンバーになる方法を知る"
   },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Modrinth+ Member"

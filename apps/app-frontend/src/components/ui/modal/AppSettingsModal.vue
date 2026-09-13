@@ -263,7 +263,7 @@ const messages = defineMessages({
 	},
 	appVersion: {
 		id: 'app.settings.app-version',
-		defaultMessage: 'Modrinth App {version}',
+		defaultMessage: 'Macros App {version}',
 	},
 	macos: {
 		id: 'app.settings.operating-system.macos',
@@ -306,7 +306,7 @@ const messages = defineMessages({
 						formatMessage(messages.versionAvailable, { version: macrosAppUpdate.version })
 					}}</span>
 					<a
-						:href="macrosAppUpdate.downloadUrl"
+						:href="macrosAppUpdate.releaseUrl"
 						target="_blank"
 						class="ml-1 px-2 py-0.5 rounded-md bg-brand text-black hover:brightness-110 no-underline transition-all"
 					>

@@ -48,6 +48,7 @@ export function useFriends(options: {
 		queryFn: async () => getFriendsWithUserData(await options.getCredentials()),
 		enabled: () => !!toValue(options.currentUserId) && toValue(options.enabled ?? true),
 		staleTime: 30_000,
+		retry: 1,
 	})
 	const friends = computed(() => query.data.value ?? [])
 

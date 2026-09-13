@@ -5480,9 +5480,6 @@
   "user.profile.badge.beta.about.1": {
     "defaultMessage": "Ovaj koristnik je tu od Modrinth Beta, koji je završio u februaru 2022."
   },
-  "user.profile.badge.beta.link": {
-    "defaultMessage": "Klikni da pročitaš o pokretu Modrinth Bete."
-  },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta tester"
   },
@@ -5546,17 +5543,11 @@
   "user.profile.badge.plus.about.1": {
     "defaultMessage": "Ovaj korisnik se posebno trudi da podrži Modrinth i kreatore na platformi."
   },
-  "user.profile.badge.plus.link": {
-    "defaultMessage": "Klikni da saznaš kako možes postati član."
-  },
   "user.profile.badge.plus.name": {
     "defaultMessage": "Član od Modrinth+"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "Ovaj koristnik je učestvovao u barem jednoj od Modrinthovih akcija prikupljanja sredstava za LGBT+ zajednicu povodom ponosa."
-  },
-  "user.profile.badge.pride.link": {
-    "defaultMessage": "Klikni da posjetiš našu najnoviju akciju prikupljanja sredstava za ponos."
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Pristalica prikupljanja sredstava ponosa"

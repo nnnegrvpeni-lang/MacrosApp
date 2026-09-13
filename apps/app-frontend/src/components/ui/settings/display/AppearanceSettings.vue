@@ -47,9 +47,13 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 			auth.user.value &&
 			(appearanceChanges.theme !== undefined || appearanceChanges.syncAcrossDevices !== undefined)
 		) {
-			await updatePreferences({
-				appearance: value.theme === 'system' ? { auto: true } : { auto: false, theme: value.theme },
-			})
+			try {
+				await updatePreferences({
+					appearance: value.theme === 'system' ? { auto: true } : { auto: false, theme: value.theme },
+				})
+			} catch (err) {
+				console.error('Failed to sync appearance preferences remotely:', err)
+			}
 		}
 
 		const nextSettings: AppSettings = {

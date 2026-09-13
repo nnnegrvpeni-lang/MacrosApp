@@ -33,7 +33,7 @@
 					</RouterLink>
 				</template>
 				<template #docs-link="{ children }">
-					<a href="https://docs.modrinth.com/" target="_blank" class="text-link">
+					<a href="https://macrosapp.1337.cx" target="_blank" class="text-link">
 						<component :is="() => children" />
 					</a>
 				</template>
@@ -326,7 +326,7 @@ const messages = defineMessages({
 	description: {
 		id: 'settings.profile.public-information.description',
 		defaultMessage:
-			'Your profile information is publicly <profile-link>viewable on Modrinth</profile-link> and through the <docs-link>Modrinth API</docs-link>.',
+			'Your profile information is publicly <profile-link>viewable on Macros</profile-link> and through the <docs-link>Macros API</docs-link>.',
 	},
 	profilePicture: {
 		id: 'settings.profile.profile-picture.title',
@@ -346,11 +346,11 @@ const messages = defineMessages({
 	},
 	signInRequiredTitle: {
 		id: 'settings.profile.sign-in-required.title',
-		defaultMessage: 'Modrinth account required',
+		defaultMessage: 'Macros account required',
 	},
 	signInRequiredDescription: {
 		id: 'settings.profile.sign-in-required.description',
-		defaultMessage: 'Sign in with a Modrinth account to customize your public profile.',
+		defaultMessage: 'Sign in with a Macros account to customize your public profile.',
 	},
 	saveError: {
 		id: 'settings.profile.save-error',
