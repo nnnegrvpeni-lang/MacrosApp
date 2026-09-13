@@ -901,7 +901,9 @@ function getCardActions(
 	if (projectResult.cf_raw || projectResult.project_id?.startsWith('cf-')) {
 		const cfMod = projectResult.cf_raw
 		const isInstalling = installingProjectIds.value.has(projectResult.project_id)
-		const isInstalled = newlyInstalled.value.includes(projectResult.project_id)
+		const isInstalled =
+			newlyInstalled.value.includes(projectResult.project_id) ||
+			allInstalledIds.value.has(projectResult.project_id || '')
 
 		return [
 			{
@@ -1057,7 +1059,7 @@ function getCardActions(
 			icon: isInstalling ? SpinnerIcon : showAsInstalled ? CheckIcon : PlusIcon,
 			iconClass: isInstalling ? 'animate-spin' : undefined,
 			disabled: showAsInstalled || isInstalling,
-			color: 'brand',
+			color: showAsInstalled ? 'green' : 'brand',
 			type: 'outlined',
 			onClick: async () => {
 				setProjectInstalling(projectResult.project_id, true)

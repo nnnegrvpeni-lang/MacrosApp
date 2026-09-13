@@ -86,17 +86,73 @@ pub(crate) async fn get_installed_project_ids_for_instance(
     content_set_id: Option<&str>,
     state: &State,
 ) -> crate::Result<Vec<String>> {
-    let projects =
-        get_content_projects(instance_id, content_set_id, None, state).await?;
+    let resolved = resolve_content_scope_with_instance(
+        instance_id,
+        content_set_id,
+        &state.pool,
+    )
+    .await?;
 
-    Ok(projects
-        .into_iter()
-        .filter_map(|(_, file)| {
-            file.metadata.map(|metadata| metadata.project_id)
-        })
-        .collect::<HashSet<_>>()
-        .into_iter()
-        .collect())
+    let mut installed_ids: HashSet<String> = HashSet::new();
+
+    // 1. If instance is linked to a modpack, include all modpack project IDs
+    let link = sqlite::instance_rows::get_instance_link(
+        &resolved.instance.id,
+        &state.pool,
+    )
+    .await?;
+    if let Some((_, version_id)) = linked_modpack_ids(&link) {
+        if let Ok(Some(modpack_ids)) = get_cached_modpack_identifiers(
+            &version_id,
+            &state.pool,
+            &state.api_semaphore,
+        )
+        .await
+        {
+            installed_ids.extend(modpack_ids.project_ids);
+        } else if let Ok(modpack_ids) = get_modpack_identifiers(
+            &version_id,
+            &resolved.content_set,
+            &state.pool,
+            &state.api_semaphore,
+        )
+        .await
+        {
+            installed_ids.extend(modpack_ids.project_ids);
+        }
+    }
+
+    // 2. Include all project IDs recorded in instance_content_entries
+    if let Ok(entries) = sqlite::content_rows::get_content_entries(
+        &resolved.content_set.id,
+        &state.pool,
+    )
+    .await
+    {
+        for entry in entries {
+            if let Some(project_id) = entry.project_id {
+                installed_ids.insert(project_id);
+            }
+        }
+    }
+
+    // 3. Include all project IDs discovered by content files metadata
+    if let Ok(projects) = content_projects_for_scope(
+        &resolved,
+        None,
+        state,
+        ContentFilter::All,
+    )
+    .await
+    {
+        for (_, file) in projects {
+            if let Some(metadata) = file.metadata {
+                installed_ids.insert(metadata.project_id);
+            }
+        }
+    }
+
+    Ok(installed_ids.into_iter().collect())
 }
 
 #[derive(sqlx::FromRow)]
@@ -115,8 +171,7 @@ pub(crate) async fn get_instance_install_candidates(
     targets: &[InstanceInstallTarget],
     pool: &SqlitePool,
 ) -> crate::Result<Vec<InstanceInstallCandidate>> {
-    let rows = sqlx::query_as!(
-        InstanceInstallCandidateRow,
+    let rows = sqlx::query_as::<_, InstanceInstallCandidateRow>(
         r#"
 		SELECT
 			i.id,
@@ -133,10 +188,19 @@ pub(crate) async fn get_instance_install_candidates(
 					WHERE entry.content_set_id = cs.id
 						AND entry.project_id = ?
 						AND file.missing = 0
+				) OR EXISTS (
+					SELECT 1
+					FROM cache c
+					WHERE c.id = COALESCE(link.modrinth_version_id, link.content_version_id)
+						AND c.data_type = 'modpack_files'
+						AND EXISTS (
+							SELECT 1 FROM json_each(c.data, '$.project_ids')
+							WHERE json_each.value = ?
+						)
 				)
 					THEN 1
 				ELSE 0
-			END AS "installed!: i64"
+			END AS installed
 		FROM instances i
 		INNER JOIN instance_content_sets cs
 			ON cs.id = i.applied_content_set_id
@@ -148,8 +212,9 @@ pub(crate) async fn get_instance_install_candidates(
 		)
 		ORDER BY i.name ASC
 		"#,
-        project_id,
     )
+    .bind(project_id)
+    .bind(project_id)
     .fetch_all(pool)
     .await?;
 
@@ -702,6 +767,7 @@ async fn content_projects_for_scope(
                     &file.sha1,
                     metadata.as_ref(),
                     entry.and_then(|entry| entry.project_id.as_deref()),
+                    entry.map(|entry| entry.source_kind),
                 ) {
                     continue;
                 }
@@ -721,6 +787,7 @@ async fn content_projects_for_scope(
                     &file.sha1,
                     metadata.as_ref(),
                     entry.and_then(|entry| entry.project_id.as_deref()),
+                    entry.map(|entry| entry.source_kind),
                 ) {
                     continue;
                 }
@@ -1241,10 +1308,16 @@ impl ModpackIdentifiers {
         hash: &str,
         file: Option<&CachedFile>,
         entry_project_id: Option<&str>,
+        entry_source_kind: Option<ContentSourceKind>,
     ) -> bool {
-        self.hashes.contains(hash)
-            || entry_project_id
-                .is_some_and(|project_id| self.project_ids.contains(project_id))
+        if self.hashes.contains(hash) {
+            return true;
+        }
+        if entry_source_kind == Some(ContentSourceKind::Local) {
+            return false;
+        }
+        entry_project_id
+            .is_some_and(|project_id| self.project_ids.contains(project_id))
             || file
                 .is_some_and(|file| self.project_ids.contains(&file.project_id))
     }
