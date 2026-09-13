@@ -358,13 +358,11 @@ fn main() {
                 if let Some(icon) = app.default_window_icon() {
                     let _ = window.set_icon(icon.clone());
                 }
-                if let Ok(size) = window.inner_size() {
-                    if size.width < 1350 || size.height < 850 {
-                        let _ = window.set_size(tauri::Size::Logical(tauri::LogicalSize {
-                            width: 1400.0,
-                            height: 900.0,
-                        }));
-                    }
+                if let Ok(false) = window.is_maximized() {
+                    let _ = window.set_size(tauri::Size::Logical(tauri::LogicalSize {
+                        width: 1308.0,
+                        height: 803.0,
+                    }));
                 }
             }
 
