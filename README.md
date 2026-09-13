@@ -10,6 +10,12 @@
 
 ## 🌟 Key Features
 
+### 👥 Friends & Real-Time Instance Sharing
+- **Live Friends Sidebar**: See your friends' online status and active instances in real time.
+- **Direct Instance Invites**: Share your custom modpack configurations with friends directly inside the launcher or via shareable web links.
+- **One-Click Install**: When invited, friends receive a live popup notification with preview and one-click modpack installation.
+- **Web Portal Integration**: Manage your shared instances and browse content at [macrosapp.1337.cx](https://macrosapp.1337.cx).
+
 ### 🔔 Smart Update Notifications
 - Non-intrusive update checks powered directly by GitHub Releases API.
 - Graceful startup toast notifications with 10-second auto-dismiss.
