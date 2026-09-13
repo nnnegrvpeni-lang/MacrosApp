@@ -211,6 +211,10 @@ const forceSidebar = computed(
 		route.path.startsWith('/user'),
 )
 const sidebarVisible = computed(() => sidebarToggled.value || forceSidebar.value)
+function toggleSidebar() {
+	sidebarToggled.value = !sidebarToggled.value
+	appSettings.toggleSidebar = !sidebarToggled.value
+}
 const prideFundraiserEnabled = computed(
 	() => appSettings.getFeatureFlag('pride_fundraiser') && Date.now() < PRIDE_FUNDRAISER_END_DATE,
 )
@@ -1689,19 +1693,21 @@ async function openModrinthProjectLinkInApp(parsed) {
 	const { slug, pathSuffix, url } = parsed
 	const loadToken = loading.begin()
 	try {
-		const { id } = await tauriApiClient.labrinth.projects_v2.check(slug)
+		let targetId = slug
+		try {
+			const checkRes = await tauriApiClient.labrinth.projects_v2.check(slug)
+			if (checkRes?.id) targetId = checkRes.id
+		} catch {
+			// fallback directly to slug
+		}
 		const query = mergeUrlQuery(route.query, url)
 		await router.push({
-			path: `/project/${id}${pathSuffix}`,
+			path: `/project/${targetId}${pathSuffix}`,
 			query,
 			hash: url.hash || undefined,
 		})
 	} catch (err) {
-		if (err instanceof ModrinthApiError && err.statusCode === 404) {
-			openUrl(url.href)
-		} else {
-			handleError(err)
-		}
+		handleError(err)
 	} finally {
 		loading.end(loadToken)
 	}
@@ -1723,7 +1729,7 @@ function handleClick(e) {
 				const parsed = parseModrinthLink(target.href)
 				if (userPath) {
 					void router.push(userPath)
-				} else if (target.target !== '_blank' && parsed) {
+				} else if (parsed) {
 					void openModrinthProjectLinkInApp(parsed)
 				} else {
 					openUrl(target.href)
@@ -1942,12 +1948,13 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			</div>
 			<section data-tauri-drag-region class="flex shrink-0 ml-auto items-center">
 				<IconButton
-					v-if="!forceSidebar && appSettings.toggleSidebar"
-					:type="sidebarToggled ? 'base' : 'quiet'"
-					:label="formatMessage(messages.nextImage)"
-					class="mr-3 transition-transform"
+					v-if="!forceSidebar"
+					:type="sidebarToggled ? 'quiet' : 'base'"
+					:label="sidebarToggled ? 'Скрыть панель' : 'Показать панель'"
+					v-tooltip="sidebarToggled ? 'Скрыть панель' : 'Показать панель'"
+					class="mr-3 transition-transform duration-300"
 					:class="{ 'rotate-180': !sidebarToggled }"
-					@click="sidebarToggled = !sidebarToggled"
+					@click="toggleSidebar"
 				>
 					<RightArrowIcon />
 				</IconButton>
@@ -2023,7 +2030,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			</RouterView>
 		</div>
 		<div
-			class="app-sidebar mt-px shrink-0 flex flex-col border-0 border-l-[1px] border-[--brand-gradient-border] border-solid"
+			class="app-sidebar mt-px shrink-0 flex flex-col"
 			:class="{ 'has-plus': hasPlus }"
 		>
 			<div
@@ -2042,9 +2049,21 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				<div id="sidebar-teleport-target" class="sidebar-teleport-content"></div>
 				<div class="sidebar-default-content" :class="{ 'sidebar-enabled': sidebarVisible }">
 					<div class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid">
-						<h3 class="text-base text-primary font-medium m-0">
-							{{ formatMessage(messages.playingAs) }}
-						</h3>
+						<div class="flex items-center justify-between mb-2">
+							<h3 class="text-base text-primary font-medium m-0">
+								{{ formatMessage(messages.playingAs) }}
+							</h3>
+							<IconButton
+								type="quiet"
+								size="sm"
+								class="!h-6 !w-6 !min-w-6 !p-0 text-secondary hover:text-primary transition-transform duration-200"
+								v-tooltip="'Скрыть панель'"
+								label="Скрыть панель"
+								@click="toggleSidebar"
+							>
+								<RightArrowIcon class="size-4" />
+							</IconButton>
+						</div>
 						<suspense>
 							<AccountsCard ref="accounts" />
 						</suspense>
@@ -2195,6 +2214,10 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 .app-contents {
 	--top-bar-height: 3rem;
 	--left-bar-width: 4rem;
+	--right-bar-width: 0px;
+}
+
+.app-contents.sidebar-enabled {
 	--right-bar-width: 300px;
 }
 
@@ -2239,7 +2262,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 
 	display: grid;
 	grid-template-columns: 1fr 0px;
-	// transition: grid-template-columns 0.4s ease-in-out;
+	transition: grid-template-columns 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	overflow: hidden;
 
 	&.sidebar-enabled {
 		grid-template-columns: 1fr 300px;
@@ -2252,16 +2276,32 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 }
 
 .app-sidebar {
-	overflow: visible;
+	overflow: hidden;
 	width: 300px;
+	max-width: 100%;
+	min-width: 0;
 	position: relative;
 	height: calc(100vh - var(--top-bar-height));
 	background: var(--brand-gradient-bg);
+	border-left: 1px solid var(--brand-gradient-border);
+	transition: opacity 0.25s ease, border-color 0.25s ease;
 
 	--color-button-bg: var(--brand-gradient-button);
 	--color-button-bg-hover: var(--brand-gradient-border);
 	--color-divider: var(--brand-gradient-border);
 	--color-divider-dark: var(--brand-gradient-border);
+}
+
+.app-contents:not(.sidebar-enabled) .app-sidebar {
+	border-left-color: transparent !important;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.app-sidebar-scrollable {
+	width: 300px;
+	min-width: 300px;
+	max-width: 300px;
 }
 
 .app-sidebar::after {
@@ -2334,7 +2374,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	display: none;
 }
 
-.sidebar-teleport-content:empty + .sidebar-default-content.sidebar-enabled {
+.sidebar-teleport-content:empty + .sidebar-default-content {
 	display: contents;
 }
 

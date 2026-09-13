@@ -4,8 +4,14 @@ import { invoke } from '@tauri-apps/api/core'
 // Converts user profile links from rendered Markdown/any dynamic content into app routes.
 export function parse_modrinth_user_link(href: string): string | null {
 	try {
-		const url = new URL(href)
-		if (url.hostname !== 'modrinth.com' && url.hostname !== 'www.modrinth.com') return null
+		const host = url.hostname.toLowerCase()
+		if (
+			host !== 'modrinth.com' &&
+			host !== 'www.modrinth.com' &&
+			host !== 'macrosapp.duckdns.org' &&
+			host !== 'macros.app'
+		)
+			return null
 
 		const segments = url.pathname.split('/').filter(Boolean)
 		if (segments[0]?.toLowerCase() !== 'user' || !segments[1] || segments.length > 3) return null

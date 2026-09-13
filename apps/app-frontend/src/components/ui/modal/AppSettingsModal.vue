@@ -5,7 +5,6 @@ import {
 	GaugeIcon,
 	HeartHandshakeIcon,
 	LanguagesIcon,
-	ModrinthIcon,
 	PaintbrushIcon,
 	Settings2Icon,
 	ShieldIcon,
@@ -349,7 +348,11 @@ const messages = defineMessages({
 						}"
 						@click="devModeCount"
 					>
-						<ModrinthIcon aria-hidden="true" class="w-6 h-6" />
+						<img
+							src="@/assets/macros_logo.png"
+							alt="Macros"
+							class="w-6 h-6 object-contain select-none"
+						/>
 					</button>
 					<div class="max-w-[200px]">
 						<p class="m-0">

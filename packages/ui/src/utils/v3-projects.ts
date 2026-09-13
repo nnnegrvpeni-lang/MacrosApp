@@ -67,7 +67,7 @@ export function getServerModpackContent(
 }
 
 export function catalogProjectTypes(projects: Labrinth.Projects.v3.Project[]): string[] {
-	const types = new Set(projects.map((project) => getPrimaryProjectType(project)))
+	const types = new Set((projects ?? []).map((project) => getPrimaryProjectType(project)))
 	types.delete('project')
 	return sortProjectTypes(types)
 }

@@ -1,6 +1,11 @@
 import type { LocationQuery, LocationQueryRaw } from 'vue-router'
 
-const MODRINTH_HOSTNAMES = new Set(['modrinth.com', 'www.modrinth.com'])
+const MODRINTH_HOSTNAMES = new Set([
+	'modrinth.com',
+	'www.modrinth.com',
+	'macrosapp.duckdns.org',
+	'macros.app',
+])
 
 const SUPPORTED_PROJECT_TYPES = new Set([
 	'mod',

@@ -1070,11 +1070,11 @@ const handleOptionsClick = (args) => {
 			install(null)
 			break
 		case 'open_link':
-			openUrl(`https://modrinth.com/${args.item.project_type}/${args.item.slug}`)
+			router.push(`/project/${args.item.slug || args.item.id}`)
 			break
 		case 'copy_link':
 			navigator.clipboard.writeText(
-				`https://modrinth.com/${args.item.project_type}/${args.item.slug}`,
+				`https://macrosapp.duckdns.org/${args.item.project_type}/${args.item.slug}`,
 			)
 			break
 	}

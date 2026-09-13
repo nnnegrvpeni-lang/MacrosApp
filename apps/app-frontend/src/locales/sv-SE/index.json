@@ -768,7 +768,7 @@
     "message": "Startar om..."
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "MacrosApp {version}"
   },
   "app.settings.default-instance-options.environment-variables.placeholder": {
     "message": "Ange miljövariabler..."

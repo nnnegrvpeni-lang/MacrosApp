@@ -31,7 +31,7 @@ export default new createRouter({
 			component: Pages.User,
 		},
 		{
-			path: '/:projectType(mod|plugin|datapack|resourcepack|shader|modpack)/:id/:rest(.*)*',
+			path: '/:projectType(mod|plugin|datapack|resourcepack|shader|modpack|server|project)/:id/:rest(.*)*',
 			redirect: (to) => {
 				const rest = to.params.rest ? `/${[].concat(to.params.rest).join('/')}` : ''
 				return `/project/${to.params.id}${rest}${to.hash}`

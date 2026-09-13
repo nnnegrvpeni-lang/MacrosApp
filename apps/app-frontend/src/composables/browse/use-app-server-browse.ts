@@ -282,7 +282,7 @@ export function useAppServerBrowse(options: UseAppServerBrowseOptions) {
 		const url = getProjectUrl(args.item)
 		switch (args.option) {
 			case 'open_link':
-				openUrl(url)
+				void options.router.push(`/project/${args.item.project_id ?? args.item.slug}`)
 				break
 			case 'copy_link':
 				navigator.clipboard.writeText(url)

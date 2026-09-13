@@ -283,7 +283,10 @@ export function getPrimaryProjectType(project: Labrinth.Projects.v3.Project): Di
 	if (project.minecraft_server != null) {
 		return 'server'
 	} else {
-		const sorted = project.project_types
+		const types = Array.isArray(project.project_types)
+			? project.project_types
+			: ((project as any)?.project_type ? [(project as any).project_type] : ['mod'])
+		const sorted = types
 			.slice()
 			.sort((a, b) => compareByIndex(PROJECT_TYPE_PRECEDENCE, a, b))
 		if (sorted.length > 0) {
