@@ -4144,8 +4144,8 @@ export function renderAccountHtml(user?: any): string {
 				<div class="flex items-start gap-6">
 					<!-- Circular Avatar (96x96) -->
 					<div class="w-24 h-24 rounded-full bg-cyan-600 text-white flex items-center justify-center font-bold text-3xl overflow-hidden shrink-0 shadow-xl border border-white/10 select-none">
-						<img id="userAvatar" class="w-full h-full object-cover hidden" src="${user?.avatar_url || ''}" alt="Avatar">
-						<span id="userAvatarInitial" class="text-3xl font-bold">${escapeHtml(user?.username ? user.username.charAt(0).toUpperCase() : 'U')}</span>
+						<img id="userAvatar" class="w-full h-full object-cover ${user?.avatar_url ? '' : 'hidden'}" src="${user?.avatar_url || ''}" alt="Avatar">
+						<span id="userAvatarInitial" class="text-3xl font-bold ${user?.avatar_url ? 'hidden' : ''}">${escapeHtml(user?.username ? user.username.charAt(0).toUpperCase() : 'U')}</span>
 					</div>
 
 					<!-- Username, Bio, Stats -->
@@ -4601,14 +4601,25 @@ export function renderAccountHtml(user?: any): string {
 							div.className = 'flex items-center justify-between p-3.5 rounded-xl bg-zinc-950 border border-zinc-900 text-xs';
 							const left = document.createElement('div');
 							left.className = 'flex items-center gap-3';
-							const iconHtml = inst.icon_path
-								? '<img src="' + inst.icon_path + '" alt="' + (inst.name || 'Сборка') + '" class="w-8 h-8 rounded-lg object-cover border border-white/10 shrink-0" onerror="this.onerror=null;this.parentElement.innerHTML=\'<div class=\\\'w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold\\\'><svg class=\\\'w-4 h-4\\\' fill=\\\'none\\\' stroke=\\\'currentColor\\\' viewBox=\\\'0 0 24 24\\\'><path stroke-linecap=\\\'round\\\' stroke-linejoin=\\\'round\\\' stroke-width=\\\'2\\\' d=\\\'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\\\'/></svg></div>\';" />'
-								: '<div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>';
-							left.innerHTML = iconHtml +
-								'<div>' +
-								'<div class="font-bold text-white">' + (inst.name || 'Сборка') + '</div>' +
-								'<div class="text-[11px] text-zinc-500">' + (inst.game_version || '1.20.1') + ' • ' + (inst.loader || 'Fabric') + '</div>' +
-								'</div>';
+							
+							const iconWrap = document.createElement('div');
+							iconWrap.className = 'relative w-8 h-8 shrink-0 flex items-center justify-center';
+							iconWrap.innerHTML = '<div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>';
+							if (inst.icon_path) {
+								const img = document.createElement('img');
+								img.src = inst.icon_path;
+								img.alt = inst.name || 'Сборка';
+								img.className = 'absolute inset-0 w-8 h-8 rounded-lg object-cover border border-white/10';
+								img.onerror = function() { img.remove(); };
+								iconWrap.appendChild(img);
+							}
+							left.appendChild(iconWrap);
+
+							const info = document.createElement('div');
+							info.innerHTML = '<div class="font-bold text-white">' + (inst.name || 'Сборка') + '</div>' +
+								'<div class="text-[11px] text-zinc-500">' + (inst.game_version || '1.20.1') + ' • ' + (inst.loader || 'Fabric') + '</div>';
+							left.appendChild(info);
+
 							const right = document.createElement('a');
 							right.href = '/share/' + encodeURIComponent(inst.invite_id || inst.id);
 							right.target = '_blank';
@@ -9418,11 +9429,13 @@ export function renderPublicUserProfileHtml(params: {
 					const gv = escapeHtml(inst.game_version || '1.20.1');
 					const ld = escapeHtml(inst.loader || 'Fabric');
 					const invite = inst.invite_id || inst.id;
-					const iconHtml = inst.icon_path
-						? `<img src="${escapeHtml(inst.icon_path)}" alt="${name}" class="w-9 h-9 rounded-xl object-cover border border-white/10 shrink-0" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\\'w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold\\\'><svg class=\\\'w-4 h-4\\\' fill=\\\'none\\\' stroke=\\\'currentColor\\\' viewBox=\\\'0 0 24 24\\\'><path stroke-linecap=\\\'round\\\' stroke-linejoin=\\\'round\\\' stroke-width=\\\'2\\\' d=\\\'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\\\'/></svg></div>';" />`
-						: `<div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+					const iconHtml = `
+					<div class="relative w-9 h-9 shrink-0 flex items-center justify-center">
+						<div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-						</div>`;
+						</div>
+						${inst.icon_path ? `<img src="${escapeHtml(inst.icon_path)}" alt="${name}" class="absolute inset-0 w-9 h-9 rounded-xl object-cover border border-white/10" onerror="this.remove()" />` : ''}
+					</div>`;
 					return `
 					<div class="flex items-center justify-between p-4 rounded-xl bg-zinc-950 border border-zinc-900 text-xs hover:border-zinc-800 transition">
 						<div class="flex items-center gap-3.5">
@@ -9528,7 +9541,7 @@ export function renderPublicUserProfileHtml(params: {
 					'<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' +
 					'<span>' + (isRu ? 'В друзьях' : 'Friends') + '</span>' +
 					'</span>' +
-					'<button type="button" onclick="handleRemoveFriend(\'' + userId + '\')" class="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 border border-zinc-800 text-xs font-medium transition cursor-pointer active:scale-95">' +
+					'<button type="button" onclick="handleRemoveFriend(targetUserId)" class="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 border border-zinc-800 text-xs font-medium transition cursor-pointer active:scale-95">' +
 					(isRu ? 'Удалить' : 'Remove') +
 					'</button>' +
 					'</div>';
@@ -9552,7 +9565,7 @@ export function renderPublicUserProfileHtml(params: {
 			const isRu = lang === 'ru';
 			const container = document.getElementById('friendActionContainer');
 			if (container) {
-				container.innerHTML = '<button id="btnPublicAddFriend" type="button" onclick="handleAddFriend(\'' + userId + '\')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 cursor-pointer active:scale-95">' +
+				container.innerHTML = '<button id="btnPublicAddFriend" type="button" onclick="handleAddFriend(targetUserId)" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 cursor-pointer active:scale-95">' +
 					'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>' +
 					'<span>' + (isRu ? 'Добавить в друзья' : 'Add friend') + '</span>' +
 					'</button>';
