@@ -36,11 +36,13 @@
 		<template v-if="!isModrinthUser" #metadata>
 			<PageHeaderMetadata>
 				<PageHeaderMetadataNumberItem
+					v-if="projectsCount > 0"
 					:icon="BoxIcon"
 					:value="projectsCount"
 					:label="formatMessage(messages.profileProjectCountLabel, { count: projectsCount })"
 				/>
 				<PageHeaderMetadataNumberItem
+					v-if="downloads > 0"
 					:icon="DownloadIcon"
 					:value="downloads"
 					:label="formatMessage(messages.profileDownloadCountLabel, { count: downloads })"

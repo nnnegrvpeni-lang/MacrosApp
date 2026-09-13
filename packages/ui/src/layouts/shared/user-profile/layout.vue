@@ -793,6 +793,7 @@ const hasMidas = computed(
 )
 const showProjectsEmptyState = computed(
 	() =>
+		props.variant !== 'app' &&
 		selectedProjectType.value !== 'collection' &&
 		filteredProjects.value.length === 0 &&
 		(selectedProjectType.value !== null || collections.value.length === 0),
