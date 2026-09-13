@@ -45,7 +45,7 @@ pub async fn direct_modrinth_login(
 ) -> Result<DirectLoginResult> {
     let client = reqwest::Client::new();
     let resp = client
-        .post("https://macrosapp.1337.cx/api/v1/auth/login")
+        .post("https://macrosapp.duckdns.org/api/v1/auth/login")
         .header("User-Agent", "MacrosApp/1.0")
         .json(&serde_json::json!({
             "login": username,
@@ -168,7 +168,7 @@ pub async fn modrinth_login<R: Runtime>(
 
     let loopback_port = auth_code_recv_socket.port();
     let auth_request_uri = format!(
-        "https://macrosapp.1337.cx/auth/sign-in?flow=launcher&port={}",
+        "https://macrosapp.duckdns.org/auth/sign-in?flow=launcher&port={}",
         loopback_port
     );
 

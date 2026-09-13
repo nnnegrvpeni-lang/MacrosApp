@@ -1,14 +1,14 @@
 const trimTrailingSlash = (url: string) => url.replace(/\/$/, '')
 
-const siteUrl = trimTrailingSlash(import.meta.env.MODRINTH_URL || 'https://macrosapp.1337.cx')
+const siteUrl = trimTrailingSlash(import.meta.env.MODRINTH_URL || 'https://macrosapp.duckdns.org')
 const labrinthBaseUrl = trimTrailingSlash(
-	import.meta.env.MODRINTH_API_BASE_URL || 'https://macrosapp.1337.cx',
+	import.meta.env.MODRINTH_API_BASE_URL || 'https://macrosapp.duckdns.org',
 )
 const archonBaseUrl = trimTrailingSlash(
 	import.meta.env.MODRINTH_ARCHON_BASE_URL || 'https://archon.modrinth.com',
 )
 const sharedInstancesBaseUrl = trimTrailingSlash(
-	import.meta.env.SHARED_INSTANCES_API_BASE_URL || 'https://macrosapp.1337.cx',
+	import.meta.env.SHARED_INSTANCES_API_BASE_URL || 'https://macrosapp.duckdns.org',
 )
 
 export const config = {

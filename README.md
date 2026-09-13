@@ -4,7 +4,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](COPYING.md)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)](https://github.com/nnnegrvpeni-lang/MacrosApp/releases)
 
-**MacrosApp** is a fast, lightweight, and modern Minecraft launcher featuring its own native **MacrosApp account system** and web portal ([macrosapp.1337.cx](https://macrosapp.1337.cx)), **Ely.by** skins and accounts support, **Offline mode (No-Auth)**, unified **CurseForge & Modrinth** catalog browsing, **real-time friend modpack sharing**, **Discord Rich Presence**, and a completely **ad-free** experience.
+**MacrosApp** is a fast, lightweight, and modern Minecraft launcher featuring its own native **MacrosApp account system** and web portal ([macrosapp.duckdns.org](https://macrosapp.duckdns.org)), **Ely.by** skins and accounts support, **Offline mode (No-Auth)**, unified **CurseForge & Modrinth** catalog browsing, **real-time friend modpack sharing**, **Discord Rich Presence**, and a completely **ad-free** experience.
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### 🌐 Native MacrosApp Accounts & Web Platform
 - **Full Account Migration**: Complete transition to the standalone MacrosApp account and backend ecosystem.
-- **Web Portal ([macrosapp.1337.cx](https://macrosapp.1337.cx))**: Manage your account profile, custom avatars, bios, and shared modpacks directly from the web.
+- **Web Portal ([macrosapp.duckdns.org](https://macrosapp.duckdns.org))**: Manage your account profile, custom avatars, bios, and shared modpacks directly from the web.
 - **Instant Launcher Sync**: Log in seamlessly inside the launcher or via the web portal with session persistence.
 
 ### 👥 Friends & Private Modpack Sharing

@@ -23,13 +23,13 @@ fn set_env() {
     let _ = dotenvy::dotenv();
 
     let vars = [
-        ("MODRINTH_URL", "https://macrosapp.1337.cx/"),
-        ("MODRINTH_API_BASE_URL", "https://macrosapp.1337.cx/"),
-        ("SHARED_INSTANCES_API_BASE_URL", "https://macrosapp.1337.cx/"),
+        ("MODRINTH_URL", "https://macrosapp.duckdns.org/"),
+        ("MODRINTH_API_BASE_URL", "https://macrosapp.duckdns.org/"),
+        ("SHARED_INSTANCES_API_BASE_URL", "https://macrosapp.duckdns.org/"),
         ("MODRINTH_ARCHON_BASE_URL", "https://archon.modrinth.com/"),
-        ("MODRINTH_API_URL", "https://macrosapp.1337.cx/v2/"),
-        ("MODRINTH_API_URL_V3", "https://macrosapp.1337.cx/v3/"),
-        ("MODRINTH_SOCKET_URL", "wss://macrosapp.1337.cx/"),
+        ("MODRINTH_API_URL", "https://macrosapp.duckdns.org/v2/"),
+        ("MODRINTH_API_URL_V3", "https://macrosapp.duckdns.org/v3/"),
+        ("MODRINTH_SOCKET_URL", "wss://macrosapp.duckdns.org/"),
         ("MODRINTH_LAUNCHER_META_URL", "https://launcher-meta.modrinth.com/"),
     ];
 

@@ -33,7 +33,7 @@
 					</RouterLink>
 				</template>
 				<template #docs-link="{ children }">
-					<a href="https://macrosapp.1337.cx" target="_blank" class="text-link">
+					<a href="https://macrosapp.duckdns.org" target="_blank" class="text-link">
 						<component :is="() => children" />
 					</a>
 				</template>

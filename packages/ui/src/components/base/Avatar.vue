@@ -103,7 +103,7 @@ const cssSize = computed(() => LEGACY_PRESETS[props.size] ?? props.size)
 const effectiveSrc = computed(() => {
 	if (!props.src) return null
 	if (props.src.startsWith('/assets/')) {
-		return `https://macrosapp.1337.cx${props.src}`
+		return `https://macrosapp.duckdns.org${props.src}`
 	}
 	return props.src
 })

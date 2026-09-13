@@ -192,11 +192,11 @@ impl ModrinthCredentials {
 }
 
 pub const fn get_login_url() -> &'static str {
-    "https://macrosapp.1337.cx/auth/sign-in"
+    "https://macrosapp.duckdns.org/auth/sign-in"
 }
 
 pub const fn get_signup_url() -> &'static str {
-    "https://macrosapp.1337.cx/auth/sign-up"
+    "https://macrosapp.duckdns.org/auth/sign-up"
 }
 
 pub async fn finish_login_flow(
