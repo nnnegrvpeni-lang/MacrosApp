@@ -4271,6 +4271,12 @@ export function renderAccountHtml(user?: any): string {
 	${renderNavbarUserScript()}
 	<script>
 	(function() {
+		function t(key, fallback) {
+			const lang = localStorage.getItem('macros_lang') || 'en';
+			const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || (window.TRANSLATIONS && window.TRANSLATIONS.en) || {};
+			return dict[key] || fallback || key;
+		}
+
 		function getCookie(name) {
 			const value = '; ' + document.cookie;
 			const parts = value.split('; ' + name + '=');
@@ -4673,34 +4679,56 @@ export function renderAccountHtml(user?: any): string {
 		// Edit Profile Modal
 		function switchTab(tab) {
 			const isProfile = tab === 'profile';
-			document.getElementById('tabContentProfile').style.display = isProfile ? 'flex' : 'none';
-			document.getElementById('tabContentSecurity').style.display = isProfile ? 'none' : 'flex';
+			const cProf = document.getElementById('tabContentProfile');
+			const cSec = document.getElementById('tabContentSecurity');
+			if (cProf) cProf.style.display = isProfile ? 'flex' : 'none';
+			if (cSec) cSec.style.display = isProfile ? 'none' : 'flex';
 			const activeClass = 'text-emerald-400 border-emerald-500';
 			const inactiveClass = 'text-zinc-400 border-transparent hover:text-white';
-			document.getElementById('tabProfile').className = 'px-5 py-3 text-xs font-semibold border-b-2 -mb-px transition ' + (isProfile ? activeClass : inactiveClass);
-			document.getElementById('tabSecurity').className = 'px-5 py-3 text-xs font-semibold border-b-2 -mb-px transition ' + (!isProfile ? activeClass : inactiveClass);
+			const tProf = document.getElementById('tabProfile');
+			const tSec = document.getElementById('tabSecurity');
+			if (tProf) tProf.className = 'px-5 py-3 text-xs font-semibold border-b-2 -mb-px transition ' + (isProfile ? activeClass : inactiveClass);
+			if (tSec) tSec.className = 'px-5 py-3 text-xs font-semibold border-b-2 -mb-px transition ' + (!isProfile ? activeClass : inactiveClass);
 		}
 
+		window.switchTab = switchTab;
+
 		function openEditProfileModal() {
-			const userData = JSON.parse(localStorage.getItem('macros_user') || '{}');
-			pendingAvatarDataUrl = null;
-			document.getElementById('editAvatarPreview').src = userData.avatar_url || '';
-			const statusEl = document.getElementById('avatarFileStatus');
-			if (statusEl) {
-				statusEl.textContent = t('modal.avatar.hint', 'PNG, JPG, WebP or GIF (up to 5 MB)');
-				statusEl.className = 'text-[11px] text-zinc-500';
+			try {
+				let userData = {};
+				try {
+					userData = JSON.parse(localStorage.getItem('macros_user') || '{}');
+				} catch (e) {}
+
+				pendingAvatarDataUrl = null;
+				const avPreview = document.getElementById('editAvatarPreview');
+				if (avPreview) avPreview.src = userData.avatar_url || '';
+				const statusEl = document.getElementById('avatarFileStatus');
+				if (statusEl) {
+					statusEl.textContent = t('modal.avatar.hint', 'PNG, JPG, WebP or GIF (up to 5 MB)');
+					statusEl.className = 'text-[11px] text-zinc-500';
+				}
+				const uInput = document.getElementById('editUsername');
+				if (uInput) uInput.value = userData.username || '';
+				const bInput = document.getElementById('editBio');
+				if (bInput) bInput.value = userData.bio || '';
+				const oldP = document.getElementById('editOldPassword');
+				if (oldP) oldP.value = '';
+				const newP = document.getElementById('editNewPassword');
+				if (newP) newP.value = '';
+				const confP = document.getElementById('editConfirmPassword');
+				if (confP) confP.value = '';
+				switchTab('profile');
+			} catch (err) {
+				console.error('Error in openEditProfileModal:', err);
 			}
-			document.getElementById('editUsername').value = userData.username || '';
-			document.getElementById('editBio').value = userData.bio || '';
-			document.getElementById('editOldPassword').value = '';
-			document.getElementById('editNewPassword').value = '';
-			document.getElementById('editConfirmPassword').value = '';
-			switchTab('profile');
-			document.getElementById('editProfileModal').classList.remove('hidden');
+			const modal = document.getElementById('editProfileModal');
+			if (modal) modal.classList.remove('hidden');
 		}
 
 		function closeEditProfileModal() {
-			document.getElementById('editProfileModal').classList.add('hidden');
+			const modal = document.getElementById('editProfileModal');
+			if (modal) modal.classList.add('hidden');
 		}
 
 		window.openEditProfileModal = openEditProfileModal;
@@ -4730,7 +4758,8 @@ export function renderAccountHtml(user?: any): string {
 						const sy = (img.height - minSide) / 2;
 						ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, 256, 256);
 						pendingAvatarDataUrl = canvas.toDataURL('image/png');
-						document.getElementById('editAvatarPreview').src = pendingAvatarDataUrl;
+						const editAv = document.getElementById('editAvatarPreview');
+						if (editAv) editAv.src = pendingAvatarDataUrl;
 						const statusEl = document.getElementById('avatarFileStatus');
 						if (statusEl) {
 							statusEl.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB) ✓';
@@ -4743,13 +4772,24 @@ export function renderAccountHtml(user?: any): string {
 			});
 		}
 
-		document.getElementById('openEditProfileBtn').onclick = openEditProfileModal;
-		document.getElementById('closeEditProfileModal').onclick = closeEditProfileModal;
-		document.getElementById('cancelEditProfile').onclick = closeEditProfileModal;
-		document.getElementById('cancelEditSecurity').onclick = closeEditProfileModal;
-		document.getElementById('editProfileModal').addEventListener('click', function(e) {
-			if (e.target === this) closeEditProfileModal();
-		});
+		const btnOpenEdit = document.getElementById('openEditProfileBtn');
+		if (btnOpenEdit) btnOpenEdit.onclick = openEditProfileModal;
+		const btnCloseEdit = document.getElementById('closeEditProfileModal');
+		if (btnCloseEdit) btnCloseEdit.onclick = closeEditProfileModal;
+		const btnCancelEdit = document.getElementById('cancelEditProfile');
+		if (btnCancelEdit) btnCancelEdit.onclick = closeEditProfileModal;
+		const btnCancelSec = document.getElementById('cancelEditSecurity');
+		if (btnCancelSec) btnCancelSec.onclick = closeEditProfileModal;
+		const tProfBtn = document.getElementById('tabProfile');
+		if (tProfBtn) tProfBtn.onclick = () => switchTab('profile');
+		const tSecBtn = document.getElementById('tabSecurity');
+		if (tSecBtn) tSecBtn.onclick = () => switchTab('security');
+		const editModalEl = document.getElementById('editProfileModal');
+		if (editModalEl) {
+			editModalEl.addEventListener('click', function(e) {
+				if (e.target === this) closeEditProfileModal();
+			});
+		}
 
 		document.getElementById('saveProfileBtn').onclick = async () => {
 			const body = {};
