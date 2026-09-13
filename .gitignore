@@ -106,3 +106,4 @@ packages/tooling-config/script-utils/import-sort.js
 *.db-shm
 apps/macros-server/data/
 apps/macros-server/dist/
+apps/macros-server/
