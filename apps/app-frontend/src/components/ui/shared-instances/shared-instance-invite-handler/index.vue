@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { injectAuth } from '@modrinth/ui'
+import { injectAuth } from '@macros/ui'
 import { nextTick, ref } from 'vue'
 
 import ModrinthAccountRequiredModal from '@/components/ui/modal/ModrinthAccountRequiredModal.vue'

@@ -17,14 +17,14 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	AccountSocialSettings,
 	commonSettingsMessages,
 	injectModrinthClient,
 	UnsavedChangesPopup,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 definePageMeta({
 	middleware: 'auth',

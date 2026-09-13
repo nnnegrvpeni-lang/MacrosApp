@@ -6,8 +6,8 @@ import {
 	LogInIcon,
 	MessagesSquareIcon,
 	WrenchIcon,
-} from '@modrinth/assets'
-import { Admonition, Button, ButtonLink, Collapsible, IconButton, NewModal } from '@modrinth/ui'
+} from '@macros/assets'
+import { Admonition, Button, ButtonLink, Collapsible, IconButton, NewModal } from '@macros/ui'
 import { computed, ref } from 'vue'
 
 import { handleSevereError } from '@/composables/use-error.js'

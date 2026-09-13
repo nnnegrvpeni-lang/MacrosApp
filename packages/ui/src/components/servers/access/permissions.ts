@@ -1,4 +1,4 @@
-import type { Archon } from '@modrinth/api-client'
+import type { Archon } from '@macros/api-client'
 
 import { hasServerPermission } from '../../../composables/server-permissions'
 import type { ServerAccessRole } from './types'

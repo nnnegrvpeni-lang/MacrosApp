@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import { formatLoader, injectNotificationManager, useVIntl } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { formatLoader, injectNotificationManager, useVIntl } from '@macros/ui'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
 import { useEventListener, useStorage } from '@vueuse/core'
 import dayjs from 'dayjs'

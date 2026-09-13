@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { BanIcon, DropdownIcon, PackageIcon, XIcon } from '@modrinth/assets'
+import { BanIcon, DropdownIcon, PackageIcon, XIcon } from '@macros/assets'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 

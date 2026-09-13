@@ -1,4 +1,4 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import { invoke } from '@tauri-apps/api/core'
 
 // Converts user profile links from rendered Markdown/any dynamic content into app routes.

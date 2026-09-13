@@ -1,4 +1,4 @@
-import { UserBadge } from '@modrinth/utils'
+import { UserBadge } from '@macros/utils'
 
 const PRIDE_26_MIDAS_DURATION_MS = 30 * 24 * 60 * 60 * 1000
 

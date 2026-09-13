@@ -77,15 +77,15 @@
 </template>
 
 <script setup lang="ts">
-import type { Archon } from '@modrinth/api-client'
-import { GlobeIcon, PackageIcon, RightArrowIcon, SpinnerIcon, UsersIcon } from '@modrinth/assets'
+import type { Archon } from '@macros/api-client'
+import { GlobeIcon, PackageIcon, RightArrowIcon, SpinnerIcon, UsersIcon } from '@macros/assets'
 import {
 	defineMessages,
 	injectModrinthClient,
 	injectNotificationManager,
 	useServerPermissions,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

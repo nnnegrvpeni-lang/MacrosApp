@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlayIcon } from '@modrinth/assets'
+import { PlayIcon } from '@macros/assets'
 
 import { useCompactNumber, useVIntl } from '../../../composables'
 import { commonMessages } from '../../../utils'

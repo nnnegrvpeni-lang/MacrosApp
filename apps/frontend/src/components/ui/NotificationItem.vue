@@ -396,7 +396,7 @@ import {
 	UserPlusIcon,
 	VersionIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -410,8 +410,8 @@ import {
 	ProjectStatusBadge,
 	useFormatDateTime,
 	useRelativeTime,
-} from '@modrinth/ui'
-import { getUserLink, renderString } from '@modrinth/utils'
+} from '@macros/ui'
+import { getUserLink, renderString } from '@macros/utils'
 
 import { markAsRead } from '~/helpers/platform-notifications'
 import { getProjectLink, getVersionLink } from '~/helpers/projects'

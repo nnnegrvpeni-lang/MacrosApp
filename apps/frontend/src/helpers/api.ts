@@ -10,7 +10,7 @@ import {
 	NuxtModrinthClient,
 	PanelVersionFeature,
 	VerboseLoggingFeature,
-} from '@modrinth/api-client'
+} from '@macros/api-client'
 import type { Ref } from 'vue'
 
 import { useFeatureFlags } from '~/composables/featureFlags.ts'

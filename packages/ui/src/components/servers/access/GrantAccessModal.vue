@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { EyeIcon, PencilIcon, UserPlusIcon, XIcon } from '@modrinth/assets'
+import { EyeIcon, PencilIcon, UserPlusIcon, XIcon } from '@macros/assets'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref } from 'vue'
 

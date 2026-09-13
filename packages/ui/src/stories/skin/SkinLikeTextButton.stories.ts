@@ -1,4 +1,4 @@
-import { PlusIcon } from '@modrinth/assets'
+import { PlusIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import SkinLikeTextButton from '../../components/skin/SkinLikeTextButton.vue'

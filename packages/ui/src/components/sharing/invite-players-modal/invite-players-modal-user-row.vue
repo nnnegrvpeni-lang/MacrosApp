@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckIcon } from '@modrinth/assets'
+import { CheckIcon } from '@macros/assets'
 import { computed } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

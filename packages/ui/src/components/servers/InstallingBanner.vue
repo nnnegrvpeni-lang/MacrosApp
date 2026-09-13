@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { RotateCounterClockwiseIcon } from '@modrinth/assets'
+import { RotateCounterClockwiseIcon } from '@macros/assets'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

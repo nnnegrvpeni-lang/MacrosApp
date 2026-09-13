@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { fileIsValid } from '@modrinth/utils'
+import { fileIsValid } from '@macros/utils'
 
 import { useFormatBytes } from '../../../composables'
 import ButtonFrame from './ButtonFrame.vue'

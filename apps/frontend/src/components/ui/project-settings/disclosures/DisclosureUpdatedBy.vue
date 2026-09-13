@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScaleIcon } from '@modrinth/assets'
+import { ScaleIcon } from '@macros/assets'
 import {
 	AutoLink,
 	Avatar,
@@ -7,7 +7,7 @@ import {
 	IntlFormatted,
 	useFormatDateTime,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed } from 'vue'
 
 import type { DisclosureUpdatedByUser } from './types'

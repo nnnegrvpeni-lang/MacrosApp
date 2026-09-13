@@ -5,7 +5,7 @@ import {
 	injectUserPreferences,
 	provideAppearanceSettings,
 	useSavable,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { type ColorTheme, useTheme } from '@/composables/use-theme.ts'

@@ -192,7 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	EditIcon,
 	PlusIcon,
@@ -201,7 +201,7 @@ import {
 	TrashIcon,
 	UserKeyIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Button,
 	commonMessages,
@@ -215,7 +215,7 @@ import {
 	useFormatDateTime,
 	useRelativeTime,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref, useTemplateRef } from 'vue'
 
 import { createPasskeyCredential } from '~/helpers/passkey.ts'

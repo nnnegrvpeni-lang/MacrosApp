@@ -1,5 +1,5 @@
 {
-	"name": "@modrinth/utils",
+	"name": "@macros/utils",
 	"version": "0.0.0",
 	"private": true,
 	"main": "./index.ts",
@@ -9,8 +9,8 @@
 		"fix": "eslint . --fix && prettier --write ."
 	},
 	"devDependencies": {
-		"@modrinth/tooling-config": "workspace:*",
-		"@modrinth/api-client": "workspace:*"
+		"@macros/tooling-config": "workspace:*",
+		"@macros/api-client": "workspace:*"
 	},
 	"dependencies": {
 		"@codemirror/commands": "^6.3.2",

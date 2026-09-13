@@ -1,4 +1,4 @@
-import type { TableColumn } from '@modrinth/ui'
+import type { TableColumn } from '@macros/ui'
 
 import type {
 	AnalyticsBreakdownPreset,

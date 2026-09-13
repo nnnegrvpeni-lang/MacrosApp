@@ -405,7 +405,7 @@ import {
 	SendIcon,
 	SpinnerIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Button,
 	Checkbox,
@@ -418,7 +418,7 @@ import {
 	NewModal,
 	SplitButton,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import ThreadMessage from '~/components/ui/thread/ThreadMessage.vue'
 import { useImageUpload } from '~/composables/image-upload.ts'

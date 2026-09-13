@@ -120,11 +120,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { ChevronLeftIcon, FilterIcon, XCircleIcon, XIcon } from '@modrinth/assets'
-import type { MultiSelectOption } from '@modrinth/ui'
-import { Checkbox, formatLoader, FormattedTag, MultiSelect, TagItem, useVIntl } from '@modrinth/ui'
-import type { GameVersionTag } from '@modrinth/utils'
+import type { Labrinth } from '@macros/api-client'
+import { ChevronLeftIcon, FilterIcon, XCircleIcon, XIcon } from '@macros/assets'
+import type { MultiSelectOption } from '@macros/ui'
+import { Checkbox, formatLoader, FormattedTag, MultiSelect, TagItem, useVIntl } from '@macros/ui'
+import type { GameVersionTag } from '@macros/utils'
 import { computed, ref } from 'vue'
 import type { LocationQueryValue } from 'vue-router'
 import { useRoute } from 'vue-router'

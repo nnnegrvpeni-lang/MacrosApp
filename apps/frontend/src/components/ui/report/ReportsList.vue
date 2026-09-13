@@ -31,7 +31,7 @@
 	<p v-if="filteredReports.length === 0">You don't have any active reports.</p>
 </template>
 <script setup>
-import { Chips, formatReportType, injectModrinthClient, useVIntl } from '@modrinth/ui'
+import { Chips, formatReportType, injectModrinthClient, useVIntl } from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 

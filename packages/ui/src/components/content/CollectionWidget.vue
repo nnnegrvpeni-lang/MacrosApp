@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { DownloadIcon, HeartIcon, SearchIcon } from '@modrinth/assets'
-import { renderString } from '@modrinth/utils'
+import { DownloadIcon, HeartIcon, SearchIcon } from '@macros/assets'
+import { renderString } from '@macros/utils'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 

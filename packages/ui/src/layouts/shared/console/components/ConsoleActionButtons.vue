@@ -49,7 +49,7 @@ import {
 	SpinnerIcon,
 	TrashIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 
 import { Button } from '#ui/components/base/buttons'
 

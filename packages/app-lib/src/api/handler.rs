@@ -74,6 +74,31 @@ pub async fn handle_url(sublink: &str) -> crate::Result<CommandPayload> {
                 }
             }
         }
+        // /instance/join/{invite_id} or /instance/share/{invite_id}
+        Some(("instance", rest)) if rest.starts_with("join/") || rest.starts_with("share/") => {
+            let raw = if let Some(stripped) = rest.strip_prefix("join/") {
+                stripped
+            } else {
+                rest.trim_start_matches("share/")
+            };
+            let (raw, _) = raw.split_once('?').unwrap_or((raw, ""));
+
+            match decode(raw) {
+                Ok(decoded) => CommandPayload::InstallSharedInstanceInvite {
+                    invite_id: decoded.to_string(),
+                },
+                Err(e) => {
+                    emit_warning(&format!(
+                        "Invalid UTF-8 in shared instance invite path: {e}"
+                    ))
+                    .await?;
+                    return Err(crate::ErrorKind::InputError(format!(
+                        "Invalid UTF-8 in shared instance invite path: {e}"
+                    ))
+                    .into());
+                }
+            }
+        }
         // /launch/instance/{id}   -    Launches an instance
         Some(("launch", rest)) if rest.starts_with("instance/") => {
             let raw = rest.trim_start_matches("instance/");

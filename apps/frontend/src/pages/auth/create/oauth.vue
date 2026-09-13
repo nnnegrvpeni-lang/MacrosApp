@@ -25,7 +25,7 @@ import {
 	injectModrinthClient,
 	injectNotificationManager,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { LocationQueryValue } from 'vue-router'
 

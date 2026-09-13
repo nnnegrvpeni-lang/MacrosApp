@@ -248,7 +248,7 @@
 	</div>
 </template>
 <script setup>
-import { EditIcon, PlusIcon, SaveIcon, TrashIcon, UploadIcon, XIcon } from '@modrinth/assets'
+import { EditIcon, PlusIcon, SaveIcon, TrashIcon, UploadIcon, XIcon } from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -268,7 +268,7 @@ import {
 	StyledInput,
 	useFormatDateTime,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 
 import {

@@ -131,8 +131,8 @@ import {
 	StopCircleIcon,
 	TerminalSquareIcon,
 	UnplugIcon,
-} from '@modrinth/assets'
-import { IconButton } from '@modrinth/ui'
+} from '@macros/assets'
+import { IconButton } from '@macros/ui'
 import {
 	defineMessages,
 	injectNotificationManager,
@@ -140,7 +140,7 @@ import {
 	type PopupNotificationProgressItem,
 	type PopupNotificationStandard,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { convertFileSrc } from '@tauri-apps/api/core'
 import { Dropdown } from 'floating-vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'

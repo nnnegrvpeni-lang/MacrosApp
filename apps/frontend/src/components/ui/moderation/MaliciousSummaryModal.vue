@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { ClipboardCopyIcon, DownloadIcon, LoaderCircleIcon, XIcon } from '@modrinth/assets'
-import { Button, ButtonLink, CopyCode, NewModal, useDebugLogger } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { ClipboardCopyIcon, DownloadIcon, LoaderCircleIcon, XIcon } from '@macros/assets'
+import { Button, ButtonLink, CopyCode, NewModal, useDebugLogger } from '@macros/ui'
 import { ref, useTemplateRef } from 'vue'
 
 export type UnsafeFile = {

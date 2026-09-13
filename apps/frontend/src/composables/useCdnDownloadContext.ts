@@ -1,5 +1,5 @@
-import type { FilterValue } from '@modrinth/ui'
-import { LOADER_FILTER_TYPES } from '@modrinth/ui'
+import type { FilterValue } from '@macros/ui'
+import { LOADER_FILTER_TYPES } from '@macros/ui'
 
 const TEN_MINUTES = 600
 

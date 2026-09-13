@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import { getPrimaryProjectType } from '@modrinth/utils'
+import type { Labrinth } from '@macros/api-client'
+import { getPrimaryProjectType } from '@macros/utils'
 
 import { normalizeProjectType } from './common-messages'
 import { sortProjectTypes } from './project-types'

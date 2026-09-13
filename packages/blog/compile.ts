@@ -1,5 +1,5 @@
-import { compareImportSources } from '@modrinth/tooling-config/script-utils/import-sort'
-import { md } from '@modrinth/utils'
+import { compareImportSources } from '@macros/tooling-config/script-utils/import-sort'
+import { md } from '@macros/utils'
 import { promises as fs } from 'fs'
 import { glob } from 'glob'
 import matter from 'gray-matter'
@@ -237,7 +237,7 @@ async function generateRssFeed(articles): Promise<void> {
 		feed_url: `${SITE_URL}/news/feed/rss.xml`,
 		site_url: `${SITE_URL}/news/`,
 		language: 'en',
-		generator: '@modrinth/blog',
+		generator: '@macros/blog',
 	})
 
 	for (const article of sorted) {

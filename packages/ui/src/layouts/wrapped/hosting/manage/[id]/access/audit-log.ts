@@ -1,4 +1,4 @@
-import type { AbstractModrinthClient, Archon } from '@modrinth/api-client'
+import type { AbstractModrinthClient, Archon } from '@macros/api-client'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/vue-query'
 import type { ComputedRef } from 'vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'

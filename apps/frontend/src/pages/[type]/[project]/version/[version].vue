@@ -498,7 +498,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	BoxIcon,
 	ChevronLeftIcon,
@@ -517,8 +517,8 @@ import {
 	SettingsIcon,
 	TrashIcon,
 	XIcon,
-} from '@modrinth/assets'
-import { moderationSettings } from '@modrinth/moderation'
+} from '@macros/assets'
+import { moderationSettings } from '@macros/moderation'
 import {
 	Admonition,
 	Button,
@@ -542,8 +542,8 @@ import {
 	useFormatDateTime,
 	useVIntl,
 	VersionPage,
-} from '@modrinth/ui'
-import { isStaff } from '@modrinth/utils'
+} from '@macros/ui'
+import { isStaff } from '@macros/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { onServerPrefetch } from 'vue'
 

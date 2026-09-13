@@ -209,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Paper } from '@modrinth/api-client'
+import type { Paper } from '@macros/api-client'
 import {
 	EyeIcon,
 	EyeOffIcon,
@@ -218,8 +218,8 @@ import {
 	SpinnerIcon,
 	UploadIcon,
 	XIcon,
-} from '@modrinth/assets'
-import { commonMessages, defineMessages, useVIntl } from '@modrinth/ui'
+} from '@macros/assets'
+import { commonMessages, defineMessages, useVIntl } from '@macros/ui'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

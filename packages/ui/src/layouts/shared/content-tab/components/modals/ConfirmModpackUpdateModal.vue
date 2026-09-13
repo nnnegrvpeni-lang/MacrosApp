@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { DownloadIcon, XIcon } from '@modrinth/assets'
+import { DownloadIcon, XIcon } from '@macros/assets'
 import { computed, ref } from 'vue'
 
 import Admonition from '#ui/components/base/Admonition.vue'

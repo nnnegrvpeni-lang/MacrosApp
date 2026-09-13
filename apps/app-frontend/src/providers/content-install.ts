@@ -1,11 +1,11 @@
-import type { Labrinth } from '@modrinth/api-client'
-import type { ContentInstallInstance, ContentInstallProjectInfo, ContentItem } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import type { ContentInstallInstance, ContentInstallProjectInfo, ContentItem } from '@macros/ui'
 import {
 	createContext,
 	defineMessage,
 	getLatestMatchingInstallVersion,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import dayjs from 'dayjs'
 import { nextTick, type Ref, ref } from 'vue'

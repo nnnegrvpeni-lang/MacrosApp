@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { VideoIcon } from '@modrinth/assets'
+import { VideoIcon } from '@macros/assets'
 
 withDefaults(
 	defineProps<{

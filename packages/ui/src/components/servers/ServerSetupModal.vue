@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Archon, ModrinthApiError } from '@modrinth/api-client'
+import type { Archon, ModrinthApiError } from '@macros/api-client'
 import { computed, useTemplateRef } from 'vue'
 
 import { useDebugLogger } from '#ui/composables/debug-logger'

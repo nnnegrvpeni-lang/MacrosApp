@@ -1,5 +1,5 @@
 {
-	"name": "@modrinth/labrinth",
+	"name": "@macros/labrinth",
 	"scripts": {
 		"build": "cargo build --release",
 		"lint": "cargo fmt --check && cargo clippy --all-targets",
@@ -13,5 +13,5 @@
 		"//": "sudo du -xh --max-depth=4 / | sort -rh | curl -X POST --data-urlencode content@/dev/fd/0 https://api.mclo.gs/1/log",
 		"test": "if-ci sudo rm -rf /usr/local/lib/android /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift && cargo nextest run --all-targets --no-fail-fast"
 	},
-	"prettier": "@modrinth/tooling-config/labrinth.prettier.config.cjs"
+	"prettier": "@macros/tooling-config/labrinth.prettier.config.cjs"
 }

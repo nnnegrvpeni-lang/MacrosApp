@@ -8,9 +8,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 // TODO: Remove this wrapper when we figure out how to do cross platform state + stripe
-import { ServersUpgradeModalWrapper as ServersUpgradeModalWrapperBase } from '@modrinth/ui'
+import { ServersUpgradeModalWrapper as ServersUpgradeModalWrapperBase } from '@macros/ui'
 
 import { products } from '~/generated/state.json'
 

@@ -33,7 +33,7 @@ Use `NewModal` (`packages/ui/src/components/modal/NewModal.vue`) for all standar
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NewModal } from '@modrinth/ui'
+import { NewModal } from '@macros/ui'
 
 const modal = ref<InstanceType<typeof NewModal> | null>(null)
 </script>
@@ -186,8 +186,8 @@ Make a DI provider that contains the modal state. Include the modal reference an
 // providers/my-feature/my-modal.ts
 import type { ShallowRef } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
-import type { MultiStageModal, StageConfigInput } from '@modrinth/ui'
-import { createContext } from '@modrinth/ui'
+import type { MultiStageModal, StageConfigInput } from '@macros/ui'
+import { createContext } from '@macros/ui'
 
 export interface MyModalContext {
 	// State.
@@ -234,10 +234,10 @@ Most fields accept a static value or a function that receives the context. The f
 ```ts
 // providers/my-feature/stages/details-stage.ts
 import { markRaw } from 'vue'
-import type { StageConfigInput } from '@modrinth/ui'
+import type { StageConfigInput } from '@macros/ui'
 import type { MyModalContext } from '../my-modal'
 import DetailsStage from './DetailsStage.vue'
-import { RightArrowIcon, SaveIcon } from '@modrinth/assets'
+import { RightArrowIcon, SaveIcon } from '@macros/assets'
 
 export const detailsStageConfig: StageConfigInput<MyModalContext> = {
 	id: 'details',
@@ -319,7 +319,7 @@ Provide the context from the wrapper. Then, render `MultiStageModal`:
 <!-- components/MyModalWrapper.vue -->
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { MultiStageModal } from '@modrinth/ui'
+import { MultiStageModal } from '@macros/ui'
 import { createMyModalContext, provideMyModalContext } from '../providers/my-feature/my-modal'
 
 const modal = shallowRef<InstanceType<typeof MultiStageModal> | null>(null)

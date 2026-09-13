@@ -19,14 +19,14 @@
 </template>
 
 <script setup lang="ts">
-import { DownloadIcon } from '@modrinth/assets'
+import { DownloadIcon } from '@macros/assets'
 import {
 	commonMessages,
 	type ContentDiffItem,
 	ContentDiffModal,
 	defineMessages,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref } from 'vue'
 
 import {

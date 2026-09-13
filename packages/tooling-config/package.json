@@ -1,5 +1,5 @@
 {
-	"name": "@modrinth/tooling-config",
+	"name": "@macros/tooling-config",
 	"version": "0.0.0",
 	"type": "module",
 	"private": true,

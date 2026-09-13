@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { ServerStackIcon } from '@modrinth/assets'
-import { injectModrinthClient, ServersManagePageIndex } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { ServerStackIcon } from '@macros/assets'
+import { injectModrinthClient, ServersManagePageIndex } from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 

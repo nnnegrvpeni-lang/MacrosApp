@@ -2,7 +2,7 @@ import {
 	type AbstractWebNotificationManager,
 	type AuthProvider,
 	setupUserPreferencesProvider,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import { get_user_preferences, patch_user_preferences } from '@/helpers/user-preferences.ts'
 

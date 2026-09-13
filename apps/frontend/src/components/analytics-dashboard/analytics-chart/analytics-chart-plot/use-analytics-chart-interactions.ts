@@ -1,4 +1,4 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import { computed, type ComputedRef, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 import type { AnalyticsGroupByPreset } from '~/providers/analytics/analytics'

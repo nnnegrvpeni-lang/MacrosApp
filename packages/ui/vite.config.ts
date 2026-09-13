@@ -31,7 +31,7 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(__dirname, 'src'),
 			'#ui': path.resolve(__dirname, 'src'),
-			'@modrinth/api-client': path.resolve(__dirname, '../api-client/src/index.ts'),
+			'@macros/api-client': path.resolve(__dirname, '../api-client/src/index.ts'),
 		},
 	},
 

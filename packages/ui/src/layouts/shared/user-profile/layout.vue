@@ -381,7 +381,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	BanIcon,
 	BoxIcon,
@@ -392,13 +392,13 @@ import {
 	LockIcon,
 	SpinnerIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	getPrimaryProjectType,
 	isModrinthUser as checkIsModrinthUser,
 	isOfficialAccount as checkIsOfficialAccount,
 	UserBadge,
-} from '@modrinth/utils'
+} from '@macros/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

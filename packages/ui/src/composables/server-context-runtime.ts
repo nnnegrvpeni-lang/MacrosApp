@@ -1,4 +1,4 @@
-import type { AbstractModrinthClient, Archon } from '@modrinth/api-client'
+import type { AbstractModrinthClient, Archon } from '@macros/api-client'
 import type { ComputedRef, Ref } from 'vue'
 import { onUnmounted, ref, watch } from 'vue'
 

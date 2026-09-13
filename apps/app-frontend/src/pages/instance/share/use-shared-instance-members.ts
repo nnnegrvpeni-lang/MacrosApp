@@ -1,4 +1,4 @@
-import type { InvitePlayersUser } from '@modrinth/ui'
+import type { InvitePlayersUser } from '@macros/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref, ref } from 'vue'
 

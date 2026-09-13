@@ -160,8 +160,8 @@ import {
 	MoreHorizontalIcon,
 	ScaleIcon,
 	TrashIcon,
-} from '@modrinth/assets'
-import { moderationSettings } from '@modrinth/moderation'
+} from '@macros/assets'
+import { moderationSettings } from '@macros/moderation'
 import {
 	AutoLink,
 	Avatar,
@@ -169,8 +169,8 @@ import {
 	TeleportOverflowMenu,
 	useFormatDateTime,
 	useRelativeTime,
-} from '@modrinth/ui'
-import { renderString } from '@modrinth/utils'
+} from '@macros/ui'
+import { renderString } from '@macros/utils'
 
 import { isStaff } from '~/helpers/users.js'
 

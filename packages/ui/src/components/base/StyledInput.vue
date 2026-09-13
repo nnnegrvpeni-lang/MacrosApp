@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { SearchIcon, XIcon } from '@modrinth/assets'
+import { SearchIcon, XIcon } from '@macros/assets'
 import { type Component, computed, ref } from 'vue'
 
 import { defineMessages, useVIntl } from '../../composables/i18n'

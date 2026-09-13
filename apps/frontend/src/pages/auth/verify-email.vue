@@ -78,7 +78,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { RightArrowIcon, SettingsIcon } from '@modrinth/assets'
+import { RightArrowIcon, SettingsIcon } from '@macros/assets'
 import {
 	Admonition,
 	Button,
@@ -87,7 +87,7 @@ import {
 	defineMessages,
 	injectNotificationManager,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import type { LocationQueryValue } from 'vue-router'
 
 interface ApiErrorShape {

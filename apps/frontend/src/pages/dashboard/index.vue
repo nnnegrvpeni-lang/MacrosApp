@@ -60,7 +60,7 @@
 	</div>
 </template>
 <script setup>
-import { ChevronRightIcon, HistoryIcon } from '@modrinth/assets'
+import { ChevronRightIcon, HistoryIcon } from '@macros/assets'
 import {
 	Avatar,
 	ButtonLink,
@@ -68,7 +68,7 @@ import {
 	defineMessages,
 	injectModrinthClient,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 
 import NotificationItem from '~/components/ui/NotificationItem.vue'

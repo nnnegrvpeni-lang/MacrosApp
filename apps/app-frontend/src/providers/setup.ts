@@ -1,5 +1,5 @@
-import type { AbstractModrinthClient } from '@modrinth/api-client'
-import type { AbstractPopupNotificationManager, AbstractWebNotificationManager } from '@modrinth/ui'
+import type { AbstractModrinthClient } from '@macros/api-client'
+import type { AbstractPopupNotificationManager, AbstractWebNotificationManager } from '@macros/ui'
 
 import type { InstanceIconConfig } from '@/helpers/types'
 

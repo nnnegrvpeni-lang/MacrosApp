@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { DownloadIcon, PlusIcon, SpinnerIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { DownloadIcon, PlusIcon, SpinnerIcon } from '@macros/assets'
 import {
 	Button,
 	commonMessages,
@@ -46,7 +46,7 @@ import {
 	provideUserProfile,
 	UserProfilePageLayout,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, inject, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'

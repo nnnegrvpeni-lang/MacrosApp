@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { DownloadIcon, PackageIcon } from '@modrinth/assets'
+import { DownloadIcon, PackageIcon } from '@macros/assets'
 import {
 	Avatar,
 	ButtonLink,
@@ -108,7 +108,7 @@ import {
 	truncatedTooltip,
 	useFormatBytes,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { type Component, computed, ref } from 'vue'
 
 defineOptions({

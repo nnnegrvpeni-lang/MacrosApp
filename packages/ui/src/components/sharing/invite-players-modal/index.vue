@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ClipboardCopyIcon, PlusIcon } from '@modrinth/assets'
+import { ClipboardCopyIcon, PlusIcon } from '@macros/assets'
 import { computed, ref } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

@@ -8,7 +8,7 @@
 	/>
 </template>
 <script setup>
-import { defineMessages, useVIntl } from '@modrinth/ui'
+import { defineMessages, useVIntl } from '@macros/ui'
 
 import ReportView from '~/components/ui/report/ReportView.vue'
 

@@ -1,5 +1,5 @@
-import { MegaphoneIcon } from '@modrinth/assets'
-import { injectProjectPageContext } from '@modrinth/ui'
+import { MegaphoneIcon } from '@macros/assets'
+import { injectProjectPageContext } from '@macros/ui'
 import type { Ref } from 'vue'
 import { computed } from 'vue'
 

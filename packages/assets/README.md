@@ -1,4 +1,4 @@
-# `@modrinth/assets`
+# `@macros/assets`
 
 This package contains various assets used across the Modrinth platform, including icons, images, and branding materials.
 

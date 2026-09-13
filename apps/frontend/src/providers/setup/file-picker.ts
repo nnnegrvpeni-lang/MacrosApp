@@ -1,4 +1,4 @@
-import { provideFilePicker } from '@modrinth/ui'
+import { provideFilePicker } from '@macros/ui'
 
 function pickFile(accept: string): Promise<{ file: File; previewUrl: string } | null> {
 	return new Promise((resolve) => {

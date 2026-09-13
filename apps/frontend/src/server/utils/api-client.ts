@@ -4,7 +4,7 @@ import {
 	type FeatureConfig,
 	type NuxtClientConfig,
 	NuxtModrinthClient,
-} from '@modrinth/api-client'
+} from '@macros/api-client'
 import { getRequestHeader, type H3Event } from 'h3'
 
 import { readEnv } from '~/helpers/env'

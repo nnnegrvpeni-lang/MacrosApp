@@ -34,14 +34,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ExternalIcon } from '@modrinth/assets'
+import { ExternalIcon } from '@macros/assets'
 import {
 	ButtonLink,
 	defineMessages,
 	IntlFormatted,
 	MedalBackgroundImage,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import MedalIcon from '~/assets/images/illustrations/medal_icon.svg?component'
 

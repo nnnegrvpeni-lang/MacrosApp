@@ -1,4 +1,4 @@
-import type { Archon, Labrinth } from '@modrinth/api-client'
+import type { Archon, Labrinth } from '@macros/api-client'
 import {
 	type BrowseInstallPlan,
 	type BrowseSelectedProject,
@@ -17,7 +17,7 @@ import {
 	useServerPanelSync,
 	waitForServerContextRuntimeReady,
 	writeStoredServerInstallQueue,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, type ComputedRef, nextTick, type Ref, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

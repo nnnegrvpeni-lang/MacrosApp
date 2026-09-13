@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Archon, Labrinth } from '@modrinth/api-client'
-import { InfoIcon, SpinnerIcon, XIcon } from '@modrinth/assets'
+import type { Archon, Labrinth } from '@macros/api-client'
+import { InfoIcon, SpinnerIcon, XIcon } from '@macros/assets'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import { useFormatPrice } from '../../composables'

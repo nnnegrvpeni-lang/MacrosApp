@@ -1,4 +1,4 @@
-# @modrinth/api-client
+# @macros/api-client
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-c78aff?style=for-the-badge)](https://www.typescriptlang.org/)
 [![License: LGPL-3.0](https://img.shields.io/badge/License-LGPL%203.0-c78aff?style=for-the-badge)](LICENSE)
@@ -10,13 +10,13 @@ Platform-agnostic TypeScript client for Modrinth's API across Node.js, browsers,
 ## Installation
 
 ```bash
-pnpm add @modrinth/api-client
+pnpm add @macros/api-client
 ```
 
 Tauri apps also need the optional peer dependency:
 
 ```bash
-pnpm add @modrinth/api-client @tauri-apps/plugin-http
+pnpm add @macros/api-client @tauri-apps/plugin-http
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ pnpm add @modrinth/api-client @tauri-apps/plugin-http
 ### Generic Node.js or Browser Client
 
 ```ts
-import { AuthFeature, GenericModrinthClient, type Labrinth } from '@modrinth/api-client'
+import { AuthFeature, GenericModrinthClient, type Labrinth } from '@macros/api-client'
 
 const client = new GenericModrinthClient({
 	userAgent: 'my-app/1.0.0',
@@ -47,7 +47,7 @@ const project = await client.request<Labrinth.Projects.v2.Project>('/project/sod
 ### Nuxt
 
 ```ts
-import { AuthFeature, CircuitBreakerFeature, NuxtCircuitBreakerStorage, NuxtModrinthClient } from '@modrinth/api-client'
+import { AuthFeature, CircuitBreakerFeature, NuxtCircuitBreakerStorage, NuxtModrinthClient } from '@macros/api-client'
 
 export const useModrinthClient = async () => {
 	const config = useRuntimeConfig()
@@ -71,7 +71,7 @@ export const useModrinthClient = async () => {
 
 ```ts
 import { getVersion } from '@tauri-apps/api/app'
-import { AuthFeature, TauriModrinthClient } from '@modrinth/api-client'
+import { AuthFeature, TauriModrinthClient } from '@macros/api-client'
 
 const client = new TauriModrinthClient({
 	userAgent: async () => `modrinth/theseus/${await getVersion()} (support@modrinth.com)`,
@@ -94,7 +94,7 @@ client.labrinth.versions_v3
 Types are exported from the package root:
 
 ```ts
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 
 const project: Labrinth.Projects.v3.Project = await client.labrinth.projects_v3.get('sodium')
 ```
@@ -133,7 +133,7 @@ await client.request('/endpoint', {
 Features wrap requests before they reach the platform implementation:
 
 ```ts
-import { AuthFeature, CircuitBreakerFeature, RetryFeature } from '@modrinth/api-client'
+import { AuthFeature, CircuitBreakerFeature, RetryFeature } from '@macros/api-client'
 
 const client = new GenericModrinthClient({
 	features: [new AuthFeature({ token: async () => process.env.MODRINTH_TOKEN }), new RetryFeature({ maxAttempts: 3, backoffStrategy: 'exponential' }), new CircuitBreakerFeature({ maxFailures: 3, resetTimeout: 30_000 })],
@@ -165,8 +165,8 @@ Uploads use `XMLHttpRequest` for progress tracking and are only available in bro
 ## Development
 
 ```bash
-pnpm --filter @modrinth/api-client build
-pnpm --filter @modrinth/api-client lint
+pnpm --filter @macros/api-client build
+pnpm --filter @macros/api-client lint
 # or pnpm prepr:frontend:lib in turborepo root.
 ```
 

@@ -19,7 +19,7 @@ import {
 	LanguageSettings,
 	UnsavedChangesPopup,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 const { formatMessage } = useVIntl()
 const languageSettings = ref<InstanceType<typeof LanguageSettings> | null>(null)

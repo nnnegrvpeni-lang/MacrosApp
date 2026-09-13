@@ -1,5 +1,5 @@
-import type { ISO3166, Labrinth } from '@modrinth/api-client'
-import type { DisplayProjectType } from '@modrinth/utils'
+import type { ISO3166, Labrinth } from '@macros/api-client'
+import type { DisplayProjectType } from '@macros/utils'
 
 import {
 	apiUrl,

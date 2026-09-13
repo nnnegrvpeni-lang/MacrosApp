@@ -1,5 +1,5 @@
-import type { Archon } from '@modrinth/api-client'
-import { PackageIcon } from '@modrinth/assets'
+import type { Archon } from '@macros/api-client'
+import { PackageIcon } from '@macros/assets'
 import type { Component } from 'vue'
 
 import AddonEvent from './AddonEvent.vue'

@@ -1,4 +1,4 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 
 const MIDAS_BITFLAG = 1 << 0
 const PRIDE_26_MIDAS_DURATION_MS = 30 * 24 * 60 * 60 * 1000

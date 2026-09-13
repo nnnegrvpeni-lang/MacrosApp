@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { GitGraphIcon, RssIcon } from '@modrinth/assets'
-import { articles as rawArticles } from '@modrinth/blog'
+import { GitGraphIcon, RssIcon } from '@macros/assets'
+import { articles as rawArticles } from '@macros/blog'
 import {
 	ArticleBody,
 	Avatar,
 	ButtonLink,
 	injectModrinthClient,
 	useFormatDateTime,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import { computed, onMounted } from 'vue'

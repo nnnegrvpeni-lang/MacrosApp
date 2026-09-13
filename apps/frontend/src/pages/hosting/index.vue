@@ -632,7 +632,7 @@ import {
 	TerminalSquareIcon,
 	TransferIcon,
 	VersionIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Button,
 	ButtonLink,
@@ -646,8 +646,8 @@ import {
 	TagIcon,
 	useFormatPrice,
 	useVIntl,
-} from '@modrinth/ui'
-import { monthsInInterval } from '@modrinth/ui/src/utils/billing.ts'
+} from '@macros/ui'
+import { monthsInInterval } from '@macros/ui/src/utils/billing.ts'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 

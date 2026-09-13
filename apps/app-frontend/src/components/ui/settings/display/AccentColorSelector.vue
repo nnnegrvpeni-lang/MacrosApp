@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { CheckIcon, PaletteIcon, RefreshCwIcon } from '@modrinth/assets'
-import { Button } from '@modrinth/ui'
+import { CheckIcon, PaletteIcon, RefreshCwIcon } from '@macros/assets'
+import { Button } from '@macros/ui'
 import { computed, ref, watch } from 'vue'
 
 import {

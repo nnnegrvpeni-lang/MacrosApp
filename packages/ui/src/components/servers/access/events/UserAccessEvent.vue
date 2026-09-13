@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Archon } from '@modrinth/api-client'
+import type { Archon } from '@macros/api-client'
 import { computed } from 'vue'
 
 import { defineMessages, type MessageDescriptor, useVIntl } from '../../../../composables/i18n'

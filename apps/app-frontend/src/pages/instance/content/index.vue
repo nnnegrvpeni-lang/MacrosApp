@@ -88,8 +88,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { ClipboardCopyIcon, FolderOpenIcon, LockIcon, LockOpenIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { ClipboardCopyIcon, FolderOpenIcon, LockIcon, LockOpenIcon } from '@macros/assets'
 import {
 	type BulkOperationStatus,
 	commonMessages,
@@ -115,7 +115,7 @@ import {
 	useDebugLogger,
 	useVIntl,
 	versionChangesGameVersion,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { getCurrentWebview } from '@tauri-apps/api/webview'
 import { open } from '@tauri-apps/plugin-dialog'

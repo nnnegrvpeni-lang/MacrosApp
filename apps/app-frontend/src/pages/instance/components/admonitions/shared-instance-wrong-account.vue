@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { Admonition, Avatar, useVIntl } from '@modrinth/ui'
+import { Admonition, Avatar, useVIntl } from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 

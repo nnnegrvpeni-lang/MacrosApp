@@ -271,14 +271,14 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowUpRightIcon, InProgressIcon, UnknownIcon } from '@modrinth/assets'
+import { ArrowUpRightIcon, InProgressIcon, UnknownIcon } from '@macros/assets'
 import {
 	defineMessages,
 	injectModrinthClient,
 	useFormatDateTime,
 	useFormatMoney,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import { Tooltip } from 'floating-vue'

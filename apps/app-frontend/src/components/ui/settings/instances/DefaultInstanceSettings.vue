@@ -6,7 +6,7 @@ import {
 	StyledInput,
 	Toggle,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { ref, watch } from 'vue'
 
 import useMemorySlider from '@/composables/useMemorySlider'

@@ -283,7 +283,7 @@ import {
 	SendIcon,
 	UserXIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import {

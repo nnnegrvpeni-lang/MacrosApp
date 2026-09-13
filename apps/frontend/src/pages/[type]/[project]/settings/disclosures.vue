@@ -14,8 +14,8 @@ import {
 	usePageLeaveSafety,
 	useSavable,
 	useVIntl,
-} from '@modrinth/ui'
-import { isStaff, TeamMemberPermission } from '@modrinth/utils'
+} from '@macros/ui'
+import { isStaff, TeamMemberPermission } from '@macros/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, watch } from 'vue'
 

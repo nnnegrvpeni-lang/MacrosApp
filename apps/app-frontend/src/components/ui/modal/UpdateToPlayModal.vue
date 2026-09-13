@@ -18,15 +18,15 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { DownloadIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { DownloadIcon } from '@macros/assets'
 import {
 	commonMessages,
 	type ContentDiffItem,
 	ContentDiffModal,
 	defineMessages,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import dayjs from 'dayjs'
 import { computed, ref } from 'vue'
 

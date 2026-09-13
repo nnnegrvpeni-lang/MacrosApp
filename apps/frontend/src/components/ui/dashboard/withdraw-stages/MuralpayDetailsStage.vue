@@ -242,7 +242,7 @@ import {
 	normalizeChildren,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 

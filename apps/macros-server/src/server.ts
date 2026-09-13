@@ -81,6 +81,16 @@ server.get('/favicon.ico', async (req, reply) => {
 	return reply.status(404).send()
 })
 
+server.get('/assets/icons/:filename', async (req, reply) => {
+	const { filename } = req.params as { filename: string }
+	const iconPath = path.join(uploadsDir, filename)
+	if (fs.existsSync(iconPath)) {
+		reply.type('image/png')
+		return reply.send(fs.createReadStream(iconPath))
+	}
+	return reply.status(404).send()
+})
+
 // Helper to extract authenticated user
 function authUser(req: any): UserRow | null {
 	const authHeader = (req.headers.authorization as string) || (req.headers['x-modrinth-session'] as string)
@@ -1616,6 +1626,95 @@ server.get('/downloads/:filename', async (req, reply) => {
 	return reply.send(fs.createReadStream(filePath))
 })
 
+const modDetailsCache = new Map<string, any>()
+
+async function resolveModsList(versionIds: string[], externalFiles: any[]): Promise<any[]> {
+	const result: any[] = []
+
+	// 1. External custom files
+	for (const f of externalFiles) {
+		const rawName = f.file_name || 'custom-file.jar'
+		const cleanTitle = rawName
+			.replace(/\.jar$/i, '')
+			.replace(/[-_]/g, ' ')
+			.replace(/\b\w/g, (c: string) => c.toUpperCase())
+
+		result.push({
+			id: rawName,
+			title: cleanTitle,
+			description: 'Кастомный файл сборки (синхронизируется лаунчером)',
+			icon_url: '/assets/logo.png',
+			is_custom: true,
+			file_name: rawName,
+			file_type: f.file_type || 'mod'
+		})
+	}
+
+	if (versionIds.length === 0) return result
+
+	// 2. Fetch versions from Modrinth API
+	const missingVersionIds = versionIds.filter((id) => !modDetailsCache.has(`v_${id}`))
+	if (missingVersionIds.length > 0) {
+		try {
+			const versionsRes = await fetch(
+				`https://api.modrinth.com/v2/versions?ids=${encodeURIComponent(JSON.stringify(missingVersionIds))}`,
+				{ headers: { 'User-Agent': 'MacrosApp/1.2' } }
+			)
+			if (versionsRes.ok) {
+				const versionsData = (await versionsRes.json()) as any[]
+				const projectIdsToFetch: string[] = []
+				for (const v of versionsData) {
+					modDetailsCache.set(`v_${v.id}`, v)
+					if (!modDetailsCache.has(`p_${v.project_id}`) && !projectIdsToFetch.includes(v.project_id)) {
+						projectIdsToFetch.push(v.project_id)
+					}
+				}
+				if (projectIdsToFetch.length > 0) {
+					const projectsRes = await fetch(
+						`https://api.modrinth.com/v2/projects?ids=${encodeURIComponent(JSON.stringify(projectIdsToFetch))}`,
+						{ headers: { 'User-Agent': 'MacrosApp/1.2' } }
+					)
+					if (projectsRes.ok) {
+						const projectsData = (await projectsRes.json()) as any[]
+						for (const p of projectsData) {
+							modDetailsCache.set(`p_${p.id}`, p)
+						}
+					}
+				}
+			}
+		} catch (err) {
+			console.error('Error fetching mod details:', err)
+		}
+	}
+
+	// 3. Assemble mods list in order
+	for (const vid of versionIds) {
+		const v = modDetailsCache.get(`v_${vid}`)
+		if (v) {
+			const p = modDetailsCache.get(`p_${v.project_id}`)
+			result.push({
+				id: p?.id || v.project_id,
+				slug: p?.slug || '',
+				title: p?.title || v.name || `Мод (${vid})`,
+				description: p?.description || '',
+				icon_url: p?.icon_url || '/assets/logo.png',
+				version_name: v.name,
+				is_custom: false
+			})
+		} else {
+			result.push({
+				id: vid,
+				title: `Мод (${vid})`,
+				description: '',
+				icon_url: '/assets/logo.png',
+				is_custom: false
+			})
+		}
+	}
+
+	return result
+}
+
 server.get('/share/:invite_id', async (req, reply) => {
 	const { invite_id } = req.params as { invite_id: string }
 	const invite = db.prepare('SELECT * FROM shared_instance_invites WHERE id = ?').get(invite_id) as any
@@ -1625,11 +1724,24 @@ server.get('/share/:invite_id', async (req, reply) => {
 	}
 
 	const instance = db.prepare('SELECT * FROM shared_instances WHERE id = ?').get(invite.instance_id) as any
+	if (!instance) {
+		reply.type('text/html; charset=utf-8')
+		return reply.status(404).send('<h1>404: Сборка не найдена</h1>')
+	}
+
 	const version = db
 		.prepare('SELECT * FROM shared_instance_versions WHERE instance_id = ? ORDER BY version DESC LIMIT 1')
 		.get(instance.id) as any
 
-	const html = renderShareHtml(instance, version, invite_id)
+	const creator = instance.owner_id
+		? (db.prepare('SELECT id, username, avatar_url FROM users WHERE id = ?').get(instance.owner_id) as any)
+		: null
+
+	const modVersionIds: string[] = version ? JSON.parse(version.modrinth_ids_json || '[]') : []
+	const externalFiles: any[] = version ? JSON.parse(version.external_files_json || '[]') : []
+	const modsList = await resolveModsList(modVersionIds, externalFiles)
+
+	const html = renderShareHtml(instance, version, invite_id, modsList, creator)
 	reply.type('text/html; charset=utf-8')
 	return reply.send(html)
 })

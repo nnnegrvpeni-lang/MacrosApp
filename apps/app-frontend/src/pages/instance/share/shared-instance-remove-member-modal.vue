@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { UserXIcon, XIcon } from '@modrinth/assets'
+import { UserXIcon, XIcon } from '@macros/assets'
 import {
 	Admonition,
 	Avatar,
@@ -53,7 +53,7 @@ import {
 	defineMessages,
 	NewModal,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref } from 'vue'
 
 import { methodLabels, type ShareRow } from './shared-instance-share-types'

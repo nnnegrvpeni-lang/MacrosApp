@@ -133,8 +133,8 @@
 	</template>
 </template>
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { IssuesIcon, SpinnerIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { IssuesIcon, SpinnerIcon } from '@macros/assets'
 import {
 	Admonition,
 	commonMessages,
@@ -148,8 +148,8 @@ import {
 	normalizeChildren,
 	Toggle,
 	useVIntl,
-} from '@modrinth/ui'
-import { isStaff } from '@modrinth/utils'
+} from '@macros/ui'
+import { isStaff } from '@macros/utils'
 import { useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import { computed, watch } from 'vue'

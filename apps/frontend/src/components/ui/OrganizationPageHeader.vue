@@ -65,8 +65,8 @@ import {
 	OrganizationIcon,
 	SettingsIcon,
 	UsersIcon,
-} from '@modrinth/assets'
-import { ButtonLink, TeleportOverflowMenu } from '@modrinth/ui'
+} from '@macros/assets'
+import { ButtonLink, TeleportOverflowMenu } from '@macros/ui'
 import {
 	Avatar,
 	commonMessages,
@@ -79,7 +79,7 @@ import {
 	PageHeaderMetadataNumberItem,
 	useFormatNumber,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed } from 'vue'
 
 const messages = defineMessages({

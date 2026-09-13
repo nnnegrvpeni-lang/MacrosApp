@@ -1,5 +1,5 @@
-import { VersionIcon } from '@modrinth/assets'
-import { injectProjectPageContext } from '@modrinth/ui'
+import { VersionIcon } from '@macros/assets'
+import { injectProjectPageContext } from '@macros/ui'
 import { computed } from 'vue'
 
 import { dropdown, group, option, stage, text, toggle } from '../../types/node'

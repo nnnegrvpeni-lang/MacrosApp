@@ -311,7 +311,7 @@
 </template>
 
 <script setup lang="ts">
-import { SearchIcon } from '@modrinth/assets'
+import { SearchIcon } from '@macros/assets'
 import {
 	Admonition,
 	Checkbox,
@@ -328,7 +328,7 @@ import {
 	useDebugLogger,
 	useFormatMoney,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, onMounted, ref, watch } from 'vue'
 

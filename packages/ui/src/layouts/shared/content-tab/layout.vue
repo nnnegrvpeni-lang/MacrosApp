@@ -18,7 +18,7 @@ import {
 	TextCursorInputIcon,
 	TrashIcon,
 	UserIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { useSessionStorage } from '@vueuse/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 

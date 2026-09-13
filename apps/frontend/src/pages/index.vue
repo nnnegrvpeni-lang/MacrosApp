@@ -445,7 +445,7 @@ import {
 	LogInIcon,
 	ModrinthIcon,
 	SearchIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Avatar,
 	ButtonLink,
@@ -458,7 +458,7 @@ import {
 	StyledInput,
 	useRelativeTime,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { ref } from 'vue'
 
 import ATLauncherLogo from '~/assets/images/external/atlauncher.svg?component'

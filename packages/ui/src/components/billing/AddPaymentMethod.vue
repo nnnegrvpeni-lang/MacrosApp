@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createStripeElements } from '@modrinth/utils'
+import { createStripeElements } from '@macros/utils'
 import { loadStripe, type Stripe as StripsJs, type StripeElements } from '@stripe/stripe-js'
 import { ref } from 'vue'
 

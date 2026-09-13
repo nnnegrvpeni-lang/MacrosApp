@@ -12,7 +12,7 @@ import {
 	usePageLeaveSafety,
 	useSavable,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 const { formatMessage } = useVIntl()
 

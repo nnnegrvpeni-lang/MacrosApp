@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronDownIcon, TerminalSquareIcon } from '@modrinth/assets'
+import { ChevronDownIcon, TerminalSquareIcon } from '@macros/assets'
 import type { Terminal } from '@xterm/xterm'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 

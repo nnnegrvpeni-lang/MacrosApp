@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { XIcon } from '@modrinth/assets'
+import { XIcon } from '@macros/assets'
 import {
 	commonMessages,
 	defineMessages,
@@ -7,7 +7,7 @@ import {
 	IntlFormatted,
 	PagewideBanner,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 const { formatMessage } = useVIntl()
 const flags = useFeatureFlags()

@@ -1,4 +1,4 @@
-import type { AbstractModrinthClient } from '@modrinth/api-client'
+import type { AbstractModrinthClient } from '@macros/api-client'
 
 import { createContext } from './create-context'
 

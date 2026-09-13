@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { CheckIcon } from '@modrinth/assets'
+import { CheckIcon } from '@macros/assets'
 
 import Button from './buttons/Button.vue'
 

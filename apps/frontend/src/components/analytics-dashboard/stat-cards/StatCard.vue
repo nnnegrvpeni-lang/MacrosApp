@@ -107,8 +107,8 @@ import {
 	TimerIcon,
 	TrendingDownIcon,
 	TrendingUpIcon,
-} from '@modrinth/assets'
-import { useVIntl } from '@modrinth/ui'
+} from '@macros/assets'
+import { useVIntl } from '@macros/ui'
 
 import { analyticsStatCardMessages } from '../analytics-messages'
 

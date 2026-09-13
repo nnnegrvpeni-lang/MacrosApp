@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { BanIcon, CheckIcon, DropdownIcon } from '@modrinth/assets'
+import { BanIcon, CheckIcon, DropdownIcon } from '@macros/assets'
 import { computed } from 'vue'
 
 import { defineMessages, useVIntl } from '../../composables/i18n'

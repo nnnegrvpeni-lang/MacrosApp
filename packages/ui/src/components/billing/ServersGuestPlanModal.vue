@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { ChevronRightIcon, ExternalIcon, XIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { ChevronRightIcon, ExternalIcon, XIcon } from '@macros/assets'
 import { computed, ref, useTemplateRef } from 'vue'
 
 import { Button, IconButton } from '#ui/components/base/buttons'

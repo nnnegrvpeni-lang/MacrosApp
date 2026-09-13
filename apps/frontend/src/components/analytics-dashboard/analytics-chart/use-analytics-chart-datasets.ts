@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import { useVIntl } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { useVIntl } from '@macros/ui'
 import { computed, type ComputedRef, ref, watch } from 'vue'
 
 import { useTheme } from '~/composables/nuxt-accessors'

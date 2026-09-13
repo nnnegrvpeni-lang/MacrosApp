@@ -1,4 +1,4 @@
-import { setMarkdownUserCountryResolver } from '@modrinth/utils'
+import { setMarkdownUserCountryResolver } from '@macros/utils'
 import type { Ref } from 'vue'
 import { hasInjectionContext } from 'vue'
 

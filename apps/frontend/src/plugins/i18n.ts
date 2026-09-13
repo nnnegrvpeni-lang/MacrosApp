@@ -1,4 +1,4 @@
-import { moderationLocaleModules } from '@modrinth/moderation'
+import { moderationLocaleModules } from '@macros/moderation'
 import {
 	type CrowdinMessages,
 	I18N_INJECTION_KEY,
@@ -7,7 +7,7 @@ import {
 	transformCrowdinMessages,
 	uiLocaleModules,
 	useDebugLogger,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import IntlMessageFormat from 'intl-messageformat'
 import { LRUCache } from 'lru-cache'
 

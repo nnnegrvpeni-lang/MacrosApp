@@ -76,7 +76,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	AffiliateIcon,
 	BellIcon as NotificationsIcon,
@@ -88,7 +88,7 @@ import {
 	ListIcon,
 	OrganizationIcon,
 	ReportIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Admonition,
 	ButtonLink,
@@ -96,8 +96,8 @@ import {
 	defineMessages,
 	injectModrinthClient,
 	useVIntl,
-} from '@modrinth/ui'
-import { UserBadge } from '@modrinth/utils'
+} from '@macros/ui'
+import { UserBadge } from '@macros/utils'
 import { useQuery } from '@tanstack/vue-query'
 import { useLocalStorage } from '@vueuse/core'
 

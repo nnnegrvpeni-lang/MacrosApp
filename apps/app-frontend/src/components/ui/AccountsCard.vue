@@ -298,7 +298,7 @@ import {
 	SpinnerIcon,
 	TrashIcon,
 	UserPlusIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Accordion,
 	Avatar,
@@ -309,8 +309,8 @@ import {
 	injectNotificationManager,
 	NewModal,
 	useVIntl,
-} from '@modrinth/ui'
-import { arrayBufferToBase64 } from '@modrinth/utils'
+} from '@macros/ui'
+import { arrayBufferToBase64 } from '@macros/utils'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import type { Ref } from 'vue'
 import { computed, onUnmounted, ref, watch } from 'vue'

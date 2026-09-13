@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	CheckCircleIcon,
 	ChevronDownIcon,
@@ -13,8 +13,8 @@ import {
 	VersionIcon,
 	XCircleIcon,
 	XIcon,
-} from '@modrinth/assets'
-import { renderString } from '@modrinth/utils'
+} from '@macros/assets'
+import { renderString } from '@macros/utils'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 

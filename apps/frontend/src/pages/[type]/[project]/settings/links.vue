@@ -283,8 +283,8 @@
 </template>
 
 <script setup>
-import { SaveIcon, TriangleAlertIcon } from '@modrinth/assets'
-import { commonLinkDomains, isCommonUrl, isDiscordUrl, isLinkShortener } from '@modrinth/moderation'
+import { SaveIcon, TriangleAlertIcon } from '@macros/assets'
+import { commonLinkDomains, isCommonUrl, isDiscordUrl, isLinkShortener } from '@macros/moderation'
 import {
 	Button,
 	Combobox,
@@ -293,7 +293,7 @@ import {
 	injectNotificationManager,
 	injectProjectPageContext,
 	StyledInput,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 const tags = useGeneratedState()
 

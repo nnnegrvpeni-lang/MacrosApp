@@ -1,4 +1,4 @@
-import { TriangleAlertIcon } from '@modrinth/assets'
+import { TriangleAlertIcon } from '@macros/assets'
 
 import { group, stage, toggle } from '../../types/node'
 

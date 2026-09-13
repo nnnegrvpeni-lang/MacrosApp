@@ -1,4 +1,4 @@
-import type { AbstractModrinthClient, Labrinth } from '@modrinth/api-client'
+import type { AbstractModrinthClient, Labrinth } from '@macros/api-client'
 import {
 	type CdnDownloadReason,
 	createContext,
@@ -6,8 +6,8 @@ import {
 	fileTypeMessages,
 	injectModrinthClient,
 	useVIntl,
-} from '@modrinth/ui'
-import type { DisplayProjectType } from '@modrinth/utils'
+} from '@macros/ui'
+import type { DisplayProjectType } from '@macros/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { type Component, computed, type ComputedRef } from 'vue'
 

@@ -53,8 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { InfoIcon } from '@modrinth/assets'
-import { Admonition, defineMessages, IntlFormatted, useVIntl } from '@modrinth/ui'
+import { InfoIcon } from '@macros/assets'
+import { Admonition, defineMessages, IntlFormatted, useVIntl } from '@macros/ui'
 
 import { injectDownloadModalProvider } from './download-modal-provider'
 import DownloadDependency from './DownloadDependency.vue'

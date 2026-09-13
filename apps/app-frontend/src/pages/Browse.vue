@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	CheckIcon,
 	ClipboardCopyIcon,
@@ -10,8 +10,8 @@ import {
 	PlusIcon,
 	ServerStackIcon,
 	SpinnerIcon,
-} from '@modrinth/assets'
-import type { BrowseInstallContentType, CardAction, ProjectType, Tags } from '@modrinth/ui'
+} from '@macros/assets'
+import type { BrowseInstallContentType, CardAction, ProjectType, Tags } from '@macros/ui'
 import {
 	BrowsePageLayout,
 	BrowseSidebar,
@@ -32,7 +32,7 @@ import {
 	useBrowseSearch,
 	useDebugLogger,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Ref } from 'vue'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'

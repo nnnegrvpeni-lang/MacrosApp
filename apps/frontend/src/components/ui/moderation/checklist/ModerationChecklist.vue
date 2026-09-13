@@ -419,15 +419,15 @@ import {
 	ToggleRightIcon,
 	UndoIcon,
 	XIcon,
-} from '@modrinth/assets'
-import type { Priority } from '@modrinth/moderation'
+} from '@macros/assets'
+import type { Priority } from '@macros/moderation'
 import {
 	expandVariables,
 	kebabToTitleCase,
 	moderationSettings,
 	useStages,
-} from '@modrinth/moderation'
-import type { ActiveAction, NodeState, StageNode } from '@modrinth/moderation/src/types/node'
+} from '@macros/moderation'
+import type { ActiveAction, NodeState, StageNode } from '@macros/moderation/src/types/node'
 import {
 	CHECKLIST_META_KEY,
 	collectActiveActions,
@@ -441,10 +441,10 @@ import {
 	resolveChildren,
 	setMessageProject,
 	setMissingMdHandler,
-} from '@modrinth/moderation/src/types/node'
-import NodeRenderer from '@modrinth/moderation/src/types/node/components/NodeRenderer.vue'
-import type { FixBuilder } from '@modrinth/moderation/src/types/node/fix'
-import type { Writer } from '@modrinth/moderation/src/types/node/mutate'
+} from '@macros/moderation/src/types/node'
+import NodeRenderer from '@macros/moderation/src/types/node/components/NodeRenderer.vue'
+import type { FixBuilder } from '@macros/moderation/src/types/node/fix'
+import type { Writer } from '@macros/moderation/src/types/node/mutate'
 import {
 	Avatar,
 	Button,
@@ -459,9 +459,9 @@ import {
 	StyledInput,
 	TeleportOverflowMenu,
 	useDebugLogger,
-} from '@modrinth/ui'
-import type { ProjectStatus } from '@modrinth/utils'
-import { renderHighlightedString } from '@modrinth/utils'
+} from '@macros/ui'
+import type { ProjectStatus } from '@macros/utils'
+import { renderHighlightedString } from '@macros/utils'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useDebounceFn } from '@vueuse/core'
 import type { Component } from 'vue'

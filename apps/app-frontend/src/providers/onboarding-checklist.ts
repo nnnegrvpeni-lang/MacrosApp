@@ -1,4 +1,4 @@
-import { createContext } from '@modrinth/ui'
+import { createContext } from '@macros/ui'
 import { computed, type ComputedRef, ref } from 'vue'
 
 import { useAppEvent } from '@/composables/use-app-event'

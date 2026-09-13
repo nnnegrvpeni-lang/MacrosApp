@@ -65,8 +65,8 @@
 </template>
 
 <script setup lang="ts">
-import { RefreshCwIcon, SpinnerIcon, XIcon } from '@modrinth/assets'
-import { Button, defineMessages, NewModal, useVIntl } from '@modrinth/ui'
+import { RefreshCwIcon, SpinnerIcon, XIcon } from '@macros/assets'
+import { Button, defineMessages, NewModal, useVIntl } from '@macros/ui'
 import { ref } from 'vue'
 
 import { cancelLogin, type ModrinthAuthFlow } from '@/helpers/mr_auth'

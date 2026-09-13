@@ -1,4 +1,4 @@
-import { createContext, injectAuth } from '@modrinth/ui'
+import { createContext, injectAuth } from '@macros/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref, ref, watch } from 'vue'
 

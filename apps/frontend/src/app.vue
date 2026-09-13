@@ -11,7 +11,7 @@
 	</NuxtLayout>
 </template>
 <script setup lang="ts">
-import { I18nDebugPanel, injectI18n, LoadingBar, NotificationPanel } from '@modrinth/ui'
+import { I18nDebugPanel, injectI18n, LoadingBar, NotificationPanel } from '@macros/ui'
 
 import AdsConsentNotification from '~/components/ui/AdsConsentNotification.vue'
 import { isDarkTheme } from '~/plugins/theme/index.ts'

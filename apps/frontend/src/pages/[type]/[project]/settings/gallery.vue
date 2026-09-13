@@ -286,7 +286,7 @@ import {
 	TrashIcon,
 	UploadIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Button,
 	ButtonLink,
@@ -299,7 +299,7 @@ import {
 	NewModal as Modal,
 	StyledInput,
 	useFormatDateTime,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import AiImageWarningModal from '~/components/ui/AiImageWarningModal.vue'
 import { fileDeclaresAi } from '~/helpers/c2pa'

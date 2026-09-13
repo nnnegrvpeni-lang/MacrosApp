@@ -1,11 +1,11 @@
-import { CheckIcon, CopyIcon, UpdatedIcon } from '@modrinth/assets'
+import { CheckIcon, CopyIcon, UpdatedIcon } from '@macros/assets'
 import {
 	defineMessages,
 	type PopupNotificationButton,
 	type PopupNotificationProgressItem,
 	type PopupNotificationProgressType,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { convertFileSrc } from '@tauri-apps/api/core'
 import { computed, ref } from 'vue'
 import type { Router } from 'vue-router'

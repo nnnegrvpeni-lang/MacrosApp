@@ -7,7 +7,7 @@ import {
 	SparklesIcon,
 	SpinnerIcon,
 	StopCircleIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Avatar,
 	BulletDivider,
@@ -21,8 +21,8 @@ import {
 	useFormatDateTime,
 	useRelativeTime,
 	useVIntl,
-} from '@modrinth/ui'
-import { capitalizeString } from '@modrinth/utils'
+} from '@macros/ui'
+import { capitalizeString } from '@macros/utils'
 import type { Dayjs } from 'dayjs'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'

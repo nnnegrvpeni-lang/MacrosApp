@@ -91,16 +91,16 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { ChevronDownIcon, MessageIcon, ReplyIcon, SendIcon } from '@modrinth/assets'
-import type { QuickReply } from '@modrinth/moderation'
-import { Button, TeleportOverflowMenu } from '@modrinth/ui'
+import { ChevronDownIcon, MessageIcon, ReplyIcon, SendIcon } from '@macros/assets'
+import type { QuickReply } from '@macros/moderation'
+import { Button, TeleportOverflowMenu } from '@macros/ui'
 import {
 	CopyCode,
 	injectNotificationManager,
 	MarkdownEditor,
 	type OverflowMenuOption,
-} from '@modrinth/ui'
-import type { Thread, User } from '@modrinth/utils'
+} from '@macros/ui'
+import type { Thread, User } from '@macros/utils'
 import dayjs from 'dayjs'
 
 import { useImageUpload } from '~/composables/image-upload.ts'

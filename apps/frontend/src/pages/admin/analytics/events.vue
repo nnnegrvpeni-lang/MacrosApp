@@ -231,7 +231,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	EditIcon,
 	ExternalIcon,
@@ -240,8 +240,8 @@ import {
 	SearchIcon,
 	SpinnerIcon,
 	TrashIcon,
-} from '@modrinth/assets'
-import { Button, ButtonLink, IconButton } from '@modrinth/ui'
+} from '@macros/assets'
+import { Button, ButtonLink, IconButton } from '@macros/ui'
 import {
 	ConfirmModal,
 	DatePicker,
@@ -254,8 +254,8 @@ import {
 	StyledInput,
 	Table,
 	type TableColumn,
-} from '@modrinth/ui'
-import { isAdmin } from '@modrinth/utils'
+} from '@macros/ui'
+import { isAdmin } from '@macros/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 

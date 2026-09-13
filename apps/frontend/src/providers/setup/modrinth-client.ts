@@ -1,4 +1,4 @@
-import { provideModrinthClient } from '@modrinth/ui'
+import { provideModrinthClient } from '@macros/ui'
 
 import { createModrinthClient } from '~/helpers/api.ts'
 

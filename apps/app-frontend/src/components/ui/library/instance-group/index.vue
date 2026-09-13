@@ -7,7 +7,7 @@ import {
 	SquarePlusIcon,
 	TrashIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Accordion,
 	Button,
@@ -18,7 +18,7 @@ import {
 	NewModal,
 	TagItem,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, inject, nextTick, onActivated, onDeactivated, onMounted, ref, watch } from 'vue'
 
 import ContextMenu from '@/components/ui/context-menu/index.vue'

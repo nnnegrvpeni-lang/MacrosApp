@@ -1,1 +1,1 @@
-export { useModrinthServersConsole } from '@modrinth/ui'
+export { useModrinthServersConsole } from '@macros/ui'

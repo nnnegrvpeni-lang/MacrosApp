@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { injectLoadingState } from '@modrinth/ui'
+import { injectLoadingState } from '@macros/ui'
 import { ref, watch } from 'vue'
 
 import ProgressBar from '@/components/ui/ProgressBar.vue'

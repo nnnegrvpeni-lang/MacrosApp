@@ -131,9 +131,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { OrganizationIcon, PlusIcon, XIcon } from '@modrinth/assets'
-import { Button } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { OrganizationIcon, PlusIcon, XIcon } from '@macros/assets'
+import { Button } from '@macros/ui'
 import {
 	Chips,
 	Combobox,
@@ -145,7 +145,7 @@ import {
 	NewModal,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, defineAsyncComponent, h } from 'vue'
 
 import { generateUrlSlug } from '~/utils/slugs'

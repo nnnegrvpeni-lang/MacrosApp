@@ -1,4 +1,4 @@
-import type { UserPreferencesContext } from '@modrinth/ui'
+import type { UserPreferencesContext } from '@macros/ui'
 import { invoke } from '@tauri-apps/api/core'
 
 type UserPreferences = NonNullable<UserPreferencesContext['preferences']['value']>

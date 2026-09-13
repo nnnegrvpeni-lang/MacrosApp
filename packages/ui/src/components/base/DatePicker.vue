@@ -57,9 +57,9 @@
 <script setup lang="ts">
 import 'flatpickr/dist/flatpickr.css'
 
-import { CalendarIcon, XIcon } from '@modrinth/assets'
-import chevronLeftIcon from '@modrinth/assets/icons/chevron-left.svg?raw'
-import chevronRightIcon from '@modrinth/assets/icons/chevron-right.svg?raw'
+import { CalendarIcon, XIcon } from '@macros/assets'
+import chevronLeftIcon from '@macros/assets/icons/chevron-left.svg?raw'
+import chevronRightIcon from '@macros/assets/icons/chevron-right.svg?raw'
 import flatpickr from 'flatpickr'
 import type { Instance } from 'flatpickr/dist/types/instance'
 import type { Options } from 'flatpickr/dist/types/options'

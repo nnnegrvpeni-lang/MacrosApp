@@ -139,7 +139,7 @@ import {
 	MicrosoftColorIcon,
 	RightArrowIcon,
 	SteamColorIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Button,
 	ButtonLink,
@@ -148,7 +148,7 @@ import {
 	IntlFormatted,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useStorage } from '@vueuse/core'
 import type { LocationQuery } from 'vue-router'
 

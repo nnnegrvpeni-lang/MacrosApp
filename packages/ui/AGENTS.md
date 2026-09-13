@@ -35,7 +35,7 @@ Files inside `layouts/` use the `#ui/*` import alias (resolved via the `"imports
 All frontend packages share a Tailwind preset at `packages/tooling-config/tailwind/tailwind-preset.ts`. This package's `tailwind.config.ts` extends it:
 
 ```ts
-import preset from '@modrinth/tooling-config/tailwind/tailwind-preset.ts'
+import preset from '@macros/tooling-config/tailwind/tailwind-preset.ts'
 ```
 
 CSS custom properties are defined in `packages/assets/styles/variables.scss` with light, dark, and OLED theme variants.

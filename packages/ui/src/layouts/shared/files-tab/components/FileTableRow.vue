@@ -114,7 +114,7 @@ import {
 	PaintbrushIcon,
 	RightArrowIcon,
 	TrashIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed, ref } from 'vue'
 
 import { TeleportOverflowMenu } from '#ui/components/base/buttons'

@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { RightArrowIcon } from '@modrinth/assets'
+import { RightArrowIcon } from '@macros/assets'
 import {
 	Admonition,
 	Button,
@@ -108,7 +108,7 @@ import {
 	injectNotificationManager,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref } from 'vue'
 
 import HCaptcha from '@/components/ui/auth/HCaptcha.vue'

@@ -17,8 +17,8 @@ import {
 	UpdatedIcon,
 	UserIcon,
 	XIcon,
-} from '@modrinth/assets'
-import type { MessageDescriptor } from '@modrinth/ui'
+} from '@macros/assets'
+import type { MessageDescriptor } from '@macros/ui'
 import {
 	Avatar,
 	BulletDivider,
@@ -33,8 +33,8 @@ import {
 	useFormatNumber,
 	useRelativeTime,
 	useVIntl,
-} from '@modrinth/ui'
-import { getPingLevel } from '@modrinth/utils'
+} from '@macros/ui'
+import { getPingLevel } from '@macros/utils'
 import dayjs from 'dayjs'
 import { Tooltip } from 'floating-vue'
 import type { Component } from 'vue'

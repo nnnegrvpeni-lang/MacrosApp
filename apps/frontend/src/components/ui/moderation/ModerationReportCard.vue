@@ -263,16 +263,16 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { Labrinth, SharedInstances } from '@modrinth/api-client'
+import type { Labrinth, SharedInstances } from '@macros/api-client'
 import {
 	CheckCircleIcon,
 	ClipboardCopyIcon,
 	ExternalIcon,
 	LoaderCircleIcon,
 	LockIcon,
-} from '@modrinth/assets'
-import { type ExtendedReport, reportQuickReplies } from '@modrinth/moderation'
-import { Button, ButtonLink, IconButton } from '@modrinth/ui'
+} from '@macros/assets'
+import { type ExtendedReport, reportQuickReplies } from '@macros/moderation'
+import { Button, ButtonLink, IconButton } from '@macros/ui'
 import {
 	Avatar,
 	CollapsibleRegion,
@@ -285,8 +285,8 @@ import {
 	useFormatDateTime,
 	useRelativeTime,
 	useVIntl,
-} from '@modrinth/ui'
-import { formatProjectType } from '@modrinth/utils'
+} from '@macros/ui'
+import { formatProjectType } from '@macros/utils'
 import { computed, ref, watch } from 'vue'
 
 import { isStaff } from '~/helpers/users.js'

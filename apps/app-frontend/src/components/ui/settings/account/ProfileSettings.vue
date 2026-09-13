@@ -10,8 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { AccountProfileSettings, injectAuth } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { AccountProfileSettings, injectAuth } from '@macros/ui'
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import {

@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { fileIsValid } from '@modrinth/utils'
+import { fileIsValid } from '@macros/utils'
 import { ref } from 'vue'
 
 import { useFormatBytes } from '../../composables'

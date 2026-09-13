@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 

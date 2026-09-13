@@ -94,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { SearchIcon, TrashIcon, XIcon } from '@modrinth/assets'
+import { SearchIcon, TrashIcon, XIcon } from '@macros/assets'
 import type { Terminal } from '@xterm/xterm'
 import { computed, isRef, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 

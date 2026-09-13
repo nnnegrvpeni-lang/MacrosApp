@@ -25,8 +25,8 @@ This is the Modrinth monorepo — it contains all Modrinth projects, both fronte
 
 | Package            | Description                                           |
 | ------------------ | ----------------------------------------------------- |
-| `ui`               | Shared Vue component library (`@modrinth/ui`)         |
-| `assets`           | Styling and auto-generated icons (`@modrinth/assets`) |
+| `ui`               | Shared Vue component library (`@macros/ui`)         |
+| `assets`           | Styling and auto-generated icons (`@macros/assets`) |
 | `api-client`       | API client for Nuxt, Tauri, and Node/browser          |
 | `app-lib`          | Shared app library                                    |
 | `blog`             | Blog system and changelog data                        |
@@ -85,7 +85,7 @@ Each project may have its own file with detailed instructions:
 ### General
 - Do not create new non-source code files (e.g. Bash scripts, SQL scripts) unless explicitly prompted to
 - For Frontend, when doing lint checks, only use the `prepr` commands, do not use `typecheck` or `tsc` etc.
-- Types in `@modrinth/utils` are considered highly outdated, if a component needs them, check if you can switch said component to use types from `packages/api-client`
+- Types in `@macros/utils` are considered highly outdated, if a component needs them, check if you can switch said component to use types from `packages/api-client`
 - When provided problems, do not say "I didn't introduce these problems" (shifting the blame/effort) - just fix them.
 
 ## Standards

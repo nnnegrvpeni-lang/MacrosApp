@@ -99,8 +99,8 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronRightIcon, FolderSearchIcon, SearchIcon } from '@modrinth/assets'
-import { defineMessages, useVIntl } from '@modrinth/ui'
+import { ChevronRightIcon, FolderSearchIcon, SearchIcon } from '@macros/assets'
+import { defineMessages, useVIntl } from '@macros/ui'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import { Button, IconButton } from '#ui/components/base/buttons'

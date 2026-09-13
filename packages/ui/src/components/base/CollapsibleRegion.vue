@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { CollapseIcon, ExpandIcon } from '@modrinth/assets'
+import { CollapseIcon, ExpandIcon } from '@macros/assets'
 
 import { Button } from '#ui/components/base/buttons'
 

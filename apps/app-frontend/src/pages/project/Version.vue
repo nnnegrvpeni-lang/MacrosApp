@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	CheckIcon,
 	ChevronLeftIcon,
@@ -91,8 +91,8 @@ import {
 	MoreVerticalIcon,
 	ReportIcon,
 	VersionIcon,
-} from '@modrinth/assets'
-import { Button, ButtonLink, TeleportOverflowMenu } from '@modrinth/ui'
+} from '@macros/assets'
+import { Button, ButtonLink, TeleportOverflowMenu } from '@macros/ui'
 import {
 	commonMessages,
 	defineMessages,
@@ -100,7 +100,7 @@ import {
 	useFormatBytes,
 	useVIntl,
 	VersionPage,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 

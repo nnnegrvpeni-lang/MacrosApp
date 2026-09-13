@@ -204,7 +204,7 @@ import {
 	RefreshCwIcon,
 	ReportIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { type Component, computed, ref } from 'vue'
 
 import Admonition from '#ui/components/base/Admonition.vue'

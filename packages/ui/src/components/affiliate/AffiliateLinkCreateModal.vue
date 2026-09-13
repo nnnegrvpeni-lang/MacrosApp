@@ -62,7 +62,7 @@
 </template>
 <script lang="ts"></script>
 <script setup lang="ts">
-import { AffiliateIcon, PlusIcon, SpinnerIcon, UserIcon } from '@modrinth/assets'
+import { AffiliateIcon, PlusIcon, SpinnerIcon, UserIcon } from '@macros/assets'
 import { computed, ref, useTemplateRef } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

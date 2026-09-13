@@ -124,8 +124,8 @@
 </template>
 
 <script setup lang="ts">
-import { CheckIcon, DownloadIcon, XIcon } from '@modrinth/assets'
-import { Avatar, Button, ButtonLink, commonMessages, defineMessages, useVIntl } from '@modrinth/ui'
+import { CheckIcon, DownloadIcon, XIcon } from '@macros/assets'
+import { Avatar, Button, ButtonLink, commonMessages, defineMessages, useVIntl } from '@macros/ui'
 import { computed, nextTick, onUnmounted, ref } from 'vue'
 
 const { formatMessage } = useVIntl()

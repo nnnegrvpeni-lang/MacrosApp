@@ -41,9 +41,9 @@
 </template>
 
 <script setup lang="ts">
-import { ModrinthApiError } from '@modrinth/api-client'
-import { SearchIcon, ServerIcon } from '@modrinth/assets'
-import { Admonition, Button, injectModrinthClient, StyledInput } from '@modrinth/ui'
+import { ModrinthApiError } from '@macros/api-client'
+import { SearchIcon, ServerIcon } from '@macros/assets'
+import { Admonition, Button, injectModrinthClient, StyledInput } from '@macros/ui'
 
 const client = injectModrinthClient()
 

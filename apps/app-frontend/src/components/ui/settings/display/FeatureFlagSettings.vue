@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button, Toggle } from '@modrinth/ui'
+import { Button, Toggle } from '@macros/ui'
 import { ref, watch } from 'vue'
 
 import {

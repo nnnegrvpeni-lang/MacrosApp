@@ -873,7 +873,7 @@ import {
 	UserIcon,
 	UserSearchIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -891,8 +891,8 @@ import {
 	TeleportOverflowMenu,
 	useHostingIntercom,
 	useVIntl,
-} from '@modrinth/ui'
-import { isAdmin, isStaff, UserBadge } from '@modrinth/utils'
+} from '@macros/ui'
+import { isAdmin, isStaff, UserBadge } from '@macros/utils'
 import { useQuery } from '@tanstack/vue-query'
 
 import { getTaxThreshold } from '@/providers/creator-withdraw.ts'
@@ -1507,7 +1507,7 @@ function changeTheme() {
 
 <style lang="scss">
 @import '~/assets/styles/global.scss';
-// @import '@modrinth/assets';
+// @import '@macros/assets';
 
 .layout {
 	min-height: 100vh;

@@ -201,7 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	BlendIcon,
 	CheckIcon,
@@ -211,8 +211,8 @@ import {
 	SearchIcon,
 	SortAscIcon,
 	SortDescIcon,
-} from '@modrinth/assets'
-import type { ExtendedReport } from '@modrinth/moderation'
+} from '@macros/assets'
+import type { ExtendedReport } from '@macros/moderation'
 import {
 	Combobox,
 	type ComboboxOption,
@@ -225,7 +225,7 @@ import {
 	StyledInput,
 	TeleportPopoutMenu,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import Fuse from 'fuse.js'
 
 import ReportCard from '~/components/ui/moderation/ModerationReportCard.vue'

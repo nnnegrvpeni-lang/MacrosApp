@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { NotepadTextIcon, XIcon } from '@modrinth/assets'
-import { Button, defineMessages, injectNotificationManager, useVIntl } from '@modrinth/ui'
+import { NotepadTextIcon, XIcon } from '@macros/assets'
+import { Button, defineMessages, injectNotificationManager, useVIntl } from '@macros/ui'
 import { type } from '@tauri-apps/plugin-os'
 import { $fetch } from 'ofetch'
 import { onMounted, onUnmounted, ref } from 'vue'

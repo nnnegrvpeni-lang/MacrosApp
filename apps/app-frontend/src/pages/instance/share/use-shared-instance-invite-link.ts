@@ -1,4 +1,4 @@
-import type { InviteLinkSettings } from '@modrinth/ui'
+import type { InviteLinkSettings } from '@macros/ui'
 import { computed, type Ref, ref, watch } from 'vue'
 
 import { config } from '@/config'

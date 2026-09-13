@@ -7,7 +7,7 @@ import {
 	PanelVersionFeature,
 	TauriModrinthClient,
 	VerboseLoggingFeature,
-} from '@modrinth/api-client'
+} from '@macros/api-client'
 import {
 	ChevronLeftIcon,
 	ChevronRightIcon,
@@ -22,7 +22,7 @@ import {
 	SettingsIcon,
 	ShirtIcon,
 	UserIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Admonition,
 	Avatar,
@@ -48,8 +48,8 @@ import {
 	useDebugLogger,
 	useFormatBytes,
 	useVIntl,
-} from '@modrinth/ui'
-import { renderString } from '@modrinth/utils'
+} from '@macros/ui'
+import { renderString } from '@macros/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { getVersion } from '@tauri-apps/api/app'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'

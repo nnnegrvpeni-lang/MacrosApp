@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { AccountSocialSettings, injectModrinthClient } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { AccountSocialSettings, injectModrinthClient } from '@macros/ui'
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { get_blocked_users, unblock_user } from '@/helpers/users'

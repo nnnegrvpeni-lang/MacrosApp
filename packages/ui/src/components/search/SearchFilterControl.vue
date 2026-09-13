@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { BanIcon, LockIcon, XCircleIcon, XIcon } from '@modrinth/assets'
+import { BanIcon, LockIcon, XCircleIcon, XIcon } from '@macros/assets'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, type ComputedRef } from 'vue'
 

@@ -1,5 +1,5 @@
-import type { AbstractModrinthClient } from '@modrinth/api-client'
-import { provideUserCountry } from '@modrinth/ui'
+import type { AbstractModrinthClient } from '@macros/api-client'
+import { provideUserCountry } from '@macros/ui'
 import { ref } from 'vue'
 
 export function setupUserCountryProvider(client: AbstractModrinthClient) {

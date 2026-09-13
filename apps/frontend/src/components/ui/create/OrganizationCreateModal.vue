@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { PlusIcon, XIcon } from '@modrinth/assets'
+import { PlusIcon, XIcon } from '@macros/assets'
 import {
 	Button,
 	commonMessages,
@@ -82,7 +82,7 @@ import {
 	NewModal,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { ref } from 'vue'
 
 import { generateUrlSlug } from '~/utils/slugs'

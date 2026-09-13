@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Archon, Labrinth } from '@modrinth/api-client'
+import type { Archon, Labrinth } from '@macros/api-client'
 import {
 	EditIcon,
 	ExternalIcon,
@@ -9,8 +9,8 @@ import {
 	SignalIcon,
 	SpinnerIcon,
 	XIcon,
-} from '@modrinth/assets'
-import { getPingLevel } from '@modrinth/utils'
+} from '@macros/assets'
+import { getPingLevel } from '@macros/utils'
 import dayjs from 'dayjs'
 import type Stripe from 'stripe'
 import { computed } from 'vue'

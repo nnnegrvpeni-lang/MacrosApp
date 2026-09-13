@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { EditIcon, SpinnerIcon, TransferIcon, UploadIcon } from '@modrinth/assets'
+import { EditIcon, SpinnerIcon, TransferIcon, UploadIcon } from '@macros/assets'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 

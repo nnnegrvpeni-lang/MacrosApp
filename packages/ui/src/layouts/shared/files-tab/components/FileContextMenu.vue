@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ClipboardCopyIcon, FolderOpenIcon } from '@modrinth/assets'
+import { ClipboardCopyIcon, FolderOpenIcon } from '@macros/assets'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

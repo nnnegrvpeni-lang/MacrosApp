@@ -1,4 +1,4 @@
-import { defineMessage, formatProjectTypeSentence, useVIntl } from '@modrinth/ui'
+import { defineMessage, formatProjectTypeSentence, useVIntl } from '@macros/ui'
 
 import type { Nag, NagContext } from '../../types/nags'
 import { licenseRequiresSource, notSourceAsDistributed } from '../../utils'

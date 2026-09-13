@@ -1,4 +1,4 @@
-import type { Archon } from '@modrinth/api-client'
+import type { Archon } from '@macros/api-client'
 import type { Component } from 'vue'
 
 export interface AuditActor {

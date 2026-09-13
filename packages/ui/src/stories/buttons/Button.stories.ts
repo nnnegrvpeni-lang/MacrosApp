@@ -1,4 +1,4 @@
-import { DownloadIcon, ExternalIcon, HeartIcon, SettingsIcon } from '@modrinth/assets'
+import { DownloadIcon, ExternalIcon, HeartIcon, SettingsIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import Button from '../../components/base/buttons/Button.vue'

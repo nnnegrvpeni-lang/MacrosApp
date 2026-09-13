@@ -1,4 +1,4 @@
-import { defineMessages, useVIntl } from '@modrinth/ui'
+import { defineMessages, useVIntl } from '@macros/ui'
 
 export const scopeMessages = defineMessages({
 	userReadEmailLabel: {

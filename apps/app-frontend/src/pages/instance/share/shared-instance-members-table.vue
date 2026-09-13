@@ -145,8 +145,8 @@ import {
 	UploadIcon,
 	UserPlusIcon,
 	XIcon,
-} from '@modrinth/assets'
-import { Button, IconButton } from '@modrinth/ui'
+} from '@macros/assets'
+import { Button, IconButton } from '@macros/ui'
 import {
 	AutoLink,
 	Avatar,
@@ -159,7 +159,7 @@ import {
 	useFormatDateTime,
 	useRelativeTime,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref, watch } from 'vue'
 
 import { injectSharedInstanceManagement } from './shared-instance-management-context'

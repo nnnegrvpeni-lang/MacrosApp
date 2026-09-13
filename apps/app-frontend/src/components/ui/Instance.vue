@@ -6,7 +6,7 @@ import {
 	SpinnerIcon,
 	StopCircleIcon,
 	TimerIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Avatar,
 	defineMessages,
@@ -14,7 +14,7 @@ import {
 	injectNotificationManager,
 	useRelativeTime,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import dayjs from 'dayjs'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'

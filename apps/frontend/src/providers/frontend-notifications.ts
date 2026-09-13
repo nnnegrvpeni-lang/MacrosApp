@@ -2,7 +2,7 @@ import {
 	AbstractWebNotificationManager,
 	type NotificationPanelLocation,
 	type WebNotification,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import { useState } from '#app'
 

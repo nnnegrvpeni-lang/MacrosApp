@@ -3,7 +3,7 @@ import {
 	type ContentInstallInstance,
 	ContentInstallModal,
 	injectNotificationManager,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { convertFileSrc } from '@tauri-apps/api/core'
 import { computed, ref } from 'vue'

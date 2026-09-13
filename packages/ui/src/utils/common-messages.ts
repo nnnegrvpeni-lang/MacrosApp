@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import { capitalizeString } from '@modrinth/utils'
+import type { Labrinth } from '@macros/api-client'
+import { capitalizeString } from '@macros/utils'
 
 import { defineMessage, defineMessages, type MessageDescriptor } from '../composables/i18n'
 

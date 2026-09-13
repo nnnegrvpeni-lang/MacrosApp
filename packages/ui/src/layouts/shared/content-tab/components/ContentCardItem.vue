@@ -9,7 +9,7 @@ import {
 	TrashIcon,
 	TriangleAlertIcon,
 	UploadIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { useMagicKeys } from '@vueuse/core'
 import { computed, getCurrentInstance, ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'

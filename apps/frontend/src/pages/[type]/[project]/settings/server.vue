@@ -166,7 +166,7 @@
 </template>
 
 <script setup>
-import { InfoIcon, RefreshCwIcon, SpinnerIcon } from '@modrinth/assets'
+import { InfoIcon, RefreshCwIcon, SpinnerIcon } from '@macros/assets'
 import {
 	Combobox,
 	commonProjectSettingsMessages,
@@ -185,7 +185,7 @@ import {
 	UnsavedChangesPopup,
 	usePageLeaveSafety,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import CompatibilityCard from '~/components/ui/project-settings/CompatibilityCard.vue'
 

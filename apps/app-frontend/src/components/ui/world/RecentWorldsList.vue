@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LoaderCircleIcon } from '@modrinth/assets'
+import { LoaderCircleIcon } from '@macros/assets'
 import {
 	Accordion,
 	defineMessages,
@@ -7,7 +7,7 @@ import {
 	type GameVersion,
 	injectNotificationManager,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { platform } from '@tauri-apps/plugin-os'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'

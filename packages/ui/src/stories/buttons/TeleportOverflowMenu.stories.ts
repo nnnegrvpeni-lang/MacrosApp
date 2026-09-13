@@ -4,7 +4,7 @@ import {
 	MoreVerticalIcon,
 	SettingsIcon,
 	TrashIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import TeleportOverflowMenu from '../../components/base/buttons/TeleportOverflowMenu.vue'

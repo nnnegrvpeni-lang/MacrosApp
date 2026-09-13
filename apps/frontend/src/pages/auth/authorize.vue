@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckIcon, XIcon } from '@modrinth/assets'
+import { CheckIcon, XIcon } from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -102,7 +102,7 @@ import {
 	IntlFormatted,
 	normalizeChildren,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 import type { LocationQueryValue } from 'vue-router'

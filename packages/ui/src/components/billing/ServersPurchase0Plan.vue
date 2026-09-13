@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { RightArrowIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { RightArrowIcon } from '@macros/assets'
 import { computed } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

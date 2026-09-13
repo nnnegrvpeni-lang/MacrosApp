@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import type { TableColumn } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import type { TableColumn } from '@macros/ui'
 
 import { analyticsTableMessages, type FormatMessage } from '../analytics-messages'
 import { isAnalyticsTableBreakdownColumnKey } from './analytics-table-columns'

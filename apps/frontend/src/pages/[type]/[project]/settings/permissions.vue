@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	ArrowDown10Icon,
 	ArrowDownWideNarrowIcon,
@@ -12,8 +12,8 @@ import {
 	TrashIcon,
 	UnfoldVerticalIcon,
 	XCircleIcon,
-} from '@modrinth/assets'
-import { Button } from '@modrinth/ui'
+} from '@macros/assets'
+import { Button } from '@macros/ui'
 import {
 	Admonition,
 	Combobox,
@@ -32,8 +32,8 @@ import {
 	IntlFormatted,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
-import { isStaff } from '@modrinth/utils'
+} from '@macros/ui'
+import { isStaff } from '@macros/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 

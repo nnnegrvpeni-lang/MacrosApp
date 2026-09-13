@@ -91,8 +91,8 @@ import {
 	LeftArrowIcon,
 	RightArrowIcon,
 	XIcon,
-} from '@modrinth/assets'
-import { ButtonLink, Card, IconButton, useFormatDateTime } from '@modrinth/ui'
+} from '@macros/assets'
+import { ButtonLink, Card, IconButton, useFormatDateTime } from '@macros/ui'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { release_ads_window_hold, take_ads_window_hold } from '@/helpers/ads.js'

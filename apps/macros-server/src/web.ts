@@ -5462,22 +5462,36 @@ export function renderSettingsHtml(user?: any, section = 'appearance'): string {
 </html>`;
 }
 
-export function renderShareHtml(instance: any, version: any, inviteId: string): string {
+export function renderShareHtml(
+	instance: any,
+	version: any,
+	inviteId: string,
+	modsList: any[] = [],
+	creator?: any
+): string {
 	const instanceName = instance?.name || 'Minecraft Сборка'
+	const instanceIcon = instance?.icon_path || '/assets/logo.png'
 	const gameVersion = version?.game_version || '1.20.1'
 	const loader = version?.loader || 'Fabric'
-	const modCount = version ? JSON.parse(version.modrinth_ids_json || '[]').length : 0
+	const loaderVersion = version?.loader_version || ''
+	const creatorName = creator?.username || 'Пользователь MacrosApp'
+	const creatorAvatar = creator?.avatar_url || '/assets/logo.png'
+	const totalMods = modsList.length
+	const customModsCount = modsList.filter((m) => m.is_custom).length
+	const catalogModsCount = totalMods - customModsCount
+
+	const modsJson = JSON.stringify(modsList).replace(/</g, '\\u003c')
 
 	return `<!DOCTYPE html>
 <html lang="ru" class="dark">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>${instanceName} — MacrosApp</title>
+	<title>${instanceName} — Сборка Minecraft | MacrosApp</title>
 	<link rel="icon" type="image/png" href="/assets/favicon.png">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script>
 		tailwind.config = {
@@ -5486,6 +5500,7 @@ export function renderShareHtml(instance: any, version: any, inviteId: string): 
 				extend: {
 					fontFamily: {
 						sans: ['Inter', 'system-ui', 'sans-serif'],
+						mono: ['JetBrains Mono', 'monospace'],
 					}
 				}
 			}
@@ -5496,45 +5511,354 @@ export function renderShareHtml(instance: any, version: any, inviteId: string): 
 		${OLED_SCROLLBAR_CSS}
 		${THEME_CSS}
 		
-		body { background-color: var(--theme-bg-page, #000000); color: var(--theme-text-primary, #f4f4f5); font-family: 'Inter', sans-serif; }
-		.oled-card {
-			background: #09090b;
+		body { 
+			background-color: #050507; 
+			color: var(--theme-text-primary, #f4f4f5); 
+			font-family: 'Inter', sans-serif; 
+			background-image: 
+				radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.18), transparent 50%),
+				radial-gradient(circle at 100% 60%, rgba(16, 185, 129, 0.05), transparent 40%);
+			background-attachment: fixed;
+		}
+
+		.glass-panel {
+			background: rgba(18, 18, 22, 0.65);
+			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
 			border: 1px solid rgba(255, 255, 255, 0.08);
+		}
+
+		.glass-panel:hover {
+			border-color: rgba(255, 255, 255, 0.14);
+		}
+
+		.mod-card {
+			background: rgba(24, 24, 28, 0.45);
+			border: 1px solid rgba(255, 255, 255, 0.06);
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		.mod-card:hover {
+			background: rgba(30, 30, 36, 0.7);
+			border-color: rgba(16, 185, 129, 0.35);
+			transform: translateY(-1px);
+		}
+
+		.emerald-glow-btn {
+			background: #10b981;
+			box-shadow: 0 0 24px rgba(16, 185, 129, 0.25);
+			transition: all 0.2s ease;
+		}
+
+		.emerald-glow-btn:hover {
+			background: #34d399;
+			box-shadow: 0 0 32px rgba(16, 185, 129, 0.45);
+			transform: translateY(-1px);
+		}
+
+		.emerald-glow-btn:active {
+			transform: scale(0.98);
+		}
+
+		.line-clamp-2 {
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
 		}
 	</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-	<div class="w-full max-w-md oled-card rounded-2xl p-8 text-center shadow-2xl">
-		<div class="w-16 h-16 mx-auto rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-5 p-2.5">
-			<img src="/assets/logo.png" alt="MacrosApp" class="w-full h-full object-contain">
+<body class="min-h-screen flex flex-col antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+
+	<!-- Top Navigation -->
+	<header class="sticky top-0 z-40 w-full border-b border-white/5 bg-black/60 backdrop-blur-xl">
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+			<a href="/" class="flex items-center gap-3 group">
+				<div class="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center p-1.5 transition group-hover:border-emerald-500/50">
+					<img src="/assets/logo.png" alt="MacrosApp" class="w-full h-full object-contain">
+				</div>
+				<span class="font-bold text-base text-white tracking-tight group-hover:text-emerald-400 transition">MacrosApp</span>
+			</a>
+
+			<div class="flex items-center gap-3">
+				<a href="/catalog" class="text-xs text-zinc-400 hover:text-white px-3 py-1.5 rounded-lg transition hidden sm:inline-block">Каталог</a>
+				<a href="/download" class="text-xs font-semibold px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white hover:text-emerald-400 transition flex items-center gap-2">
+					<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+					Скачать лаунчер
+				</a>
+			</div>
+		</div>
+	</header>
+
+	<!-- Main Content -->
+	<main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+		
+		<!-- Hero Instance Card -->
+		<div class="glass-panel rounded-3xl p-6 sm:p-8 mb-10 shadow-2xl relative overflow-hidden">
+			<div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+			<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
+				<!-- Left: Icon & Meta -->
+				<div class="flex items-start sm:items-center gap-5 sm:gap-6">
+					<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-zinc-900/90 border border-white/10 flex-shrink-0 flex items-center justify-center p-2.5 shadow-xl overflow-hidden">
+						<img src="${instanceIcon}" alt="${instanceName}" class="w-full h-full object-cover rounded-xl" onerror="this.src='/assets/logo.png'">
+					</div>
+
+					<div>
+						<div class="flex flex-wrap items-center gap-2 mb-2">
+							<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold tracking-wide uppercase">
+								Общая сборка
+							</span>
+							<span class="text-xs text-zinc-500">•</span>
+							<div class="flex items-center gap-1.5 text-xs text-zinc-400">
+								<img src="${creatorAvatar}" class="w-4 h-4 rounded-full object-cover" onerror="this.src='/assets/logo.png'">
+								<span>Создатель: <strong class="text-zinc-200 font-medium">${creatorName}</strong></span>
+							</div>
+						</div>
+
+						<h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3">
+							${instanceName}
+						</h1>
+
+						<!-- Badges -->
+						<div class="flex flex-wrap items-center gap-2 text-xs">
+							<div class="px-3 py-1 rounded-xl bg-zinc-900/90 border border-white/10 text-emerald-400 font-mono flex items-center gap-1.5">
+								<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+								Minecraft ${gameVersion}
+							</div>
+							<div class="px-3 py-1 rounded-xl bg-zinc-900/90 border border-white/10 text-zinc-300 capitalize flex items-center gap-1.5">
+								<svg class="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+								${loader} ${loaderVersion ? `<span class="text-zinc-500 font-mono text-[11px]">${loaderVersion}</span>` : ''}
+							</div>
+							<div class="px-3 py-1 rounded-xl bg-zinc-900/90 border border-white/10 text-zinc-400">
+								📦 <strong>${totalMods}</strong> ${totalMods === 1 ? 'мод' : totalMods < 5 ? 'мода' : 'модов'}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Right: Actions -->
+				<div class="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[240px] flex-shrink-0">
+					<button id="openLauncherBtn" onclick="openInLauncher('${inviteId}')" class="emerald-glow-btn w-full py-4 px-6 rounded-2xl text-black font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg">
+						<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+						<span>Открыть в MacrosApp</span>
+					</button>
+
+					<button id="copyLinkBtn" onclick="copyInviteLink()" class="w-full py-3 px-5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 hover:border-white/20 text-zinc-300 hover:text-white font-medium text-xs flex items-center justify-center gap-2 transition active:scale-[0.98]">
+						<svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+						<span id="copyLinkText">Скопировать ссылку</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Notice banner -->
+			<div class="mt-6 pt-5 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-zinc-400">
+				<div class="flex items-center gap-2">
+					<svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+					<span>Для запуска требуется установленный лаунчер <strong>MacrosApp</strong>. Нажмите кнопку выше для мгновенного импорта.</span>
+				</div>
+				<a href="/download" class="text-emerald-400 hover:text-emerald-300 font-medium whitespace-nowrap transition flex items-center gap-1">
+					Скачать бесплатно &rarr;
+				</a>
+			</div>
 		</div>
 
-		<h1 class="text-xl font-bold text-white mb-1.5">${instanceName}</h1>
-		<p class="text-xs text-zinc-400 mb-6">
-			Сборка передана через безопасную синхронизацию MacrosApp
-		</p>
+		<!-- How to Play Quick Steps -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+			<div class="glass-panel rounded-2xl p-5 border border-white/5 flex items-start gap-4">
+				<div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-emerald-500/20">
+					1
+				</div>
+				<div>
+					<h3 class="text-sm font-semibold text-white mb-1">Установите MacrosApp</h3>
+					<p class="text-xs text-zinc-400 leading-relaxed">Скачайте и запустите официальный лаунчер с нашего сайта.</p>
+				</div>
+			</div>
 
-		<div class="flex items-center justify-center gap-2 mb-8">
-			<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-emerald-400 text-xs font-mono">
-				${gameVersion}
-			</span>
-			<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs capitalize">
-				${loader}
-			</span>
-			<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs">
-				${modCount} модов
-			</span>
+			<div class="glass-panel rounded-2xl p-5 border border-white/5 flex items-start gap-4">
+				<div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-emerald-500/20">
+					2
+				</div>
+				<div>
+					<h3 class="text-sm font-semibold text-white mb-1">Нажмите «Открыть»</h3>
+					<p class="text-xs text-zinc-400 leading-relaxed">Кнопка в карточке выше передаст команду напрямую в лаунчер.</p>
+				</div>
+			</div>
+
+			<div class="glass-panel rounded-2xl p-5 border border-white/5 flex items-start gap-4">
+				<div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-emerald-500/20">
+					3
+				</div>
+				<div>
+					<h3 class="text-sm font-semibold text-white mb-1">Играйте с друзьями</h3>
+					<p class="text-xs text-zinc-400 leading-relaxed">Лаунчер сам загрузит моды и конфиги и синхронизирует обновления!</p>
+				</div>
+			</div>
 		</div>
 
-		<a href="macros://instance/join/${inviteId}" class="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition flex items-center justify-center gap-2 active:scale-[0.98] mb-3 shadow-lg shadow-emerald-500/10">
-			<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-			Открыть в MacrosApp
-		</a>
+		<!-- Mods Section -->
+		<div class="mb-12">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+				<div class="flex items-center gap-3">
+					<h2 class="text-xl font-bold text-white tracking-tight">Содержимое сборки</h2>
+					<span class="px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400" id="modCountBadge">
+						${totalMods}
+					</span>
+					${
+						customModsCount > 0
+							? `<span class="px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[11px]">
+								${customModsCount} кастомных
+							</span>`
+							: ''
+					}
+				</div>
 
-		<a href="/" class="text-xs text-zinc-500 hover:text-zinc-300 transition">
-			Скачать MacrosApp
-		</a>
-	</div>
+				<div class="relative w-full sm:w-72">
+					<svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+					<input 
+						type="text" 
+						id="modSearchInput" 
+						oninput="filterMods(this.value)" 
+						placeholder="Поиск мода по названию..." 
+						class="w-full pl-9 pr-3.5 py-2 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition"
+					>
+				</div>
+			</div>
+
+			<!-- Mods Grid -->
+			<div id="modsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+				${
+					modsList.length > 0
+						? modsList
+								.map(
+									(mod) => `
+					<div class="mod-card rounded-2xl p-4 flex items-start gap-3.5 group relative" data-title="${encodeURIComponent((mod.title || '').toLowerCase())}" data-desc="${encodeURIComponent((mod.description || '').toLowerCase())}">
+						<div class="w-12 h-12 rounded-xl bg-zinc-900/90 border border-white/10 flex-shrink-0 flex items-center justify-center p-1.5 overflow-hidden">
+							<img src="${mod.icon_url || '/assets/logo.png'}" alt="${mod.title}" class="w-full h-full object-contain rounded-lg" onerror="this.src='/assets/logo.png'">
+						</div>
+
+						<div class="flex-1 min-w-0">
+							<div class="flex items-center justify-between gap-2 mb-1">
+								<h4 class="font-bold text-sm text-zinc-100 group-hover:text-emerald-400 transition truncate">
+									${mod.title}
+								</h4>
+								${
+									mod.is_custom
+										? `<span class="px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[10px] font-medium whitespace-nowrap flex-shrink-0">
+											Кастомный
+										</span>`
+										: `<span class="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium whitespace-nowrap flex-shrink-0">
+											Каталог
+										</span>`
+								}
+							</div>
+
+							<p class="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+								${mod.description || 'Модификация для оптимизации и улучшения игрового процесса.'}
+							</p>
+
+							${
+								mod.version_name
+									? `<div class="mt-2 text-[11px] font-mono text-zinc-500 truncate">
+										Версия: ${mod.version_name}
+									</div>`
+									: ''
+							}
+						</div>
+					</div>`
+								)
+								.join('')
+						: `<div class="col-span-full py-12 text-center text-zinc-500 text-xs bg-zinc-900/30 rounded-2xl border border-white/5">
+							В этой сборке пока нет модов
+						</div>`
+				}
+			</div>
+
+			<!-- Empty Search State -->
+			<div id="noModsFound" class="hidden py-16 text-center bg-zinc-900/30 rounded-2xl border border-white/5">
+				<p class="text-sm font-semibold text-zinc-300 mb-1">Ничего не найдено</p>
+				<p class="text-xs text-zinc-500">Попробуйте изменить поисковый запрос</p>
+			</div>
+		</div>
+
+	</main>
+
+	<!-- Footer -->
+	<footer class="border-t border-white/5 py-8 bg-black/40 text-center text-xs text-zinc-600">
+		<div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+			<div class="flex items-center gap-2">
+				<img src="/assets/logo.png" class="w-4 h-4 object-contain opacity-70">
+				<span>© 2026 MacrosApp. Все права защищены.</span>
+			</div>
+			<div class="flex items-center gap-4 text-zinc-500">
+				<a href="/catalog" class="hover:text-zinc-300 transition">Каталог</a>
+				<a href="/download" class="hover:text-zinc-300 transition">Лаунчер</a>
+				<a href="https://github.com/nnnegrvpeni-lang/MacrosApp" target="_blank" class="hover:text-zinc-300 transition">GitHub</a>
+			</div>
+		</div>
+	</footer>
+
+	<!-- Client Script -->
+	<script>
+		const modsData = ${modsJson};
+
+		function openInLauncher(inviteId) {
+			const btn = document.getElementById('openLauncherBtn');
+			if (btn) {
+				btn.innerHTML = \`<svg class="w-5 h-5 animate-spin text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Запуск лаунчера...</span>\`;
+			}
+
+			// Try macros://share/ first (supported by current and new launchers)
+			window.location.href = 'macros://share/' + inviteId;
+
+			setTimeout(() => {
+				if (btn) {
+					btn.innerHTML = \`<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> <span>Открыть в MacrosApp</span>\`;
+				}
+			}, 3000);
+		}
+
+		async function copyInviteLink() {
+			const btnText = document.getElementById('copyLinkText');
+			try {
+				await navigator.clipboard.writeText(window.location.href);
+				if (btnText) {
+					const old = btnText.textContent;
+					btnText.textContent = 'Ссылка скопирована!';
+					setTimeout(() => { btnText.textContent = old; }, 2500);
+				}
+			} catch (err) {
+				prompt('Скопируйте ссылку вручную:', window.location.href);
+			}
+		}
+
+		function filterMods(query) {
+			const q = query.trim().toLowerCase();
+			const cards = document.querySelectorAll('.mod-card');
+			let visibleCount = 0;
+
+			cards.forEach((card) => {
+				const title = decodeURIComponent(card.getAttribute('data-title') || '');
+				const desc = decodeURIComponent(card.getAttribute('data-desc') || '');
+				if (!q || title.includes(q) || desc.includes(q)) {
+					card.style.display = 'flex';
+					visibleCount++;
+				} else {
+					card.style.display = 'none';
+				}
+			});
+
+			const noMods = document.getElementById('noModsFound');
+			if (noMods) {
+				noMods.classList.toggle('hidden', visibleCount > 0);
+			}
+
+			const badge = document.getElementById('modCountBadge');
+			if (badge) {
+				badge.textContent = visibleCount;
+			}
+		}
+	</script>
 </body>
 </html>`
 }

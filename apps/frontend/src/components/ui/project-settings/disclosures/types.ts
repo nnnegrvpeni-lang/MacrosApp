@@ -1,4 +1,4 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 
 export type TelemetryConsent = Labrinth.Projects.v3.TelemetryConsent
 export type AiUsage = Labrinth.Projects.v3.AiUsage

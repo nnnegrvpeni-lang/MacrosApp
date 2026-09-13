@@ -1,4 +1,4 @@
-import { type KeybindDefinition, Keybinds, Settings } from '@modrinth/moderation'
+import { type KeybindDefinition, Keybinds, Settings } from '@macros/moderation'
 import { computed } from 'vue'
 
 import type { CookieOptions } from '#app'

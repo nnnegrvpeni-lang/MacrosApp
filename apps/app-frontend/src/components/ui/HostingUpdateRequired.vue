@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { DownloadIcon, ExcitedRinthbot, RefreshCwIcon, ServerStackIcon } from '@modrinth/assets'
-import { Button, commonMessages, defineMessages, useVIntl } from '@modrinth/ui'
+import { DownloadIcon, ExcitedRinthbot, RefreshCwIcon, ServerStackIcon } from '@macros/assets'
+import { Button, commonMessages, defineMessages, useVIntl } from '@macros/ui'
 import { computed } from 'vue'
 
 import {

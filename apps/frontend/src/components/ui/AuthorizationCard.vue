@@ -76,8 +76,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { BadgeCheckIcon, CheckIcon, IssuesIcon, XCircleIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { BadgeCheckIcon, CheckIcon, IssuesIcon, XCircleIcon } from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -87,8 +87,8 @@ import {
 	PageHeaderMetadata,
 	PageHeaderMetadataItem,
 	useVIntl,
-} from '@modrinth/ui'
-import { isOfficialAccount } from '@modrinth/utils'
+} from '@macros/ui'
+import { isOfficialAccount } from '@macros/utils'
 
 import { useScopes } from '~/composables/auth/scopes.ts'
 

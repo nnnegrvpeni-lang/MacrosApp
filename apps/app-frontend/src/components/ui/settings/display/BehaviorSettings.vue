@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowBigUpDashIcon, RefreshCwIcon } from '@modrinth/assets'
+import { ArrowBigUpDashIcon, RefreshCwIcon } from '@macros/assets'
 import {
 	Button,
 	defineMessages,
@@ -9,7 +9,7 @@ import {
 	Toggle,
 	useSavable,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import {

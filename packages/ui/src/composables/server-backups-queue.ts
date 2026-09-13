@@ -1,4 +1,4 @@
-import type { Archon } from '@modrinth/api-client'
+import type { Archon } from '@macros/api-client'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, reactive, type Ref } from 'vue'
 

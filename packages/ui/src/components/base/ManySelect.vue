@@ -65,7 +65,7 @@
 	</TeleportPopoutMenu>
 </template>
 <script setup lang="ts">
-import { CheckIcon, DropdownIcon, SearchIcon } from '@modrinth/assets'
+import { CheckIcon, DropdownIcon, SearchIcon } from '@macros/assets'
 import { computed, ref } from 'vue'
 
 import { Button, TeleportPopoutMenu } from './buttons'

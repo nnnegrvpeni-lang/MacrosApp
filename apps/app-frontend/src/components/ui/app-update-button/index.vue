@@ -26,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { DownloadIcon, RefreshCwIcon } from '@modrinth/assets'
-import { Button, defineMessages, useVIntl } from '@modrinth/ui'
+import { DownloadIcon, RefreshCwIcon } from '@macros/assets'
+import { Button, defineMessages, useVIntl } from '@macros/ui'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 

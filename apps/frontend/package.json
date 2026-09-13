@@ -1,5 +1,5 @@
 {
-	"name": "@modrinth/frontend",
+	"name": "@macros/frontend",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -18,7 +18,7 @@
 	},
 	"devDependencies": {
 		"@formatjs/cli": "^6.2.12",
-		"@modrinth/tooling-config": "workspace:*",
+		"@macros/tooling-config": "workspace:*",
 		"@types/dompurify": "^3.0.5",
 		"@types/iso-3166-2": "^1.0.4",
 		"@types/js-yaml": "^4.0.9",
@@ -41,12 +41,12 @@
 		"@contentauth/c2pa-web": "^0.13.1",
 		"@formatjs/intl-localematcher": "^0.5.4",
 		"@ltd/j-toml": "^1.38.0",
-		"@modrinth/api-client": "workspace:*",
-		"@modrinth/assets": "workspace:*",
-		"@modrinth/blog": "workspace:*",
-		"@modrinth/moderation": "workspace:*",
-		"@modrinth/ui": "workspace:*",
-		"@modrinth/utils": "workspace:*",
+		"@macros/api-client": "workspace:*",
+		"@macros/assets": "workspace:*",
+		"@macros/blog": "workspace:*",
+		"@macros/moderation": "workspace:*",
+		"@macros/ui": "workspace:*",
+		"@macros/utils": "workspace:*",
 		"@sentry/nuxt": "^10.33.0",
 		"@tanstack/vue-query": "5.90.7",
 		"@types/three": "^0.172.0",
@@ -83,5 +83,5 @@
 		"xss": "^1.0.14"
 	},
 	"web-types": "../../web-types.json",
-	"prettier": "@modrinth/tooling-config/frontend.prettier.config.cjs"
+	"prettier": "@macros/tooling-config/frontend.prettier.config.cjs"
 }

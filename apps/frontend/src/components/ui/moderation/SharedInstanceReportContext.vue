@@ -10,8 +10,8 @@ import {
 	UserPlusIcon,
 	UsersIcon,
 	VersionIcon,
-} from '@modrinth/assets'
-import { Button, IconButton } from '@modrinth/ui'
+} from '@macros/assets'
+import { Button, IconButton } from '@macros/ui'
 import {
 	Avatar,
 	ConfirmLeaveModal,
@@ -22,7 +22,7 @@ import {
 	type TableColumn,
 	useFormatDateTime,
 	useRelativeTime,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 

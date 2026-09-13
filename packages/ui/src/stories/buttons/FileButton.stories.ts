@@ -1,4 +1,4 @@
-import { UploadIcon } from '@modrinth/assets'
+import { UploadIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import FileButton from '../../components/base/buttons/FileButton.vue'

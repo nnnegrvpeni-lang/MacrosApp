@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ModrinthIcon, RightArrowIcon, XIcon } from '@modrinth/assets'
+import { ModrinthIcon, RightArrowIcon, XIcon } from '@macros/assets'
 
 import { ButtonLink, IconButton } from '#ui/components/base/buttons'
 

@@ -48,7 +48,7 @@
 	</span>
 </template>
 <script setup lang="ts">
-import { ClientIcon, GlobeIcon, InfoIcon, ServerIcon } from '@modrinth/assets'
+import { ClientIcon, GlobeIcon, InfoIcon, ServerIcon } from '@macros/assets'
 
 import { defineMessages, useVIntl } from '../../composables/i18n'
 

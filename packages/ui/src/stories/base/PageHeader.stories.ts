@@ -15,7 +15,7 @@ import {
 	StopCircleIcon,
 	TagCategoryGamepad2Icon as Gamepad2Icon,
 	TimerIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import AutoLink from '../../components/base/AutoLink.vue'

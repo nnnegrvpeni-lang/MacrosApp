@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { CheckCircleIcon, ScaleIcon, UserRoundIcon, XCircleIcon } from '@modrinth/assets'
-import { builtinLicenses } from '@modrinth/utils'
+import type { Labrinth } from '@macros/api-client'
+import { CheckCircleIcon, ScaleIcon, UserRoundIcon, XCircleIcon } from '@macros/assets'
+import { builtinLicenses } from '@macros/utils'
 import { computed } from 'vue'
 
 import { IntlFormatted } from '#ui/components'

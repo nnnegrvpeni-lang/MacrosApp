@@ -27,11 +27,11 @@ of importing it directly.
 Use the component that matches the interaction's semantics. Do not use a click handler
 on `ButtonLink` for an action, and do not perform navigation from a `Button`.
 
-Import public button components from `@modrinth/ui`. Inside `packages/ui`, use the
+Import public button components from `@macros/ui`. Inside `packages/ui`, use the
 corresponding `#ui/components/base/buttons/*` path:
 
 ```ts
-import { Button, ButtonLink, IconButton } from '@modrinth/ui'
+import { Button, ButtonLink, IconButton } from '@macros/ui'
 ```
 
 ## Basic usage
@@ -234,8 +234,8 @@ an attached menu:
 
 ```vue
 <script setup lang="ts">
-import { PlayIcon, SettingsIcon, TrashIcon } from '@modrinth/assets'
-import type { OverflowMenuOption } from '@modrinth/ui/src/components/base/buttons/types'
+import { PlayIcon, SettingsIcon, TrashIcon } from '@macros/assets'
+import type { OverflowMenuOption } from '@macros/ui/src/components/base/buttons/types'
 
 const options: OverflowMenuOption[] = [
 	{

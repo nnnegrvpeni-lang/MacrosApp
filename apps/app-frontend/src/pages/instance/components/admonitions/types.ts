@@ -1,4 +1,4 @@
-import type { StackedAdmonitionItem } from '@modrinth/ui'
+import type { StackedAdmonitionItem } from '@macros/ui'
 
 export type InstanceAdmonitionKind =
 	| 'shared-instance-stale'

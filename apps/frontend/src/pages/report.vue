@@ -266,8 +266,8 @@ import {
 	SpinnerIcon,
 	VersionIcon,
 	XCircleIcon,
-} from '@modrinth/assets'
-import { Button, ButtonLink } from '@modrinth/ui'
+} from '@macros/assets'
+import { Button, ButtonLink } from '@macros/ui'
 import {
 	AutoLink,
 	Avatar,
@@ -284,8 +284,8 @@ import {
 	RadioButtons,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
-import type { Project, Report, User, Version } from '@modrinth/utils'
+} from '@macros/ui'
+import type { Project, Report, User, Version } from '@macros/utils'
 import { useDebounceFn } from '@vueuse/core'
 
 import { useImageUpload } from '~/composables/image-upload.ts'

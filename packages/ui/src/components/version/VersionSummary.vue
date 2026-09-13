@@ -34,8 +34,8 @@
 </template>
 
 <script setup lang="ts">
-import { DownloadIcon, ExternalIcon } from '@modrinth/assets'
-import type { Version, VersionFile } from '@modrinth/utils'
+import { DownloadIcon, ExternalIcon } from '@macros/assets'
+import type { Version, VersionFile } from '@macros/utils'
 import { computed } from 'vue'
 
 import { ButtonLink, IconButton } from '#ui/components/base/buttons'

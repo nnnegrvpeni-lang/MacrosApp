@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Kyros } from '@modrinth/api-client'
+import type { Kyros } from '@macros/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

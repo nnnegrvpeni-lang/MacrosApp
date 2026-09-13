@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { XIcon } from '@modrinth/assets'
-import { renderString } from '@modrinth/utils'
+import { XIcon } from '@macros/assets'
+import { renderString } from '@macros/utils'
 import { computed } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

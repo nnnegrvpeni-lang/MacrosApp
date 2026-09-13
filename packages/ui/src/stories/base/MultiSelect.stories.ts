@@ -1,4 +1,4 @@
-import { BoxIcon, CheckIcon } from '@modrinth/assets'
+import { BoxIcon, CheckIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { computed, ref } from 'vue'
 

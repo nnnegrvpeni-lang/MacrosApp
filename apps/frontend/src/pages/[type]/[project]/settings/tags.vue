@@ -18,8 +18,8 @@ import {
 	usePageLeaveSafety,
 	useSavable,
 	useVIntl,
-} from '@modrinth/ui'
-import { capitalizeString, sortedCategories } from '@modrinth/utils'
+} from '@macros/ui'
+import { capitalizeString, sortedCategories } from '@macros/utils'
 import { computed } from 'vue'
 
 interface Category {

@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import type { ContentItem } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import type { ContentItem } from '@macros/ui'
 
 import { get_project, get_project_many, get_version, get_version_many } from '@/helpers/cache.js'
 import type { SharedInstanceInstallPreview } from '@/helpers/install'

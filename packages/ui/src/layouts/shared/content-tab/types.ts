@@ -1,4 +1,4 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import type { RouteLocationRaw } from 'vue-router'
 
 import type { OverflowMenuOption } from '#ui/components/base/buttons'

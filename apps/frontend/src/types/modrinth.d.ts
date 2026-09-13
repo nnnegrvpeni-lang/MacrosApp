@@ -1,1 +1,1 @@
-import '@modrinth/utils'
+import '@macros/utils'

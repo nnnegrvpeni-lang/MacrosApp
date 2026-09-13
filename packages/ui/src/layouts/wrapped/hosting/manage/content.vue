@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { type Archon, type Labrinth, ModrinthApiError } from '@modrinth/api-client'
-import { ClipboardCopyIcon } from '@modrinth/assets'
+import { type Archon, type Labrinth, ModrinthApiError } from '@macros/api-client'
+import { ClipboardCopyIcon } from '@macros/assets'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

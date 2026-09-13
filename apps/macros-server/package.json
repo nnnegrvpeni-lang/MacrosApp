@@ -1,5 +1,5 @@
 {
-	"name": "@modrinth/macros-server",
+	"name": "@macros/macros-server",
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",

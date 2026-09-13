@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckIcon, PlusIcon, SearchIcon, SpinnerIcon, XIcon } from '@modrinth/assets'
+import { CheckIcon, PlusIcon, SearchIcon, SpinnerIcon, XIcon } from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -111,7 +111,7 @@ import {
 	StyledInput,
 	TagItem,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref, watch } from 'vue'
 
 import { useLibrary } from '@/components/ui/library/use-library'

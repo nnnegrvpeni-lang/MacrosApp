@@ -7,7 +7,7 @@ import {
 	ScanEyeIcon,
 	SearchIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { IconButton } from '#ui/components/base/buttons'

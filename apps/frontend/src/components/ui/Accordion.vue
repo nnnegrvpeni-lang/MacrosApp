@@ -30,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { DropdownIcon } from '@modrinth/assets'
-import { Button } from '@modrinth/ui'
+import { DropdownIcon } from '@macros/assets'
+import { Button } from '@macros/ui'
 
 const props = withDefaults(
 	defineProps<{

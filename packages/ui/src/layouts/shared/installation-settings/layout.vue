@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	ArrowLeftRightIcon,
 	CircleAlertIcon,
@@ -12,7 +12,7 @@ import {
 	SpinnerIcon,
 	UnlinkIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 

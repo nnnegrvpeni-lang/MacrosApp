@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { CalendarIcon, UsersIcon, XIcon } from '@modrinth/assets'
-import { injectModrinthClient, ProgressBar } from '@modrinth/ui'
+import { CalendarIcon, UsersIcon, XIcon } from '@macros/assets'
+import { injectModrinthClient, ProgressBar } from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { computed, ref } from 'vue'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronDownIcon, ChevronUpIcon } from '@modrinth/assets'
+import { ChevronDownIcon, ChevronUpIcon } from '@macros/assets'
 import { computed, getCurrentInstance, ref, toRef } from 'vue'
 
 import Checkbox from '#ui/components/base/Checkbox.vue'

@@ -26,7 +26,7 @@ import {
 	YouTubeGaming,
 	YouTubeIcon,
 	YouTubeShortsIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed } from 'vue'
 
 const props = defineProps<{

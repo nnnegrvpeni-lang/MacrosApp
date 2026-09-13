@@ -1,4 +1,4 @@
-import { PlayIcon, SettingsIcon, StopCircleIcon, TrashIcon } from '@modrinth/assets'
+import { PlayIcon, SettingsIcon, StopCircleIcon, TrashIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import Button from '../../components/base/buttons/Button.vue'

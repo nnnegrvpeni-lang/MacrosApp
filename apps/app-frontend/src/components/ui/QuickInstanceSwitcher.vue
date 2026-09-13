@@ -1,6 +1,6 @@
 <script setup>
-import { SpinnerIcon } from '@modrinth/assets'
-import { Avatar, defineMessages, injectNotificationManager, useVIntl } from '@modrinth/ui'
+import { SpinnerIcon } from '@macros/assets'
+import { Avatar, defineMessages, injectNotificationManager, useVIntl } from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import { computed, onMounted, onUnmounted, ref } from 'vue'

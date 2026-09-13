@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckIcon, ClipboardCopyIcon } from '@modrinth/assets'
+import { CheckIcon, ClipboardCopyIcon } from '@macros/assets'
 import { onBeforeUnmount, ref } from 'vue'
 
 import { defineMessage, useVIntl } from '../../composables/i18n'

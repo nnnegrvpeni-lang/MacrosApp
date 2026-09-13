@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SpinnerIcon } from '@modrinth/assets'
+import { SpinnerIcon } from '@macros/assets'
 import { computed } from 'vue'
 
 import { useFormatPrice } from '../../composables'

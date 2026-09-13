@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { CpuIcon, DatabaseIcon, FolderOpenIcon } from '@modrinth/assets'
+import { CpuIcon, DatabaseIcon, FolderOpenIcon } from '@macros/assets'
 import { useStorage } from '@vueuse/core'
 import { computed, defineAsyncComponent, onMounted, ref, shallowRef, watch } from 'vue'
 import { RouterLink } from 'vue-router'

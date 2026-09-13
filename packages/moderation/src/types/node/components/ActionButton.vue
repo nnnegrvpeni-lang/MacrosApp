@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Button } from '@modrinth/ui'
+import { Button } from '@macros/ui'
 import type { Component } from 'vue'
 import { computed } from 'vue'
 

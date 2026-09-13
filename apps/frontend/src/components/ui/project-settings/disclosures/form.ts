@@ -1,9 +1,9 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	isActiveDisclosure,
 	isDisclosureCompatibleWithProjectTypes,
 	PROJECT_DISCLOSURE_TYPES,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import type {
 	DisclosureFormState,

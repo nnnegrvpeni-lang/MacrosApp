@@ -39,8 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { SpinnerIcon, UploadIcon } from '@modrinth/assets'
-import { Admonition, Button, useVIntl } from '@modrinth/ui'
+import { SpinnerIcon, UploadIcon } from '@macros/assets'
+import { Admonition, Button, useVIntl } from '@macros/ui'
 import { computed, ref } from 'vue'
 
 import SharedInstancePublishModal from '@/components/ui/shared-instances/SharedInstancePublishModal.vue'

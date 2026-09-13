@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { injectModrinthServerContext, ServersManageOverviewPage } from '@modrinth/ui'
+import { injectModrinthServerContext, ServersManageOverviewPage } from '@macros/ui'
 
 const { server } = injectModrinthServerContext()
 const flags = useFeatureFlags()

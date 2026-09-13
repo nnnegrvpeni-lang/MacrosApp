@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { HistoryIcon, SaveIcon, SpinnerIcon } from '@modrinth/assets'
+import { HistoryIcon, SaveIcon, SpinnerIcon } from '@macros/assets'
 import { computed } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MegaphoneIcon } from '@modrinth/assets'
+import { MegaphoneIcon } from '@macros/assets'
 import {
 	commonMessages,
 	defineMessages,
@@ -8,7 +8,7 @@ import {
 	SettingsFormGroup,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import DisclosureToggleCard from './DisclosureToggleCard.vue'
 import type { DisclosureCardMetaProps, DisclosureLockStatus, NoteDisclosure } from './types'

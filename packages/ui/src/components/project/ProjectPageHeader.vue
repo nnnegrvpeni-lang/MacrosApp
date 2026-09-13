@@ -57,8 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { DownloadIcon, HeartIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { DownloadIcon, HeartIcon } from '@macros/assets'
 
 import { defineMessages, useFormatNumber, useVIntl } from '../../composables'
 import Avatar from '../base/Avatar.vue'

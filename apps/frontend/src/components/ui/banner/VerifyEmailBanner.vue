@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SettingsIcon } from '@modrinth/assets'
+import { SettingsIcon } from '@macros/assets'
 import {
 	Button,
 	ButtonLink,
@@ -7,7 +7,7 @@ import {
 	injectNotificationManager,
 	PagewideBanner,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { FetchError } from 'ofetch'
 
 const { addNotification } = injectNotificationManager()

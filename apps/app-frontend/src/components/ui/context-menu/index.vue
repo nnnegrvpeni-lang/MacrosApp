@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronLeftIcon, ChevronRightIcon } from '@modrinth/assets'
+import { ChevronLeftIcon, ChevronRightIcon } from '@macros/assets'
 
 import type { ContextMenuEmit } from './types'
 import { useContextMenu } from './use-context-menu'

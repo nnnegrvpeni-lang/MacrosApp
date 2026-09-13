@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleDollarSignIcon, ListPlusIcon, XIcon } from '@modrinth/assets'
+import { CircleDollarSignIcon, ListPlusIcon, XIcon } from '@macros/assets'
 import {
 	Button,
 	commonMessages,
@@ -8,7 +8,7 @@ import {
 	SettingsFormGroup,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { watch } from 'vue'
 
 import DisclosureToggleCard from './DisclosureToggleCard.vue'

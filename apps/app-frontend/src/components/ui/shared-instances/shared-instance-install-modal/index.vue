@@ -238,9 +238,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { BanIcon, DownloadIcon, ReportIcon, SendIcon, SpinnerIcon, XIcon } from '@modrinth/assets'
-import { Button } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { BanIcon, DownloadIcon, ReportIcon, SendIcon, SpinnerIcon, XIcon } from '@macros/assets'
+import { Button } from '@macros/ui'
 import {
 	Admonition,
 	AutoLink,
@@ -263,7 +263,7 @@ import {
 	type TableColumn,
 	useScrollIndicator,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { computed, nextTick, ref } from 'vue'

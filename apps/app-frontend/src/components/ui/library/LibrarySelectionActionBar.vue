@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { MinusIcon, SquarePlusIcon, TrashIcon } from '@modrinth/assets'
+import { MinusIcon, SquarePlusIcon, TrashIcon } from '@macros/assets'
 import {
 	Button,
 	commonMessages,
@@ -67,7 +67,7 @@ import {
 	FloatingActionBar,
 	injectNotificationManager,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, ref } from 'vue'
 
 import { getLibraryInstanceSelectionKey, useLibrary } from '@/components/ui/library/use-library'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ChevronRightIcon, GitGraphIcon, RssIcon } from '@modrinth/assets'
-import { articles as rawArticles } from '@modrinth/blog'
-import { ButtonLink, NewsArticleCard, useFormatDateTime } from '@modrinth/ui'
+import { ChevronRightIcon, GitGraphIcon, RssIcon } from '@macros/assets'
+import { articles as rawArticles } from '@macros/blog'
+import { ButtonLink, NewsArticleCard, useFormatDateTime } from '@macros/ui'
 import { computed, ref } from 'vue'
 
 import NewsletterButton from '~/components/ui/NewsletterButton.vue'

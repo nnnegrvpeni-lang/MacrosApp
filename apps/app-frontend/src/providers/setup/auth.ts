@@ -1,11 +1,11 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	type AuthFlow,
 	type AuthProvider,
 	type AuthRequestOptions,
 	type AuthUser,
 	provideAuth,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed, type Ref, ref, watch, watchEffect } from 'vue'
 
 type AppCredentials = {

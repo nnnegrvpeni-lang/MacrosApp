@@ -1,5 +1,5 @@
-import { ImageIcon } from '@modrinth/assets'
-import { injectProjectPageContext } from '@modrinth/ui'
+import { ImageIcon } from '@macros/assets'
+import { injectProjectPageContext } from '@macros/ui'
 import { computed } from 'vue'
 
 import { group, stage, toggle } from '../../types/node'

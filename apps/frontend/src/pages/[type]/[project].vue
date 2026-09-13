@@ -573,8 +573,8 @@ import {
 	ServerPlusIcon,
 	SettingsIcon,
 	XIcon,
-} from '@modrinth/assets'
-import { getMarginTarget, moderationSettings } from '@modrinth/moderation'
+} from '@macros/assets'
+import { getMarginTarget, moderationSettings } from '@macros/moderation'
 import {
 	Admonition,
 	ArchivedProjectBanner,
@@ -615,8 +615,8 @@ import {
 	useRelativeTime,
 	useStickyObserver,
 	useVIntl,
-} from '@modrinth/ui'
-import { formatProjectType, isStaff } from '@modrinth/utils'
+} from '@macros/ui'
+import { formatProjectType, isStaff } from '@macros/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useLocalStorage } from '@vueuse/core'
 import { Tooltip } from 'floating-vue'

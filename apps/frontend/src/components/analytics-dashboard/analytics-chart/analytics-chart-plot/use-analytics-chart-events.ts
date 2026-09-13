@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import { injectModrinthClient, useVIntl } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { injectModrinthClient, useVIntl } from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, type ComputedRef } from 'vue'
 

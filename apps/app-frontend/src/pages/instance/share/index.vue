@@ -129,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { LogInIcon, SpinnerIcon, UserPlusIcon } from '@modrinth/assets'
+import { LogInIcon, SpinnerIcon, UserPlusIcon } from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -140,7 +140,7 @@ import {
 	InvitePlayersModal,
 	type InvitePlayersUser,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 

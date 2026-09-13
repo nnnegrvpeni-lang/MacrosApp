@@ -82,7 +82,7 @@ import {
 	SlashIcon,
 	StopCircleIcon,
 	UpdatedIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed } from 'vue'
 
 import type { OverflowMenuOption } from '#ui/components/base/buttons'

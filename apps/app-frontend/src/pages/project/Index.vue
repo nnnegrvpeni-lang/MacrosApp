@@ -263,7 +263,7 @@ import {
 	ReportIcon,
 	SpinnerIcon,
 	StopCircleIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	BrowseInstallHeader,
 	Button,
@@ -286,7 +286,7 @@ import {
 	SelectedProjectsFloatingBar,
 	TeleportOverflowMenu,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import dayjs from 'dayjs'

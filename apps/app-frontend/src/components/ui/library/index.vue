@@ -12,8 +12,8 @@ import {
 	StopCircleIcon,
 	TrashIcon,
 	UploadIcon,
-} from '@modrinth/assets'
-import { defineMessages, useVIntl } from '@modrinth/ui'
+} from '@macros/assets'
+import { defineMessages, useVIntl } from '@macros/ui'
 import { computed, nextTick, onDeactivated, onUnmounted, ref, toRef, watch } from 'vue'
 import Draggable from 'vuedraggable'
 

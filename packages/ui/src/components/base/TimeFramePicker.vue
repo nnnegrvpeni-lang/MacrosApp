@@ -198,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-import { MinusIcon, PlusIcon } from '@modrinth/assets'
+import { MinusIcon, PlusIcon } from '@macros/assets'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckIcon } from '@modrinth/assets'
+import { CheckIcon } from '@macros/assets'
 import { ref, watch } from 'vue'
 
 import { defineMessages, useVIntl } from '../../composables/i18n'

@@ -27,7 +27,7 @@ Define all providers with `createContext` from `packages/ui/src/providers/index.
 The factory returns a typed `[inject, provide]` tuple:
 
 ```ts
-import { createContext } from '@modrinth/ui'
+import { createContext } from '@macros/ui'
 
 interface MyContext {
 	someValue: Ref<string>
@@ -116,7 +116,7 @@ Make a setup function in `apps/app-frontend/src/providers/setup/`:
 ```ts
 // apps/app-frontend/src/providers/setup/my-feature.ts
 import { ref } from 'vue'
-import { provideMyFeature } from '@modrinth/ui'
+import { provideMyFeature } from '@macros/ui'
 
 export function setupMyFeatureProvider() {
 	const items = ref<Item[]>([])
@@ -159,7 +159,7 @@ Inject the provider in a component in `packages/ui`, `apps/frontend`, or `apps/a
 
 ```vue
 <script setup lang="ts">
-import { injectMyFeature } from '@modrinth/ui'
+import { injectMyFeature } from '@macros/ui'
 
 const { items, addItem } = injectMyFeature()
 </script>

@@ -162,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	ClockIcon,
 	DownloadIcon,
@@ -177,8 +177,8 @@ import {
 	StopCircleIcon,
 	TimerIcon,
 	UnknownIcon,
-} from '@modrinth/assets'
-import { Button, IconButton, SplitButton, TeleportOverflowMenu } from '@modrinth/ui'
+} from '@macros/assets'
+import { Button, IconButton, SplitButton, TeleportOverflowMenu } from '@macros/ui'
 import {
 	Avatar,
 	commonMessages,
@@ -194,7 +194,7 @@ import {
 	type ServerLoader,
 	TagIcon,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { computed } from 'vue'
 
 import type { GameInstance } from '@/helpers/types'

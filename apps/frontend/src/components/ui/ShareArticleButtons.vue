@@ -59,8 +59,8 @@ import {
 	MailIcon,
 	MastodonIcon,
 	TwitterIcon,
-} from '@modrinth/assets'
-import { ButtonLink, IconButton } from '@modrinth/ui'
+} from '@macros/assets'
+import { ButtonLink, IconButton } from '@macros/ui'
 
 const props = defineProps<{
 	title?: string

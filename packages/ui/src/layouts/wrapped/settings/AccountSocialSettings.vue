@@ -205,8 +205,8 @@
 
 <script setup lang="ts">
 // TODO this will be moved in with the rest of the xplat settings.
-import type { Labrinth } from '@modrinth/api-client'
-import { LogInIcon, SpinnerIcon, ThinkingRinthbot } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { LogInIcon, SpinnerIcon, ThinkingRinthbot } from '@macros/assets'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 

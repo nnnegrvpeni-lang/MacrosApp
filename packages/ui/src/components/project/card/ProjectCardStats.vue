@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { DownloadIcon, HeartIcon } from '@modrinth/assets'
-import { capitalizeString } from '@modrinth/utils'
+import { DownloadIcon, HeartIcon } from '@macros/assets'
+import { capitalizeString } from '@macros/utils'
 
 import { useCompactNumber, useVIntl } from '../../../composables'
 import { commonMessages } from '../../../utils'

@@ -81,7 +81,7 @@ import {
 	PlusIcon,
 	RightArrowIcon,
 	UsersIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed } from 'vue'
 
 import iconTexture from '#ui/assets/welcome/icon-texture.png'

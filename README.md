@@ -84,7 +84,7 @@ cd MacrosApp
 pnpm install
 
 # 3. Build the application and installer
-pnpm --filter @modrinth/app build
+pnpm --filter @macros/app build
 ```
 
 The output executables and installer will be located in:

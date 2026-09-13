@@ -1,4 +1,4 @@
-import { useVIntl } from '@modrinth/ui'
+import { useVIntl } from '@macros/ui'
 import { computed, type ComputedRef, type Ref, ref, watch } from 'vue'
 
 import type {

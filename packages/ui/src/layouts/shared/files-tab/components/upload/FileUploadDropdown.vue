@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckCircleIcon, FolderOpenIcon, SpinnerIcon, XCircleIcon } from '@modrinth/assets'
+import { CheckCircleIcon, FolderOpenIcon, SpinnerIcon, XCircleIcon } from '@macros/assets'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

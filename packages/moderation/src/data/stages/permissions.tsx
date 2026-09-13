@@ -1,6 +1,6 @@
-import type { Labrinth } from '@modrinth/api-client'
-import { SignatureIcon } from '@modrinth/assets'
-import { injectModrinthClient, injectProjectPageContext } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { SignatureIcon } from '@macros/assets'
+import { injectModrinthClient, injectProjectPageContext } from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 

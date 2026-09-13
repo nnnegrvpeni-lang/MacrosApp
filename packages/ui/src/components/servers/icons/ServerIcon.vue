@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { MinecraftServerIcon } from '@modrinth/assets'
+import { MinecraftServerIcon } from '@macros/assets'
 import { onMounted, ref } from 'vue'
 
 const hasMounted = ref(false)

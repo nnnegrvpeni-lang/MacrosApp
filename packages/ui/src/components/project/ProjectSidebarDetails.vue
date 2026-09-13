@@ -223,7 +223,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	BookTextIcon,
 	CalendarIcon,
@@ -239,8 +239,8 @@ import {
 	ScaleIcon,
 	SparklesIcon,
 	VersionIcon,
-} from '@modrinth/assets'
-import { capitalizeString, renderString } from '@modrinth/utils'
+} from '@macros/assets'
+import { capitalizeString, renderString } from '@macros/utils'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, useTemplateRef } from 'vue'
 

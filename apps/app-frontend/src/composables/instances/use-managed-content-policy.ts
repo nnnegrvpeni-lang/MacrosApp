@@ -1,4 +1,4 @@
-import { type ContentActionWarning, type ContentItem, defineMessages, useVIntl } from '@modrinth/ui'
+import { type ContentActionWarning, type ContentItem, defineMessages, useVIntl } from '@macros/ui'
 import { computed, type Ref } from 'vue'
 
 import type { GameInstance } from '@/helpers/types'

@@ -90,7 +90,7 @@ import {
 	SpinnerIcon,
 	TrashIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { ref } from 'vue'
 
 import Admonition from '#ui/components/base/Admonition.vue'

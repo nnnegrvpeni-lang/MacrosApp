@@ -1,5 +1,5 @@
 <script setup>
-import { BoxIcon, FolderOpenIcon, FolderSearchIcon, TrashIcon } from '@modrinth/assets'
+import { BoxIcon, FolderOpenIcon, FolderSearchIcon, TrashIcon } from '@macros/assets'
 import {
 	Button,
 	defineMessages,
@@ -9,7 +9,7 @@ import {
 	StyledInput,
 	Toggle,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { open } from '@tauri-apps/plugin-dialog'
 import { ref, watch } from 'vue'
 

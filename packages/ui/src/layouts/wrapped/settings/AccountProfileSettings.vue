@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { LogInIcon, ThinkingRinthbot, TrashIcon, UndoIcon, UploadIcon } from '@modrinth/assets'
+import { LogInIcon, ThinkingRinthbot, TrashIcon, UndoIcon, UploadIcon } from '@macros/assets'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 

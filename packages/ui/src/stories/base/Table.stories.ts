@@ -1,4 +1,4 @@
-import { EditIcon, MoreVerticalIcon, TrashIcon } from '@modrinth/assets'
+import { EditIcon, MoreVerticalIcon, TrashIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { computed, ref } from 'vue'
 

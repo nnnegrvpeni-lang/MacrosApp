@@ -129,7 +129,7 @@ import {
 	IssuesIcon,
 	XCircleIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { Button, IconButton } from '#ui/components/base/buttons'

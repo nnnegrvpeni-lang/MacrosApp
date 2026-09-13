@@ -1,4 +1,4 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import type { ComputedRef, Ref } from 'vue'
 
 export type AppearanceTheme = Labrinth.Users.v3.Theme

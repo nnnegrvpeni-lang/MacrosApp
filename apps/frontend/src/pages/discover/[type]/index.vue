@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	BookmarkIcon,
 	CheckIcon,
@@ -10,8 +10,8 @@ import {
 	ListIcon,
 	MoreVerticalIcon,
 	SpinnerIcon,
-} from '@modrinth/assets'
-import type { CardAction } from '@modrinth/ui'
+} from '@macros/assets'
+import type { CardAction } from '@macros/ui'
 import {
 	BrowseInstallHeader,
 	BrowsePageLayout,
@@ -29,8 +29,8 @@ import {
 	useDebugLogger,
 	useStickyObserver,
 	useVIntl,
-} from '@modrinth/ui'
-import { cycleValue } from '@modrinth/utils'
+} from '@macros/ui'
+import { cycleValue } from '@macros/utils'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useTimeoutFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'

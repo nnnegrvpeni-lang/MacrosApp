@@ -1,5 +1,5 @@
-import type { Labrinth } from '@modrinth/api-client'
-import { type AuthProvider, type AuthUser, provideAuth } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { type AuthProvider, type AuthUser, provideAuth } from '@macros/ui'
 import { ref, watchEffect } from 'vue'
 
 import { getSignInRedirectPath } from '~/composables/auth.ts'

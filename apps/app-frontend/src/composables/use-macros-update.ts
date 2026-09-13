@@ -1,4 +1,4 @@
-import { defineMessages, type MessageDescriptor, useVIntl } from '@modrinth/ui'
+import { defineMessages, type MessageDescriptor, useVIntl } from '@macros/ui'
 import { getVersion } from '@tauri-apps/api/app'
 import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
 import { openUrl } from '@tauri-apps/plugin-opener'

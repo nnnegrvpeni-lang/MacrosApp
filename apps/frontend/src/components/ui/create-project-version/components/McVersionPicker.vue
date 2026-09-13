@@ -90,9 +90,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { Labrinth } from '@modrinth/api-client'
-import { SearchIcon } from '@modrinth/assets'
-import { Button, Chips, StyledInput } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import { SearchIcon } from '@macros/assets'
+import { Button, Chips, StyledInput } from '@macros/ui'
 import { useMagicKeys } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref } from 'vue'
 

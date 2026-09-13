@@ -144,7 +144,7 @@ import {
 	PlusIcon,
 	SearchIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -155,7 +155,7 @@ import {
 	StyledInput,
 	useCompactNumber,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 
 import CollectionCreateModal from '~/components/ui/create/CollectionCreateModal.vue'

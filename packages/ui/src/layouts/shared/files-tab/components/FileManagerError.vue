@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { FileIcon, HomeIcon, RefreshCwIcon } from '@modrinth/assets'
+import { FileIcon, HomeIcon, RefreshCwIcon } from '@macros/assets'
 
 import { Button } from '#ui/components/base/buttons'
 import { defineMessages, useVIntl } from '#ui/composables/i18n'

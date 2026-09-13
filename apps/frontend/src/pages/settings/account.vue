@@ -468,7 +468,7 @@ import {
 	TrashIcon,
 	UpdatedIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Admonition,
 	Button,
@@ -482,7 +482,7 @@ import {
 	StyledInput,
 	Table,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import KeyIcon from 'assets/icons/auth/key.svg'
 import DiscordIcon from 'assets/icons/auth/sso-discord.svg'
 import GithubIcon from 'assets/icons/auth/sso-github.svg'

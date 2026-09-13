@@ -94,15 +94,15 @@
 	</div>
 </template>
 <script setup>
-import { HeartIcon, ModrinthPlusIcon, SettingsIcon, SparklesIcon, StarIcon } from '@modrinth/assets'
+import { HeartIcon, ModrinthPlusIcon, SettingsIcon, SparklesIcon, StarIcon } from '@macros/assets'
 import {
 	Button,
 	ButtonLink,
 	injectNotificationManager,
 	PurchaseModal,
 	useFormatPrice,
-} from '@modrinth/ui'
-import { calculateSavings, getCurrency } from '@modrinth/utils'
+} from '@macros/ui'
+import { calculateSavings, getCurrency } from '@macros/utils'
 
 import { useBaseFetch } from '@/composables/fetch.js'
 import { products } from '~/generated/state.json'

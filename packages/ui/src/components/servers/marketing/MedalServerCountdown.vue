@@ -44,8 +44,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { ClockIcon, RocketIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { ClockIcon, RocketIcon } from '@macros/assets'
 import { useQuery } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import dayjsDuration from 'dayjs/plugin/duration'

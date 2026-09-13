@@ -24,15 +24,15 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { TimerIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { TimerIcon } from '@macros/assets'
 import {
 	PageHeaderMetadata,
 	PageHeaderMetadataItem,
 	ServerOnlinePlayers,
 	ServerPing,
 	ServerRegion,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 defineProps<{
 	loadingServerPing?: boolean

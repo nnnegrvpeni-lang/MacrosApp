@@ -251,7 +251,7 @@
 </template>
 
 <script setup lang="ts">
-import { IntercomBubbleIcon, UnknownIcon } from '@modrinth/assets'
+import { IntercomBubbleIcon, UnknownIcon } from '@macros/assets'
 import { Tooltip } from 'floating-vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
 

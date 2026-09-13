@@ -33,7 +33,7 @@ import {
 	TimeFramePicker as BaseTimeFramePicker,
 	type TimeFramePickerSelection,
 	type TimeFramePreset,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import {
 	ANALYTICS_START_DATE_INPUT_VALUE,

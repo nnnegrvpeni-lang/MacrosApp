@@ -1,4 +1,4 @@
-import type { Archon, LauncherMeta } from '@modrinth/api-client'
+import type { Archon, LauncherMeta } from '@macros/api-client'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, type ComputedRef, type Ref, ref, type ShallowRef, watch } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'

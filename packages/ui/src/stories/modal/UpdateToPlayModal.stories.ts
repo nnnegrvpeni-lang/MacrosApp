@@ -1,4 +1,4 @@
-import { DownloadIcon } from '@modrinth/assets'
+import { DownloadIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { ref } from 'vue'
 

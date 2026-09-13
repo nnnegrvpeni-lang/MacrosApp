@@ -3,8 +3,8 @@
  * So, for example, addDefaultInstance creates a blank instance object, where the Rust struct is serialized,
  *  and deserialized into a usable JS object.
  */
-import type { Labrinth } from '@modrinth/api-client'
-import type { ContentItem, ContentOwner } from '@modrinth/ui'
+import type { Labrinth } from '@macros/api-client'
+import type { ContentItem, ContentOwner } from '@macros/ui'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 
 import type { InstallJobSnapshot, SharedInstanceUpdateDiff } from './install'

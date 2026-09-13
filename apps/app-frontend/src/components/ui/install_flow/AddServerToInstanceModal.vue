@@ -1,5 +1,5 @@
 <script setup>
-import { CheckIcon, PlusIcon, SearchIcon } from '@modrinth/assets'
+import { CheckIcon, PlusIcon, SearchIcon } from '@macros/assets'
 import {
 	Admonition,
 	Avatar,
@@ -8,7 +8,7 @@ import {
 	injectNotificationManager,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 

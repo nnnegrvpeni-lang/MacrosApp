@@ -1,6 +1,6 @@
-import type { AbstractModrinthClient, Labrinth, SharedInstances } from '@modrinth/api-client'
-import type { ExtendedReport, OwnershipTarget } from '@modrinth/moderation'
-import type { Organization, Project, TeamMember, Thread, User, Version } from '@modrinth/utils'
+import type { AbstractModrinthClient, Labrinth, SharedInstances } from '@macros/api-client'
+import type { ExtendedReport, OwnershipTarget } from '@macros/moderation'
+import type { Organization, Project, TeamMember, Thread, User, Version } from '@macros/utils'
 
 export const useModerationCache = () => ({
 	threads: useState<Map<string, Thread>>('moderation-report-cache-threads', () => new Map()),
@@ -203,7 +203,7 @@ export async function enrichReportBatch(
 	})
 }
 
-// Doesn't need to be in @modrinth/moderation because it is specific to the frontend.
+// Doesn't need to be in @macros/moderation because it is specific to the frontend.
 export interface ModerationOwnershipUser {
 	kind: 'user'
 	id: string

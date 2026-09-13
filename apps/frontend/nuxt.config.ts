@@ -31,7 +31,7 @@ const STAGING_MODRINTH_URL = 'https://staging.modrinth.com'
 export default defineNuxtConfig({
 	srcDir: 'src/',
 	alias: {
-		'@modrinth/api-client': API_CLIENT_SOURCE,
+		'@macros/api-client': API_CLIENT_SOURCE,
 	},
 	app: {
 		head: {
@@ -92,7 +92,7 @@ export default defineNuxtConfig({
 		cacheDir: '../../node_modules/.vite/apps/knossos',
 		resolve: {
 			alias: {
-				'@modrinth/api-client': API_CLIENT_SOURCE,
+				'@macros/api-client': API_CLIENT_SOURCE,
 			},
 			dedupe: ['vue'],
 		},

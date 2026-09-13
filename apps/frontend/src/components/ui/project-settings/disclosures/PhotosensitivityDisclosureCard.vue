@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { EyeIcon } from '@modrinth/assets'
+import { EyeIcon } from '@macros/assets'
 import {
 	commonMessages,
 	defineMessages,
 	SettingsFormGroup,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import DisclosureToggleCard from './DisclosureToggleCard.vue'
 import type { DisclosureCardMetaProps, DisclosureLockStatus, NoteDisclosure } from './types'

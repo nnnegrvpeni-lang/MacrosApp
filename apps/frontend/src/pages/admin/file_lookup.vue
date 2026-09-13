@@ -80,15 +80,15 @@
 </template>
 
 <script setup lang="ts">
-import { FileIcon, SpinnerIcon, UploadIcon } from '@modrinth/assets'
+import { FileIcon, SpinnerIcon, UploadIcon } from '@macros/assets'
 import {
 	Admonition,
 	Avatar,
 	CopyCode,
 	injectNotificationManager,
 	useFormatBytes,
-} from '@modrinth/ui'
-import type { Project, Version } from '@modrinth/utils'
+} from '@macros/ui'
+import type { Project, Version } from '@macros/utils'
 
 const { addNotification } = injectNotificationManager()
 

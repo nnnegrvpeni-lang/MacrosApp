@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineMessages, useVIntl } from '@modrinth/ui'
+import { defineMessages, useVIntl } from '@macros/ui'
 
 const vintl = useVIntl()
 const { formatMessage } = vintl

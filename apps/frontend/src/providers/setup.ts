@@ -1,4 +1,4 @@
-import { provideNotificationManager, setupUserPreferencesProvider } from '@modrinth/ui'
+import { provideNotificationManager, setupUserPreferencesProvider } from '@macros/ui'
 
 import { FrontendNotificationManager } from './frontend-notifications'
 import { setupAuthProvider } from './setup/auth'

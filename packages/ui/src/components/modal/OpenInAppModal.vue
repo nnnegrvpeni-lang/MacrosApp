@@ -110,8 +110,8 @@
 </template>
 
 <script setup lang="ts">
-import { CheckIcon, DownloadIcon, XIcon } from '@modrinth/assets'
-import { commonMessages } from '@modrinth/ui'
+import { CheckIcon, DownloadIcon, XIcon } from '@macros/assets'
+import { commonMessages } from '@macros/ui'
 import { computed, nextTick, onUnmounted, ref } from 'vue'
 
 import { Button, ButtonLink } from '#ui/components/base/buttons'

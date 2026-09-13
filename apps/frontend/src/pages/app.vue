@@ -12,7 +12,7 @@ import {
 	SendIcon,
 	TrashIcon,
 	WindowsIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Accordion,
 	Avatar,
@@ -25,7 +25,7 @@ import {
 	IconButton,
 	IntlFormatted,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import ATLauncher from '~/assets/images/external/atlauncher.svg?component'
 import CurseForge from '~/assets/images/external/curseforge.svg?component'

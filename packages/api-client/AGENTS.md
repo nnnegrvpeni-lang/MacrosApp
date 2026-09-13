@@ -1,4 +1,4 @@
-# @modrinth/api-client
+# @macros/api-client
 
 Platform-agnostic API client for Modrinth's services. Works in Nuxt (SSR + CSR), Tauri (desktop app), and plain Node/browser environments.
 
@@ -92,7 +92,7 @@ const { data } = useQuery({
 })
 ```
 
-`provideModrinthClient` and `injectModrinthClient` are exported from `@modrinth/ui` (defined in `packages/ui/src/providers/api-client.ts`). The provider is typed as `AbstractModrinthClient`, so shared components in `packages/ui` work with any platform client.
+`provideModrinthClient` and `injectModrinthClient` are exported from `@macros/ui` (defined in `packages/ui/src/providers/api-client.ts`). The provider is typed as `AbstractModrinthClient`, so shared components in `packages/ui` work with any platform client.
 
 ## Types
 
@@ -101,7 +101,7 @@ Types must match 1:1 with how they are returned from the backend API they are fe
 Types are organized in namespaces that mirror the backend services:
 
 ```ts
-import type { Labrinth, Archon, Kyros, ISO3166 } from '@modrinth/api-client'
+import type { Labrinth, Archon, Kyros, ISO3166 } from '@macros/api-client'
 
 const project: Labrinth.Projects.v3.Project = ...
 const server: Archon.Servers.v0.Server = ...

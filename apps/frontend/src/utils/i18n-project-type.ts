@@ -1,4 +1,4 @@
-import { defineMessages } from '@modrinth/ui'
+import { defineMessages } from '@macros/ui'
 
 const projectTypeMessages = defineMessages({
 	datapack: {

@@ -233,7 +233,7 @@ import {
 	SearchIcon,
 	ShareIcon,
 	UploadIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { Button, IconButton, TeleportOverflowMenu } from '#ui/components/base/buttons'

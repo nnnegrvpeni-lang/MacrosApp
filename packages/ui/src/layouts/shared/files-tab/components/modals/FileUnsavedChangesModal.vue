@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { SaveIcon, TrashIcon, XIcon } from '@modrinth/assets'
+import { SaveIcon, TrashIcon, XIcon } from '@macros/assets'
 import { ref } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

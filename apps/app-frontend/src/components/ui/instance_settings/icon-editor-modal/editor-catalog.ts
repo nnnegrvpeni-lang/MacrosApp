@@ -1,4 +1,4 @@
-import { defineMessages, type MessageDescriptor } from '@modrinth/ui'
+import { defineMessages, type MessageDescriptor } from '@macros/ui'
 
 import backpack from '@/assets/instance-icons/backpack.png'
 import beacon from '@/assets/instance-icons/beacon.png'

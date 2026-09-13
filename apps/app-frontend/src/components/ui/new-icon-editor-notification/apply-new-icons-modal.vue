@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BanIcon, SpinnerIcon, TagCategoryWandSparklesIcon, XIcon } from '@modrinth/assets'
+import { BanIcon, SpinnerIcon, TagCategoryWandSparklesIcon, XIcon } from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -8,7 +8,7 @@ import {
 	injectNotificationManager,
 	NewModal,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
 import IconEditorModal from '@/components/ui/instance_settings/icon-editor-modal/index.vue'

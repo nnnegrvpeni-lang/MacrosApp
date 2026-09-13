@@ -1,4 +1,4 @@
-import type { ModrinthId } from '@modrinth/utils'
+import type { ModrinthId } from '@macros/utils'
 
 export type GameInstance = {
 	id: string

@@ -1,4 +1,4 @@
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import type { Component, ComputedRef, MaybeRef, Ref, ShallowRef } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 

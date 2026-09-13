@@ -56,8 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import { CompassIcon, ImportIcon, RightArrowIcon } from '@modrinth/assets'
-import { commonMessages, defineMessages, useVIntl } from '@modrinth/ui'
+import { CompassIcon, ImportIcon, RightArrowIcon } from '@macros/assets'
+import { commonMessages, defineMessages, useVIntl } from '@macros/ui'
 import { defineAsyncComponent, h, onMounted, ref, watch } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'

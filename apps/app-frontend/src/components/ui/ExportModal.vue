@@ -1,5 +1,5 @@
 <script setup>
-import { FolderOpenIcon, XIcon } from '@modrinth/assets'
+import { FolderOpenIcon, XIcon } from '@macros/assets'
 import {
 	Button,
 	commonMessages,
@@ -10,7 +10,7 @@ import {
 	NewModal,
 	StyledInput,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { save } from '@tauri-apps/plugin-dialog'
 import { ref, shallowRef } from 'vue'
 

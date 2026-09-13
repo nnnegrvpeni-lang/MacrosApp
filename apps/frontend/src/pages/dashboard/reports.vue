@@ -7,7 +7,7 @@
 	</div>
 </template>
 <script setup>
-import { defineMessages, useVIntl } from '@modrinth/ui'
+import { defineMessages, useVIntl } from '@macros/ui'
 
 import ReportsList from '~/components/ui/report/ReportsList.vue'
 

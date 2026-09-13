@@ -138,7 +138,7 @@ import {
 	SearchIcon,
 	UserPlusIcon,
 	XIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 
 import borisAvatar from '#ui/assets/servers/server-list-empty/boris.png'
 import fetchAvatar from '#ui/assets/servers/server-list-empty/fetch.png'

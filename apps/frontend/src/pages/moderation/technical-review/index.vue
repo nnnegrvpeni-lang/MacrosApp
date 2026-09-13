@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	BlendIcon,
 	ListFilterIcon,
@@ -7,7 +7,7 @@ import {
 	SearchIcon,
 	SortAscIcon,
 	SortDescIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Combobox,
 	type ComboboxOption,
@@ -18,7 +18,7 @@ import {
 	TeleportPopoutMenu,
 	Toggle,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/vue-query'
 import Fuse from 'fuse.js'
 import { nextTick, reactive } from 'vue'

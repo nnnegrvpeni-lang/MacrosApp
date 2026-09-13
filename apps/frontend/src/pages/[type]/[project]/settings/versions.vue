@@ -327,7 +327,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Labrinth } from '@modrinth/api-client'
+import type { Labrinth } from '@macros/api-client'
 import {
 	BoxIcon,
 	ClipboardCopyIcon,
@@ -343,7 +343,7 @@ import {
 	RightArrowIcon,
 	ShareIcon,
 	TrashIcon,
-} from '@modrinth/assets'
+} from '@macros/assets'
 import {
 	Admonition,
 	Button,
@@ -358,7 +358,7 @@ import {
 	ProjectPageVersions,
 	TeleportOverflowMenu,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useTemplateRef, watch } from 'vue'
 
 import CreateProjectVersionModal from '~/components/ui/create-project-version/CreateProjectVersionModal.vue'

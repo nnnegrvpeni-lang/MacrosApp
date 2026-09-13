@@ -321,9 +321,9 @@ import {
 	UploadIcon,
 	XIcon,
 	YouTubeIcon,
-} from '@modrinth/assets'
-import { markdownCommands, modrinthMarkdownEditorKeymap } from '@modrinth/utils/codemirror'
-import { renderHighlightedString } from '@modrinth/utils/highlightjs'
+} from '@macros/assets'
+import { markdownCommands, modrinthMarkdownEditorKeymap } from '@macros/utils/codemirror'
+import { renderHighlightedString } from '@macros/utils/highlightjs'
 import { type Component, computed, onBeforeUnmount, onMounted, ref, toRef, useId, watch } from 'vue'
 
 import { Button, IconButton } from '#ui/components/base/buttons'

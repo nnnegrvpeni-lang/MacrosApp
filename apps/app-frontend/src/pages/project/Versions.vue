@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { CheckIcon, DownloadIcon, ExternalIcon } from '@modrinth/assets'
+import { CheckIcon, DownloadIcon, ExternalIcon } from '@macros/assets'
 import {
 	ButtonLink,
 	commonMessages,
@@ -58,7 +58,7 @@ import {
 	injectNotificationManager,
 	ProjectPageVersions,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 

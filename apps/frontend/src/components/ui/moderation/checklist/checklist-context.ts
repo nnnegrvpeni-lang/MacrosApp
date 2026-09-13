@@ -1,4 +1,4 @@
-import type { ActiveAction, NodeState } from '@modrinth/moderation/src/types/node'
+import type { ActiveAction, NodeState } from '@macros/moderation/src/types/node'
 import type { InjectionKey, Ref } from 'vue'
 
 export interface LiveNode {

@@ -1,4 +1,4 @@
-import { CopyIcon, FolderOpenIcon, PlayIcon, SettingsIcon, TrashIcon } from '@modrinth/assets'
+import { CopyIcon, FolderOpenIcon, PlayIcon, SettingsIcon, TrashIcon } from '@macros/assets'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { fn } from 'storybook/test'
 import { nextTick, onMounted, ref } from 'vue'

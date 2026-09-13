@@ -31,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { CodeIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { CodeIcon } from '@macros/assets'
 import {
 	Admonition,
 	AppearanceSettingsLayout,
@@ -52,7 +52,7 @@ import {
 	UnsavedChangesPopup,
 	useSavable,
 	useVIntl,
-} from '@modrinth/ui'
+} from '@macros/ui'
 
 import { isDarkTheme, type Theme } from '~/plugins/theme/index.ts'
 

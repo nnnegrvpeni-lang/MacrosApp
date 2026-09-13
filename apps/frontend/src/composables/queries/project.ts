@@ -1,4 +1,4 @@
-import type { AbstractModrinthClient } from '@modrinth/api-client'
+import type { AbstractModrinthClient } from '@macros/api-client'
 import type { QueryClient } from '@tanstack/query-core'
 
 export const STALE_TIME = 1000 * 60 * 5 // 5 minutes

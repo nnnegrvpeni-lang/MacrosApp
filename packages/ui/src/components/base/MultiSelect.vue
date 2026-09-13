@@ -397,7 +397,7 @@
 <script setup lang="ts" generic="T">
 import 'overlayscrollbars/overlayscrollbars.css'
 
-import { CheckIcon, ChevronLeftIcon, MinusIcon, SearchIcon, XIcon } from '@modrinth/assets'
+import { CheckIcon, ChevronLeftIcon, MinusIcon, SearchIcon, XIcon } from '@macros/assets'
 import { onClickOutside } from '@vueuse/core'
 import { Menu } from 'floating-vue'
 import Fuse from 'fuse.js'

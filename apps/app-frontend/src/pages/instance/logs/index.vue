@@ -10,7 +10,7 @@ import {
 	injectModrinthClient,
 	injectNotificationManager,
 	provideConsoleManager,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, shallowRef, triggerRef, watch, watchEffect } from 'vue'
 

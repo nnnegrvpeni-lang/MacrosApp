@@ -99,8 +99,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Labrinth } from '@modrinth/api-client'
-import { DownloadIcon, SpinnerIcon } from '@modrinth/assets'
+import type { Labrinth } from '@macros/api-client'
+import { DownloadIcon, SpinnerIcon } from '@macros/assets'
 import {
 	Avatar,
 	Button,
@@ -115,8 +115,8 @@ import {
 	truncatedTooltip,
 	useDebugLogger,
 	useVIntl,
-} from '@modrinth/ui'
-import type { DisplayProjectType } from '@modrinth/utils'
+} from '@macros/ui'
+import type { DisplayProjectType } from '@macros/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import JSZip from 'jszip'

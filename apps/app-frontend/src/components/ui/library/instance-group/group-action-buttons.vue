@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ArrowDownIcon, ArrowUpIcon, EditIcon, SquarePlusIcon, TrashIcon } from '@modrinth/assets'
-import { defineMessages, IconButton, useVIntl } from '@modrinth/ui'
+import { ArrowDownIcon, ArrowUpIcon, EditIcon, SquarePlusIcon, TrashIcon } from '@macros/assets'
+import { defineMessages, IconButton, useVIntl } from '@macros/ui'
 
 withDefaults(
 	defineProps<{

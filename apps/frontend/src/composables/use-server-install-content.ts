@@ -1,4 +1,4 @@
-import type { Archon, Labrinth } from '@modrinth/api-client'
+import type { Archon, Labrinth } from '@macros/api-client'
 import type {
 	BrowseInstallContentType,
 	BrowseInstallPlan,
@@ -6,7 +6,7 @@ import type {
 	CreationFlowContextValue,
 	EnvironmentSearchOverride,
 	FilterValue,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import {
 	commonMessages,
 	defineMessages,
@@ -26,7 +26,7 @@ import {
 	useVIntl,
 	waitForServerContextRuntimeReady,
 	writeStoredServerInstallQueue,
-} from '@modrinth/ui'
+} from '@macros/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { ComputedRef, Ref } from 'vue'
 import { computed, nextTick, ref, watch } from 'vue'

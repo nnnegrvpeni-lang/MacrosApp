@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import '@modrinth/ui/src/styles/tailwind-utilities.css';
+@import '@macros/ui/src/styles/tailwind-utilities.css';
 
 @font-face {
 	font-family: 'bundled-minecraft-font-mrapp';
@@ -180,7 +180,7 @@ img {
 	}
 }
 
-@import '@modrinth/assets/omorphia.scss';
+@import '@macros/assets/omorphia.scss';
 
 input {
 	border-radius: var(--size-rounded-sm);

@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Combobox } from '@modrinth/ui'
+import { Combobox } from '@macros/ui'
 import { computed } from 'vue'
 
 import DependencySelect from '~/components/ui/create-project-version/components/DependencySelect.vue'

@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { SaveIcon, SpinnerIcon, XIcon } from '@modrinth/assets'
+import { SaveIcon, SpinnerIcon, XIcon } from '@macros/assets'
 import { computed, ref, watch } from 'vue'
 
 import { Button } from '#ui/components/base/buttons'
