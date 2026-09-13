@@ -179,7 +179,15 @@ pub mod base62_impl {
                 where
                     E: de::Error,
                 {
-                    parse_base62(string).map(Base62Id).map_err(E::custom)
+                    match parse_base62(string) {
+                        Ok(id) => Ok(Base62Id(id)),
+                        Err(_) => {
+                            use std::hash::{Hash, Hasher};
+                            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+                            string.hash(&mut hasher);
+                            Ok(Base62Id(hasher.finish()))
+                        }
+                    }
                 }
             }
 

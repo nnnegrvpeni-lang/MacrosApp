@@ -936,18 +936,45 @@ server.get('/v3/friends', async (req, reply) => {
 	const rows = db
 		.prepare(
 			`
-			SELECT user_id, friend_id, accepted, created_at FROM friends WHERE user_id = ? OR friend_id = ?
+			SELECT f.id as request_id, f.user_id, f.friend_id, f.accepted, f.created_at,
+			       u_sender.username as sender_username, u_sender.avatar_url as sender_avatar,
+			       u_recipient.username as recipient_username, u_recipient.avatar_url as recipient_avatar
+			FROM friends f
+			LEFT JOIN users u_sender ON u_sender.id = f.user_id
+			LEFT JOIN users u_recipient ON u_recipient.id = f.friend_id
+			WHERE f.user_id = ? OR f.friend_id = ?
 		`
 		)
 		.all(user.id, user.id) as any[]
 
 	return reply.send(
-		rows.map((r) => ({
-			id: r.user_id === user.id ? r.friend_id : r.user_id,
-			friend_id: r.user_id === user.id ? r.user_id : r.friend_id,
-			accepted: Boolean(r.accepted),
-			created: new Date(r.created_at || Date.now()).toISOString()
-		}))
+		rows.map((r) => {
+			const isIncoming = !r.accepted && r.friend_id === user.id
+			const isOutgoing = !r.accepted && r.user_id === user.id
+			const otherUser = r.user_id === user.id
+				? { id: r.friend_id, username: r.recipient_username, avatar_url: r.recipient_avatar }
+				: { id: r.user_id, username: r.sender_username, avatar_url: r.sender_avatar }
+
+			let avatar = otherUser.avatar_url
+			if (avatar && avatar.startsWith('/')) {
+				avatar = `https://macrosapp.1337.cx${avatar}`
+			}
+			if (!avatar) {
+				avatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(otherUser.username || otherUser.id)}`
+			}
+
+			return {
+				id: r.friend_id,
+				friend_id: r.user_id,
+				accepted: Boolean(r.accepted),
+				created: new Date(r.created_at || Date.now()).toISOString(),
+				is_incoming: isIncoming,
+				is_outgoing: isOutgoing,
+				other_id: otherUser.id,
+				username: otherUser.username || otherUser.id,
+				avatar_url: avatar
+			}
+		})
 	)
 })
 
@@ -987,7 +1014,11 @@ server.post('/v3/friend/:friend_id', async (req, reply) => {
 		if (existing.user_id === target.id && !existing.accepted) {
 			// Accept incoming request
 			db.prepare('UPDATE friends SET accepted = 1 WHERE id = ?').run(existing.id)
-			notifyUser(target.id, { type: 'friend_request_accepted', from: user.id })
+			notifyUser(target.id, {
+				type: 'friend_request_accepted',
+				from: user.id,
+				body: { type: 'friend_request_accepted', from: user.id }
+			})
 		}
 		return reply.status(204).send()
 	}
@@ -1001,7 +1032,11 @@ server.post('/v3/friend/:friend_id', async (req, reply) => {
 	)
 
 	// Send real-time websocket alert
-	notifyUser(target.id, { type: 'friend_request', from: user.id })
+	notifyUser(target.id, {
+		type: 'friend_request',
+		from: user.id,
+		body: { type: 'friend_request', from: user.id }
+	})
 
 	return reply.status(204).send()
 })
@@ -1024,7 +1059,11 @@ server.delete('/v3/friend/:friend_id', async (req, reply) => {
 		'DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)'
 	).run(user.id, targetId, targetId, user.id)
 
-	notifyUser(targetId, { type: 'friend_removed', from: user.id })
+	notifyUser(targetId, {
+		type: 'friend_removed',
+		from: user.id,
+		body: { type: 'friend_removed', from: user.id }
+	})
 	return reply.status(204).send()
 })
 
@@ -1330,8 +1369,8 @@ registerInstanceRoute('post', '/instances/:id/invites/:invite_id', async (req, r
 	if (!invite) return reply.status(404).send({ error: 'not_found', description: 'Invite not found' })
 
 	db.prepare(
-		'INSERT OR IGNORE INTO shared_instance_users (id, instance_id, user_id, role) VALUES (?, ?, ?, "member")'
-	).run(crypto.randomUUID(), id, user.id)
+		'INSERT OR IGNORE INTO shared_instance_users (id, instance_id, user_id, role) VALUES (?, ?, ?, ?)'
+	).run(crypto.randomUUID(), id, user.id, 'member')
 
 	db.prepare('UPDATE shared_instance_invites SET uses = uses + 1 WHERE id = ?').run(invite_id)
 

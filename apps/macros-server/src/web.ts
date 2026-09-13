@@ -325,6 +325,27 @@ export function renderNavbarUserHtml(user?: any): string {
 	return `
 	<div class="flex items-center gap-2.5">
 		${langSwitcher}
+		<div class="relative inline-block text-left" id="navNotifContainer">
+			<button id="navNotifBtn" type="button" onclick="window.toggleNavNotif(event)" class="relative flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 hover:border-white/20 text-zinc-300 hover:text-white transition cursor-pointer select-none active:scale-95" title="Уведомления / Notifications">
+				<svg class="w-4 h-4 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+				</svg>
+				<span id="navNotifBadge" class="hidden absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-emerald-500 text-black text-[9px] font-extrabold flex items-center justify-center shadow-lg shadow-emerald-500/30">0</span>
+			</button>
+
+			<div id="navNotifDropdown" class="hidden absolute right-0 mt-2 w-80 sm:w-88 rounded-2xl bg-[#09090b]/95 backdrop-blur-2xl border border-zinc-800 shadow-2xl p-3 z-50 animate-fade-up select-none">
+				<div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 px-1">
+					<span class="text-xs font-bold text-white flex items-center gap-1.5">
+						<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+						<span data-i18n="nav.notif.title">Уведомления</span>
+					</span>
+					<a href="/account#friends" class="text-[11px] text-zinc-400 hover:text-emerald-400 transition" data-i18n="nav.notif.view_all">Все друзья &rarr;</a>
+				</div>
+				<div id="navNotifList" class="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+					<div class="text-xs text-zinc-500 py-6 text-center" data-i18n="nav.notif.empty">Нет новых уведомлений</div>
+				</div>
+			</div>
+		</div>
 		<button id="navPublishBtn" type="button" onclick="window.openCreateProjectModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-zinc-200 border border-white/10 transition cursor-pointer active:scale-95 select-none" title="Create a new project">
 			<svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
 			<span data-i18n="nav.publish">Publish</span>
@@ -472,6 +493,141 @@ export function renderNavbarUserScript(): string {
 				langDrop.classList.add('hidden');
 				if (langChev) langChev.style.transform = 'rotate(0deg)';
 			}
+		};
+
+		window.toggleNavNotif = function(e) {
+			if (e) {
+				if (e.preventDefault) e.preventDefault();
+				if (e.stopPropagation) e.stopPropagation();
+			}
+			const dropdown = document.getElementById('navNotifDropdown');
+			if (!dropdown) return;
+			const isHidden = dropdown.classList.contains('hidden');
+			const userDrop = document.getElementById('userMenuDropdown');
+			const langDrop = document.getElementById('langDropdown');
+			if (userDrop) userDrop.classList.add('hidden');
+			if (langDrop) langDrop.classList.add('hidden');
+
+			if (isHidden) {
+				dropdown.classList.remove('hidden');
+				window.loadNavNotifications();
+			} else {
+				dropdown.classList.add('hidden');
+			}
+		};
+
+		window.loadNavNotifications = async function() {
+			try {
+				const token = localStorage.getItem('macros_token');
+				if (!token) return;
+				const res = await fetch('/v3/friends', {
+					headers: { 'Authorization': 'Bearer ' + token }
+				});
+				if (!res.ok) return;
+				const friends = await res.json();
+				const incoming = Array.isArray(friends) ? friends.filter(f => f.is_incoming) : [];
+				const badge = document.getElementById('navNotifBadge');
+				const list = document.getElementById('navNotifList');
+
+				if (badge) {
+					if (incoming.length > 0) {
+						badge.textContent = incoming.length;
+						badge.classList.remove('hidden');
+					} else {
+						badge.classList.add('hidden');
+					}
+				}
+
+				if (list) {
+					if (incoming.length === 0) {
+						list.innerHTML = '<div class="text-xs text-zinc-500 py-6 text-center" data-i18n="nav.notif.empty">Нет новых уведомлений</div>';
+					} else {
+						list.innerHTML = '';
+						incoming.forEach(req => {
+							const row = document.createElement('div');
+							row.className = 'flex items-center justify-between gap-3 p-2.5 rounded-xl bg-zinc-900/80 border border-white/5 text-xs';
+							
+							const left = document.createElement('div');
+							left.className = 'flex items-center gap-2.5 min-w-0';
+							
+							const img = document.createElement('img');
+							img.src = req.avatar_url || '/assets/logo.png';
+							img.className = 'w-8 h-8 rounded-full object-cover border border-white/10 shrink-0';
+							img.onerror = () => { img.src = '/assets/logo.png'; };
+							
+							const meta = document.createElement('div');
+							meta.className = 'min-w-0';
+							const name = document.createElement('div');
+							name.className = 'font-bold text-white truncate';
+							name.textContent = req.username;
+							const sub = document.createElement('div');
+							sub.className = 'text-[11px] text-zinc-400';
+							sub.textContent = 'Запрос в друзья';
+							meta.appendChild(name);
+							meta.appendChild(sub);
+							left.appendChild(img);
+							left.appendChild(meta);
+
+							const actions = document.createElement('div');
+							actions.className = 'flex items-center gap-1.5 shrink-0';
+
+							const acceptBtn = document.createElement('button');
+							acceptBtn.type = 'button';
+							acceptBtn.className = 'px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-[11px] transition active:scale-95 cursor-pointer';
+							acceptBtn.textContent = 'Принять';
+							acceptBtn.onclick = (ev) => {
+								ev.stopPropagation();
+								window.acceptNavFriend(req.other_id);
+							};
+
+							const declineBtn = document.createElement('button');
+							declineBtn.type = 'button';
+							declineBtn.className = 'px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-medium text-[11px] transition active:scale-95 cursor-pointer';
+							declineBtn.textContent = 'Отклонить';
+							declineBtn.onclick = (ev) => {
+								ev.stopPropagation();
+								window.declineNavFriend(req.other_id);
+							};
+
+							actions.appendChild(acceptBtn);
+							actions.appendChild(declineBtn);
+							row.appendChild(left);
+							row.appendChild(actions);
+							list.appendChild(row);
+						});
+					}
+				}
+			} catch (err) {}
+		};
+
+		window.acceptNavFriend = async function(otherId) {
+			const token = localStorage.getItem('macros_token');
+			if (!token) return;
+			try {
+				await fetch('/v3/friend/' + encodeURIComponent(otherId), {
+					method: 'POST',
+					headers: { 'Authorization': 'Bearer ' + token }
+				});
+				window.loadNavNotifications();
+				if (typeof window.loadFriends === 'function') {
+					window.loadFriends();
+				}
+			} catch (err) {}
+		};
+
+		window.declineNavFriend = async function(otherId) {
+			const token = localStorage.getItem('macros_token');
+			if (!token) return;
+			try {
+				await fetch('/v3/friend/' + encodeURIComponent(otherId), {
+					method: 'DELETE',
+					headers: { 'Authorization': 'Bearer ' + token }
+				});
+				window.loadNavNotifications();
+				if (typeof window.loadFriends === 'function') {
+					window.loadFriends();
+				}
+			} catch (err) {}
 		};
 
 		window.toggleUserMenu = function(e) {
@@ -694,6 +850,17 @@ export function renderNavbarUserScript(): string {
 				'account.friends.placeholder': "Friend's username...",
 				'account.friends.add': 'Add',
 				'account.friends.empty': 'Friend list is empty',
+				'nav.notif.title': 'Notifications',
+				'nav.notif.empty': 'No new notifications',
+				'nav.notif.view_all': 'All friends',
+				'account.friends.incoming': 'Incoming Requests',
+				'account.friends.sent': 'Sent Requests',
+				'account.friends.friends': 'Friends',
+				'account.friends.accept': 'Accept',
+				'account.friends.decline': 'Decline',
+				'account.friends.cancel': 'Cancel',
+				'account.friends.remove': 'Remove',
+				'toast.friend_accepted': 'Friend request accepted!',
 				'account.friends.status_friend': 'Friend',
 				'account.friends.status_request': 'Pending',
 				'account.instances.title': 'Shared Modpacks',
@@ -946,6 +1113,17 @@ export function renderNavbarUserScript(): string {
 				'account.friends.placeholder': 'Никнейм друга...',
 				'account.friends.add': 'Добавить',
 				'account.friends.empty': 'Список друзей пуст',
+				'nav.notif.title': 'Уведомления',
+				'nav.notif.empty': 'Нет новых уведомлений',
+				'nav.notif.view_all': 'Все друзья',
+				'account.friends.incoming': 'Входящие заявки в друзья',
+				'account.friends.sent': 'Исходящие заявки',
+				'account.friends.friends': 'Друзья',
+				'account.friends.accept': 'Принять',
+				'account.friends.decline': 'Отклонить',
+				'account.friends.cancel': 'Отменить',
+				'account.friends.remove': 'Удалить',
+				'toast.friend_accepted': 'Заявка в друзья принята!',
 				'account.friends.status_friend': 'В друзьях',
 				'account.friends.status_request': 'Запрос',
 				'account.instances.title': 'Общие сборки',
@@ -1223,6 +1401,13 @@ export function renderNavbarUserScript(): string {
 					if (chevron) chevron.style.transform = 'rotate(0deg)';
 				}
 			}
+			const notifDrop = document.getElementById('navNotifDropdown');
+			const notifBtn = document.getElementById('navNotifBtn');
+			if (notifDrop && !notifDrop.classList.contains('hidden')) {
+				if (!notifDrop.contains(e.target) && !notifBtn?.contains(e.target)) {
+					notifDrop.classList.add('hidden');
+				}
+			}
 			const projModal = document.getElementById('createProjectModal');
 			if (projModal && !projModal.classList.contains('hidden') && e.target === projModal) {
 				window.closeCreateProjectModal();
@@ -1232,6 +1417,11 @@ export function renderNavbarUserScript(): string {
 		// Initialize Language on DOMContentLoaded
 		const initialLang = localStorage.getItem('macros_lang') || 'en';
 		setAppLanguage(initialLang);
+
+		if (typeof window.loadNavNotifications === 'function') {
+			window.loadNavNotifications();
+			setInterval(window.loadNavNotifications, 20000);
+		}
 	})();
 	</script>`
 }
@@ -3929,20 +4119,50 @@ export function renderAccountHtml(user?: any): string {
 			<!-- Tab 3: Friends -->
 			<div id="accPaneFriends" class="py-8 hidden flex flex-col gap-6">
 				<div class="oled-card p-6 rounded-2xl">
-					<div class="flex items-center justify-between mb-4">
-						<h2 data-i18n="account.friends.title" class="text-sm font-bold text-white">Online Friends</h2>
-						<span id="friendsCount" class="text-xs font-mono text-emerald-400">0</span>
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+						<div>
+							<h2 data-i18n="account.friends.title" class="text-base font-bold text-white mb-1">Друзья и общение</h2>
+							<p class="text-xs text-zinc-400">Делитесь сборками и играйте вместе в MacrosApp</p>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="text-xs text-zinc-400">Всего друзей:</span>
+							<span id="friendsCount" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono font-bold text-emerald-400">0</span>
+						</div>
 					</div>
 
-					<div class="flex gap-2 mb-4 max-w-md">
-						<input id="addFriendInput" data-i18n-placeholder="account.friends.placeholder" type="text" placeholder="Friend's username..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white focus:outline-none focus:border-emerald-500">
-						<button id="addFriendBtn" data-i18n="account.friends.add" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium transition">
-							Add
+					<!-- Add friend form -->
+					<div class="flex flex-col sm:flex-row gap-2 mb-8 max-w-lg">
+						<div class="relative flex-1">
+							<svg class="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+							<input id="addFriendInput" data-i18n-placeholder="account.friends.placeholder" type="text" placeholder="Никнейм друга..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition">
+						</div>
+						<button id="addFriendBtn" data-i18n="account.friends.add" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition active:scale-95 shadow-lg shadow-emerald-500/10 cursor-pointer flex items-center justify-center gap-1.5">
+							<span>Добавить</span>
 						</button>
 					</div>
 
-					<div id="friendsList" class="flex flex-col gap-2 max-h-72 overflow-y-auto">
-						<div data-i18n="account.friends.empty" class="text-xs text-zinc-600 py-8 text-center">Friend list is empty</div>
+					<!-- Incoming Requests (Section 1) -->
+					<div id="accIncomingSection" class="hidden mb-6">
+						<div class="flex items-center gap-2 mb-3">
+							<span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+							<h3 data-i18n="account.friends.incoming" class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Входящие заявки</h3>
+							<span id="incomingCount" class="text-xs font-mono text-zinc-400 font-semibold">(0)</span>
+						</div>
+						<div id="incomingList" class="flex flex-col gap-2"></div>
+					</div>
+
+					<!-- Friends List (Section 2) -->
+					<div class="mb-6">
+						<h3 data-i18n="account.friends.friends" class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">Список друзей</h3>
+						<div id="friendsList" class="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
+							<div data-i18n="account.friends.empty" class="text-xs text-zinc-600 py-8 text-center">Список друзей пуст</div>
+						</div>
+					</div>
+
+					<!-- Sent / Pending Requests (Section 3) -->
+					<div id="accPendingSection" class="hidden pt-4 border-t border-zinc-900">
+						<h3 data-i18n="account.friends.sent" class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">Исходящие заявки</h3>
+						<div id="pendingList" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1"></div>
 					</div>
 				</div>
 			</div>
@@ -4220,161 +4440,188 @@ export function renderAccountHtml(user?: any): string {
 				const headers = {};
 				if (token) headers['Authorization'] = 'Bearer ' + token;
 				const res = await fetch('/v3/friends', { headers });
-				if (res.ok) {
-					const friends = await res.json();
-					document.getElementById('friendsCount').textContent = friends.length;
-					const list = document.getElementById('friendsList');
-					const curLang = localStorage.getItem('macros_lang') || 'en';
-					const t = (window.TRANSLATIONS && window.TRANSLATIONS[curLang]) || (window.TRANSLATIONS && window.TRANSLATIONS.en) || {};
-					const stFriend = t['account.friends.status_friend'] || 'Friend';
-					const stPending = t['account.friends.status_request'] || 'Pending';
-					const emptyText = t['account.friends.empty'] || 'Friend list is empty';
+				if (!res.ok) return;
+				const friends = await res.json();
+				if (!Array.isArray(friends)) return;
 
-					if (friends.length > 0) {
-						list.innerHTML = '';
-						friends.forEach(f => {
-							const div = document.createElement('div');
-							div.className = 'flex items-center justify-between p-2.5 rounded-xl bg-zinc-950 border border-zinc-900 text-xs';
+				const incoming = friends.filter(f => f.is_incoming);
+				const accepted = friends.filter(f => f.accepted);
+				const pending = friends.filter(f => f.is_outgoing);
+
+				const cntEl = document.getElementById('friendsCount');
+				if (cntEl) cntEl.textContent = accepted.length;
+
+				// 1. Incoming requests
+				const incSection = document.getElementById('accIncomingSection');
+				const incList = document.getElementById('incomingList');
+				const incCount = document.getElementById('incomingCount');
+				if (incSection && incList) {
+					if (incoming.length > 0) {
+						incSection.classList.remove('hidden');
+						if (incCount) incCount.textContent = '(' + incoming.length + ')';
+						incList.innerHTML = '';
+						incoming.forEach(f => {
+							const item = document.createElement('div');
+							item.className = 'flex items-center justify-between p-3 rounded-xl bg-zinc-950/90 border border-yellow-500/20 text-xs shadow-md';
 							
 							const left = document.createElement('div');
-							left.className = 'flex items-center gap-2';
-							const dot = document.createElement('span');
-							dot.className = 'w-1.5 h-1.5 rounded-full ' + (f.accepted ? 'bg-emerald-500' : 'bg-yellow-500');
-							const name = document.createElement('span');
-							name.className = 'font-medium text-zinc-200';
-							name.textContent = f.friend_id;
-							left.appendChild(dot);
-							left.appendChild(name);
+							left.className = 'flex items-center gap-3 min-w-0';
+							const avatar = document.createElement('img');
+							avatar.src = f.avatar_url || '/assets/logo.png';
+							avatar.className = 'w-9 h-9 rounded-full object-cover border border-yellow-500/30 shrink-0';
+							avatar.onerror = () => { avatar.src = '/assets/logo.png'; };
+							
+							const meta = document.createElement('div');
+							meta.className = 'min-w-0';
+							const name = document.createElement('div');
+							name.className = 'font-bold text-white truncate text-sm';
+							name.textContent = f.username || f.other_id;
+							const sub = document.createElement('div');
+							sub.className = 'text-[11px] text-zinc-400';
+							sub.textContent = 'Хочет добавить вас в друзья';
+							meta.appendChild(name);
+							meta.appendChild(sub);
+							left.appendChild(avatar);
+							left.appendChild(meta);
 
 							const right = document.createElement('div');
-							right.className = 'flex items-center gap-2';
-							const st = document.createElement('span');
-							st.className = 'text-[11px] text-zinc-500';
-							st.textContent = f.accepted ? stFriend : stPending;
-							const del = document.createElement('button');
-							del.className = 'text-zinc-600 hover:text-red-400 transition ml-2';
-							del.innerHTML = '&times;';
-							del.onclick = () => removeFriend(f.friend_id);
-							right.appendChild(st);
-							right.appendChild(del);
+							right.className = 'flex items-center gap-2 shrink-0';
 
-							div.appendChild(left);
-							div.appendChild(right);
-							list.appendChild(div);
+							const accBtn = document.createElement('button');
+							accBtn.className = 'px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition active:scale-95 cursor-pointer flex items-center gap-1';
+							accBtn.innerHTML = '<span>Принять</span>';
+							accBtn.onclick = () => acceptFriendRequest(f.other_id);
+
+							const decBtn = document.createElement('button');
+							decBtn.className = 'px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white font-medium text-xs transition active:scale-95 cursor-pointer';
+							decBtn.textContent = 'Отклонить';
+							decBtn.onclick = () => removeFriend(f.other_id);
+
+							right.appendChild(accBtn);
+							right.appendChild(decBtn);
+							item.appendChild(left);
+							item.appendChild(right);
+							incList.appendChild(item);
 						});
 					} else {
-						list.innerHTML = '<div data-i18n="account.friends.empty" class="text-xs text-zinc-600 py-6 text-center">' + emptyText + '</div>';
+						incSection.classList.add('hidden');
 					}
+				}
+
+				// 2. Friends (accepted)
+				const list = document.getElementById('friendsList');
+				if (list) {
+					if (accepted.length > 0) {
+						list.innerHTML = '';
+						accepted.forEach(f => {
+							const item = document.createElement('div');
+							item.className = 'flex items-center justify-between p-3 rounded-xl bg-zinc-950 border border-zinc-900 hover:border-zinc-800 text-xs transition';
+							
+							const left = document.createElement('div');
+							left.className = 'flex items-center gap-3 min-w-0';
+							const avatar = document.createElement('img');
+							avatar.src = f.avatar_url || '/assets/logo.png';
+							avatar.className = 'w-8 h-8 rounded-full object-cover border border-white/10 shrink-0';
+							avatar.onerror = () => { avatar.src = '/assets/logo.png'; };
+							
+							const meta = document.createElement('div');
+							meta.className = 'min-w-0';
+							const name = document.createElement('div');
+							name.className = 'font-semibold text-zinc-100 truncate';
+							name.textContent = f.username || f.other_id;
+							const sub = document.createElement('div');
+							sub.className = 'flex items-center gap-1.5 text-[11px] text-emerald-400';
+							sub.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> <span>В друзьях</span>';
+							meta.appendChild(name);
+							meta.appendChild(sub);
+							left.appendChild(avatar);
+							left.appendChild(meta);
+
+							const right = document.createElement('div');
+							right.className = 'flex items-center gap-2 shrink-0';
+
+							const delBtn = document.createElement('button');
+							delBtn.className = 'px-2.5 py-1 rounded-lg hover:bg-red-500/10 text-zinc-500 hover:text-red-400 font-medium text-xs transition cursor-pointer';
+							delBtn.textContent = 'Удалить';
+							delBtn.onclick = () => removeFriend(f.other_id);
+
+							right.appendChild(delBtn);
+							item.appendChild(left);
+							item.appendChild(right);
+							list.appendChild(item);
+						});
+					} else {
+						list.innerHTML = '<div data-i18n="account.friends.empty" class="text-xs text-zinc-600 py-8 text-center">Список друзей пуст</div>';
+					}
+				}
+
+				// 3. Pending (outgoing)
+				const pendSection = document.getElementById('accPendingSection');
+				const pendList = document.getElementById('pendingList');
+				if (pendSection && pendList) {
+					if (pending.length > 0) {
+						pendSection.classList.remove('hidden');
+						pendList.innerHTML = '';
+						pending.forEach(f => {
+							const item = document.createElement('div');
+							item.className = 'flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-900 text-xs text-zinc-400';
+							
+							const left = document.createElement('div');
+							left.className = 'flex items-center gap-2.5 min-w-0';
+							const avatar = document.createElement('img');
+							avatar.src = f.avatar_url || '/assets/logo.png';
+							avatar.className = 'w-7 h-7 rounded-full object-cover border border-white/5 opacity-70 shrink-0';
+							avatar.onerror = () => { avatar.src = '/assets/logo.png'; };
+							
+							const meta = document.createElement('div');
+							meta.className = 'min-w-0';
+							const name = document.createElement('span');
+							name.className = 'font-medium text-zinc-300';
+							name.textContent = f.username || f.other_id;
+							const st = document.createElement('span');
+							st.className = 'text-[11px] text-zinc-500 ml-2';
+							st.textContent = '• Запрос отправлен';
+							meta.appendChild(name);
+							meta.appendChild(st);
+							left.appendChild(avatar);
+							left.appendChild(meta);
+
+							const cancelBtn = document.createElement('button');
+							cancelBtn.className = 'px-2 py-0.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 text-[11px] transition cursor-pointer';
+							cancelBtn.textContent = 'Отменить';
+							cancelBtn.onclick = () => removeFriend(f.other_id);
+
+							item.appendChild(left);
+							item.appendChild(cancelBtn);
+							pendList.appendChild(item);
+						});
+					} else {
+						pendSection.classList.add('hidden');
+					}
+				}
+
+				if (typeof window.loadNavNotifications === 'function') {
+					window.loadNavNotifications();
 				}
 			} catch (err) {}
 		}
 
-		function t(key, fallback) {
-			const curLang = localStorage.getItem('macros_lang') || 'en';
-			const dict = (window.TRANSLATIONS && window.TRANSLATIONS[curLang]) || (window.TRANSLATIONS && window.TRANSLATIONS.en) || {};
-			return dict[key] || fallback || key;
+		async function acceptFriendRequest(userId) {
+			try {
+				const headers = {};
+				if (token) headers['Authorization'] = 'Bearer ' + token;
+				const res = await fetch('/v3/friend/' + encodeURIComponent(userId), {
+					method: 'POST',
+					headers
+				});
+				if (res.ok) {
+					showToast('toast.friend_accepted', 'success');
+					loadFriends();
+				}
+			} catch (err) {}
 		}
 
-		function resolveToastMessage(msg) {
-			if (!msg) return t('toast.error_generic', 'An error occurred');
-			const curLang = localStorage.getItem('macros_lang') || 'en';
-			const dict = (window.TRANSLATIONS && window.TRANSLATIONS[curLang]) || (window.TRANSLATIONS && window.TRANSLATIONS.en) || {};
-			if (dict[msg]) return dict[msg];
-
-			if (msg === 'Заполните все поля пароля' || msg.includes('fill in all password')) return t('toast.fill_all_passwords', 'Please fill in all password fields');
-			if (msg === 'Пароли не совпадают' || msg.includes('Passwords do not match')) return t('toast.passwords_mismatch', 'Passwords do not match');
-			if (msg.includes('минимум 6') || msg.includes('at least 6')) return t('toast.password_too_short', 'Password must be at least 6 characters');
-			if (msg === 'Пароль успешно изменён!' || msg.includes('Password changed')) return t('toast.password_updated', 'Password changed successfully!');
-			if (msg === 'Не удалось изменить пароль' || msg.includes('Failed to change password')) return t('toast.password_change_failed', 'Failed to change password');
-			if (msg === 'Профиль успешно обновлён!' || msg.includes('Profile updated')) return t('toast.profile_updated', 'Profile updated successfully!');
-			if (msg === 'Не удалось сохранить профиль' || msg.includes('Failed to save profile')) return t('toast.profile_save_failed', 'Failed to save profile');
-			if (msg === 'Друг удален' || msg.includes('Friend removed')) return t('toast.friend_removed', 'Friend removed');
-			if (msg === 'Запрос в друзья отправлен!' || msg.includes('Friend request sent')) return t('toast.friend_request_sent', 'Friend request sent!');
-			if (msg === 'Пользователь не найден' || msg.includes('User not found')) return t('toast.user_not_found', 'User not found');
-			if (msg.includes('5 МБ') || msg.includes('5 MB')) return t('toast.file_too_large', 'File is too large (max 5 MB)');
-			if (msg.includes('Incorrect current password') || msg.includes('Неверный текущий пароль')) return t('toast.incorrect_password', 'Incorrect current password');
-			if (msg.includes('already taken') || msg.includes('already in use') || msg.includes('уже занято')) return t('toast.username_taken', 'Username is already taken');
-			if (msg.includes('Too many') || msg.includes('Слишком много')) return t('toast.rate_limit', 'Too many attempts. Please wait a minute.');
-			if (msg.includes('Invalid') || msg.includes('Неверный')) return t('toast.invalid_credentials', 'Invalid username or password');
-
-			return msg;
-		}
-
-		const activeToasts = new Map();
-
-		function showToast(messageOrKey, type = 'info') {
-			const container = document.getElementById('toastContainer');
-			if (!container) return;
-
-			const message = resolveToastMessage(messageOrKey);
-
-			const existing = activeToasts.get(message);
-			if (existing && document.body.contains(existing.el)) {
-				clearTimeout(existing.timer);
-				existing.el.classList.add('scale-[1.03]');
-				setTimeout(() => existing.el.classList.remove('scale-[1.03]'), 150);
-				existing.timer = setTimeout(() => dismissToast(existing.el, message), 4000);
-				return;
-			}
-
-			const isError = type === 'error';
-			const isSuccess = type === 'success';
-
-			const toast = document.createElement('div');
-			toast.className = 'pointer-events-auto flex items-center gap-3 px-3.5 py-3 rounded-xl bg-zinc-950/95 backdrop-blur-xl border ' +
-				(isError
-					? 'border-red-500/25 shadow-[0_12px_32px_-4px_rgba(239,68,68,0.2)]'
-					: isSuccess
-						? 'border-emerald-500/25 shadow-[0_12px_32px_-4px_rgba(16,185,129,0.2)]'
-						: 'border-zinc-800 shadow-[0_12px_32px_-4px_rgba(0,0,0,0.7)]') +
-				' transition-all duration-300 transform translate-y-3 opacity-0 scale-95 select-none w-auto max-w-sm';
-
-			const iconDiv = document.createElement('div');
-			iconDiv.className = 'w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ' +
-				(isError
-					? 'bg-red-500/10 text-red-400 border border-red-500/20'
-					: isSuccess
-						? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-						: 'bg-zinc-800/80 text-zinc-300 border border-zinc-700/50');
-
-			iconDiv.innerHTML = isError
-				? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>'
-				: isSuccess
-					? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
-					: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
-
-			const textSpan = document.createElement('span');
-			textSpan.className = 'text-xs font-medium text-zinc-200 leading-snug flex-1';
-			textSpan.textContent = message;
-
-			const closeBtn = document.createElement('button');
-			closeBtn.type = 'button';
-			closeBtn.className = 'text-zinc-500 hover:text-zinc-300 transition p-1 -mr-1 rounded-md hover:bg-white/5 shrink-0';
-			closeBtn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
-			closeBtn.onclick = () => dismissToast(toast, message);
-
-			toast.appendChild(iconDiv);
-			toast.appendChild(textSpan);
-			toast.appendChild(closeBtn);
-			container.appendChild(toast);
-
-			requestAnimationFrame(() => {
-				toast.classList.remove('translate-y-3', 'opacity-0', 'scale-95');
-				toast.classList.add('translate-y-0', 'opacity-100', 'scale-100');
-			});
-
-			const timer = setTimeout(() => dismissToast(toast, message), 4000);
-			activeToasts.set(message, { el: toast, timer });
-		}
-
-		function dismissToast(toast, key) {
-			if (key) activeToasts.delete(key);
-			toast.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
-			toast.classList.add('-translate-y-2', 'opacity-0', 'scale-95');
-			setTimeout(() => toast.remove(), 250);
-		}
-
-		async function removeFriend(friendId) {
+		async function removeFriend(friendId) {async function removeFriend(friendId) {
 			const headers = {};
 			if (token) headers['Authorization'] = 'Bearer ' + token;
 			await fetch('/v3/friend/' + encodeURIComponent(friendId), {
@@ -5663,38 +5910,7 @@ export function renderShareHtml(
 			</div>
 		</div>
 
-		<!-- How to Play Quick Steps -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-			<div class="glass-panel rounded-2xl p-5 border border-white/5 flex items-start gap-4">
-				<div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-emerald-500/20">
-					1
-				</div>
-				<div>
-					<h3 class="text-sm font-semibold text-white mb-1">Установите MacrosApp</h3>
-					<p class="text-xs text-zinc-400 leading-relaxed">Скачайте и запустите официальный лаунчер с нашего сайта.</p>
-				</div>
-			</div>
 
-			<div class="glass-panel rounded-2xl p-5 border border-white/5 flex items-start gap-4">
-				<div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-emerald-500/20">
-					2
-				</div>
-				<div>
-					<h3 class="text-sm font-semibold text-white mb-1">Нажмите «Открыть»</h3>
-					<p class="text-xs text-zinc-400 leading-relaxed">Кнопка в карточке выше передаст команду напрямую в лаунчер.</p>
-				</div>
-			</div>
-
-			<div class="glass-panel rounded-2xl p-5 border border-white/5 flex items-start gap-4">
-				<div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-emerald-500/20">
-					3
-				</div>
-				<div>
-					<h3 class="text-sm font-semibold text-white mb-1">Играйте с друзьями</h3>
-					<p class="text-xs text-zinc-400 leading-relaxed">Лаунчер сам загрузит моды и конфиги и синхронизирует обновления!</p>
-				</div>
-			</div>
-		</div>
 
 		<!-- Mods Section -->
 		<div class="mb-12">

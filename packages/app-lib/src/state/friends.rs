@@ -277,6 +277,58 @@ impl FriendsSocket {
             "Received websocket notification payload"
         );
 
+        let msg_type = notification
+            .get("type")
+            .and_then(Value::as_str)
+            .or_else(|| {
+                notification
+                    .get("body")
+                    .and_then(|b| b.get("type"))
+                    .and_then(Value::as_str)
+            });
+
+        if let Some(msg_type) = msg_type {
+            match msg_type {
+                "friend_request" => {
+                    let from = notification
+                        .get("from")
+                        .and_then(Value::as_str)
+                        .or_else(|| {
+                            notification
+                                .get("body")
+                                .and_then(|b| b.get("from"))
+                                .and_then(Value::as_str)
+                        })
+                        .unwrap_or_default();
+                    let _ = emit_friend(FriendPayload::FriendRequest {
+                        from: from.to_string(),
+                    })
+                    .await;
+                }
+                "friend_request_accepted" | "status_sync" => {
+                    let _ = emit_friend(FriendPayload::StatusSync).await;
+                }
+                "friend_removed" => {
+                    let from = notification
+                        .get("from")
+                        .and_then(Value::as_str)
+                        .or_else(|| {
+                            notification
+                                .get("body")
+                                .and_then(|b| b.get("from"))
+                                .and_then(Value::as_str)
+                        })
+                        .unwrap_or_default();
+                    let _ = emit_friend(FriendPayload::UserOffline {
+                        id: from.to_string(),
+                    })
+                    .await;
+                    let _ = emit_friend(FriendPayload::StatusSync).await;
+                }
+                _ => {}
+            }
+        }
+
         if notification
             .get("body")
             .and_then(|body| body.get("type"))
