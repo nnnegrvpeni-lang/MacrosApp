@@ -1915,5 +1915,17 @@
   },
   "settings.sidebar.label.display": {
     "message": "Отображение"
+  },
+  "onboarding-checklist.title": {
+    "message": "С чего начать"
+  },
+  "onboarding-checklist.create-instance": {
+    "message": "Создать первый инстанс"
+  },
+  "onboarding-checklist.login-offline": {
+    "message": "Войти в оффлайн-аккаунт"
+  },
+  "onboarding-checklist.login-modrinth": {
+    "message": "Войти в Macros"
   }
 }
