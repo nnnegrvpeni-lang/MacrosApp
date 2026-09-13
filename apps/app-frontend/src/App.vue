@@ -368,56 +368,8 @@ function onCreationIconSaved(iconPath, config) {
 }
 
 const activeNewsTab = ref('macros')
-const defaultMacrosNews = [
-	{
-		title: 'MacrosApp v1.2.4',
-		summary:
-			'Fixed Ely.by skin sync & 3D body caching, eliminated skin change error loop on account removal, and cleaned up sign-in UI.',
-		thumbnail: macrosBanner,
-		date: '2026-09-05T21:35:00Z',
-		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.4',
-	},
-	{
-		title: 'MacrosApp v1.2.3',
-		summary:
-			'Hotfix: Fixed blank screen when opening the Browse/Mods discovery page and restored catalog search.',
-		thumbnail: macrosBanner,
-		date: '2026-09-05T19:50:00Z',
-		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.3',
-	},
-	{
-		title: 'MacrosApp v1.2.2',
-		summary:
-			'Full English documentation, internationalized update system and release notes, and UI enhancements.',
-		thumbnail: macrosBanner,
-		date: '2026-09-05T19:30:00Z',
-		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.2',
-	},
-	{
-		title: 'MacrosApp v1.2.1',
-		summary:
-			'Smart update notifications from GitHub Releases, header update button, and Settings layout fixes.',
-		thumbnail: macrosBanner,
-		date: '2026-09-05T17:15:00Z',
-		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.1',
-	},
-	{
-		title: 'MacrosApp v1.2.0',
-		summary:
-			'Multi-feed news tabs (Macros, Minecraft, Modrinth), sidebar visibility toggles, and custom banners.',
-		thumbnail: macrosBanner,
-		date: '2026-09-05T16:00:00Z',
-		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.2.0',
-	},
-	{
-		title: 'MacrosApp v1.1.1',
-		summary:
-			'Automatic Modrinth OAuth login via native window, token interception, and enhanced Ely.by skins.',
-		thumbnail: macrosBanner,
-		date: '2026-09-04T19:12:26Z',
-		path: 'https://github.com/nnnegrvpeni-lang/MacrosApp/releases/tag/v1.1.1',
-	},
-]
+
+
 const defaultMinecraftNews = [
 	{
 		title: 'New on Java Realms: Mischiefs & Secrets',
@@ -435,7 +387,101 @@ const defaultMinecraftNews = [
 		path: 'https://www.minecraft.net/article/minecraft-dungeons-ii-capes-promos?OCID=Launcher',
 	},
 ]
-const macrosNews = ref([...defaultMacrosNews])
+
+const rawMacrosReleases = ref([])
+const isRussianLocale = computed(() => {
+	const loc = i18n.global.locale.value || ''
+	return typeof loc === 'string' && loc.toLowerCase().startsWith('ru')
+})
+
+function parseMacrosRelease(rel, isRu) {
+	const imgMatch = rel.body ? rel.body.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/) : null
+	let thumbnail = imgMatch ? imgMatch[1] : null
+	if (!thumbnail && rel.assets && rel.assets.length > 0) {
+		const imageAsset = rel.assets.find((a) => /\.(png|jpe?g|webp)$/i.test(a.name))
+		if (imageAsset) {
+			thumbnail = imageAsset.browser_download_url
+		}
+	}
+	if (!thumbnail) {
+		thumbnail = macrosBanner
+	}
+
+	let title = rel.name || rel.tag_name || ''
+	let rawBody = rel.body || ''
+	let summary = ''
+
+	if (isRu) {
+		const ruTitleMatch = rawBody.match(/<!--\s*lang:ru:title\s+([\s\S]*?)\s*-->/i)
+		if (ruTitleMatch && ruTitleMatch[1]) {
+			title = ruTitleMatch[1].trim()
+		} else if (/\[RU:\s*([^\]]+)\]/i.test(title)) {
+			const m = title.match(/\[RU:\s*([^\]]+)\]/i)
+			if (m) title = m[1].trim()
+		} else {
+			const ruHeading = rawBody.match(/(?:^|\n)#{1,3}\s+([^#\n]*?[а-яА-ЯёЁ][^#\n]*?)(?:\n|$)/)
+			if (ruHeading && ruHeading[1].trim()) {
+				title = ruHeading[1].trim()
+			}
+		}
+
+		const ruBodyMatch = rawBody.match(/<!--\s*lang:ru\s*-->([\s\S]*?)<!--\s*\/lang:ru\s*-->/i)
+		if (ruBodyMatch && ruBodyMatch[1].trim()) {
+			summary = ruBodyMatch[1]
+		} else {
+			const ruSectionMatch = rawBody.match(/(?:^|\n)##\s*(?:[^\n]*?[а-яА-ЯёЁ][^\n]*?)\n([\s\S]*?)(?=(?:\n##|\n---|\Z))/i)
+			if (ruSectionMatch && ruSectionMatch[1].trim()) {
+				summary = ruSectionMatch[1]
+			} else {
+				summary = rawBody
+			}
+		}
+	} else {
+		const enTitleMatch = rawBody.match(/<!--\s*lang:en:title\s+([\s\S]*?)\s*-->/i)
+		if (enTitleMatch && enTitleMatch[1]) {
+			title = enTitleMatch[1].trim()
+		} else {
+			title = title.replace(/\[RU:[^\]]+\]/gi, '').replace(/\[RU\]/gi, '').trim()
+		}
+
+		const enBodyMatch = rawBody.match(/<!--\s*lang:en\s*-->([\s\S]*?)<!--\s*\/lang:en\s*-->/i)
+		if (enBodyMatch && enBodyMatch[1].trim()) {
+			summary = enBodyMatch[1]
+		} else {
+			let cleaned = rawBody
+				.replace(/<!--\s*lang:ru[\s\S]*?\/lang:ru\s*-->/gi, '')
+				.replace(/(?:^|\n)##\s*(?:[^\n]*?[а-яА-ЯёЁ][^\n]*?)\n([\s\S]*?)(?=(?:\n##|\n---|\Z))/gi, '')
+			summary = cleaned.trim() || rawBody
+		}
+	}
+
+	summary = summary
+		.replace(/<!--[\s\S]*?-->/g, '')
+		.replace(/#{1,6}\s+/g, '')
+		.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+		.replace(/[*_`~]/g, '')
+		.replace(/\r?\n+/g, ' ')
+		.trim()
+
+	if (summary.length > 130) {
+		summary = `${summary.slice(0, 130)}...`
+	}
+
+	return {
+		title,
+		summary,
+		thumbnail,
+		date: rel.published_at || rel.created_at,
+		path: rel.html_url,
+	}
+}
+
+const macrosNews = computed(() => {
+	if (rawMacrosReleases.value && rawMacrosReleases.value.length > 0) {
+		return rawMacrosReleases.value.map((rel) => parseMacrosRelease(rel, isRussianLocale.value))
+	}
+	return []
+})
 const minecraftNews = ref([...defaultMinecraftNews])
 const modrinthNews = ref([])
 
@@ -778,43 +824,7 @@ async function setupApp() {
 		.then((res) => (res.ok ? res.json() : []))
 		.then((releases) => {
 			if (Array.isArray(releases) && releases.length > 0) {
-				const parsed = releases
-					.filter((rel) => !rel.draft)
-					.slice(0, 4)
-					.map((rel) => {
-						const imgMatch = rel.body ? rel.body.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/) : null
-						let thumbnail = imgMatch ? imgMatch[1] : null
-						if (!thumbnail && rel.assets && rel.assets.length > 0) {
-							const imageAsset = rel.assets.find((a) => /\.(png|jpe?g|webp)$/i.test(a.name))
-							if (imageAsset) {
-								thumbnail = imageAsset.browser_download_url
-							}
-						}
-						if (!thumbnail) {
-							thumbnail = macrosBanner
-						}
-
-						let summary = (rel.body || '')
-							.replace(/#{1,6}\s+/g, '')
-							.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-							.replace(/[*_`~]/g, '')
-							.replace(/\r?\n+/g, ' ')
-							.trim()
-						if (summary.length > 130) {
-							summary = `${summary.slice(0, 130)}...`
-						}
-
-						return {
-							title: rel.name || rel.tag_name,
-							summary,
-							thumbnail,
-							date: rel.published_at || rel.created_at,
-							path: rel.html_url,
-						}
-					})
-				if (parsed.length > 0) {
-					macrosNews.value = parsed
-				}
+				rawMacrosReleases.value = releases.filter((rel) => !rel.draft).slice(0, 4)
 			}
 		})
 		.catch((error) => {
