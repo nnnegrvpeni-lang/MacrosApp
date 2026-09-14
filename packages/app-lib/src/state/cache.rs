@@ -1193,7 +1193,7 @@ impl CachedEntry {
             fetch_semaphore: &FetchSemaphore,
             pool: &SqlitePool,
         ) -> crate::Result<Vec<T>> {
-            const MAX_REQUEST_SIZE: usize = 800;
+            const MAX_REQUEST_SIZE: usize = 150;
 
             let urls = keys
                 .iter()
@@ -1955,6 +1955,13 @@ impl CachedEntry {
                     .await
                     {
                         Ok(versions) => {
+                            for version in &versions {
+                                values.push((
+                                    CacheValue::Version(version.clone()).get_entry(),
+                                    false,
+                                ));
+                            }
+
                             values.push((
                                 CacheValue::ProjectVersions(
                                     CachedProjectVersions {

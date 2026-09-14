@@ -308,6 +308,7 @@ import {
 	get_organization,
 	get_project,
 	get_project_v3,
+	get_project_versions,
 	get_team,
 	get_version,
 	get_version_many,
@@ -817,11 +818,22 @@ async function fetchProjectData() {
 
 	data.value = project
 	projectBreadcrumbLabel.value = project.title
+	const projectVersionsPromise = get_project_versions(project.id, 'must_revalidate')
+		.then((v) =>
+			v && v.length > 0
+				? v
+				: project.versions?.length
+					? get_version_many(project.versions, 'must_revalidate')
+					: [],
+		)
+		.catch(() =>
+			project.versions?.length ? get_version_many(project.versions, 'must_revalidate') : [],
+		)
+		.catch(() => [])
+
 	;[versions.value, members.value, categories.value, instance.value, instanceProjects.value] =
 		await Promise.all([
-			project.versions?.length
-				? get_version_many(project.versions, 'must_revalidate').catch(() => [])
-				: Promise.resolve([]),
+			projectVersionsPromise,
 			project.team ? get_team(project.team).catch(() => null) : Promise.resolve(null),
 			get_categories().catch(() => []),
 			route.query.i ? getInstance(route.query.i).catch(() => null) : Promise.resolve(null),

@@ -108,12 +108,12 @@ impl ModLoader {
     }
 
     pub fn from_string(val: &str) -> Self {
-        match val {
+        match val.to_lowercase().as_str() {
             "vanilla" => Self::Vanilla,
             "forge" => Self::Forge,
             "fabric" => Self::Fabric,
             "quilt" => Self::Quilt,
-            "neoforge" => Self::NeoForge,
+            "neoforge" | "neo" => Self::NeoForge,
             _ => Self::Vanilla,
         }
     }

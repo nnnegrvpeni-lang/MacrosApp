@@ -249,10 +249,11 @@ fn instance_matches_targets(
     targets: &[InstanceInstallTarget],
 ) -> bool {
     targets.iter().any(|target| {
-        target.game_version == game_version
+        target.game_version.eq_ignore_ascii_case(game_version)
             && (project_type != ProjectType::Mod
-                || target.loader == loader
-                || target.loader == "datapack")
+                || target.loader.eq_ignore_ascii_case(loader)
+                || (loader == "quilt" && target.loader.eq_ignore_ascii_case("fabric"))
+                || target.loader.eq_ignore_ascii_case("datapack"))
     })
 }
 

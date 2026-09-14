@@ -45,7 +45,12 @@ import { useAppServerBrowse } from '@/composables/browse/use-app-server-browse'
 import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { persistentSearchSource } from '@/composables/use-browse-source'
-import { get_project, get_search_results_v3, get_version_many } from '@/helpers/cache.js'
+import {
+	get_project,
+	get_project_versions,
+	get_search_results_v3,
+	get_version_many,
+} from '@/helpers/cache.js'
 import { installCurseForgeMod, searchCurseForge } from '@/helpers/curseforge'
 import {
 	get_installed_project_ids as getInstalledProjectIds,
@@ -829,11 +834,19 @@ function getInstanceInstallTargetPreferences(projectTypeValue: string) {
 }
 
 async function getInstallProjectVersions(projectId: string) {
+	const projectVersions = (await get_project_versions(
+		projectId,
+		'must_revalidate',
+	).catch(() => null)) as Labrinth.Versions.v2.Version[] | null
+	if (projectVersions && projectVersions.length > 0) {
+		return projectVersions
+	}
 	const project = await get_project(projectId, 'must_revalidate')
+	if (!project?.versions?.length) return []
 	return (await get_version_many(
 		project.versions,
 		'must_revalidate',
-	)) as Labrinth.Versions.v2.Version[]
+	).catch(() => [])) as Labrinth.Versions.v2.Version[]
 }
 
 async function chooseInstanceInstallVersion(

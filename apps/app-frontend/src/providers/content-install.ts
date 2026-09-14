@@ -17,6 +17,7 @@ import {
 	get_organization,
 	get_project,
 	get_project_many,
+	get_project_versions,
 	get_team,
 	get_version_many,
 } from '@/helpers/cache.js'
@@ -87,10 +88,17 @@ function isVersionCompatible(
 	project: Labrinth.Projects.v2.Project,
 	instance: GameInstance,
 ) {
+	const instanceGameVersion = instance.game_version?.toLowerCase()
+	const instanceLoader = instance.loader?.toLowerCase()
+	const versionGameVersions = version.game_versions.map((v) => v.toLowerCase())
+	const versionLoaders = version.loaders.map((l) => l.toLowerCase())
+
 	return (
-		version.game_versions.includes(instance.game_version) &&
+		versionGameVersions.includes(instanceGameVersion) &&
 		(project.project_type === 'mod'
-			? version.loaders.includes(instance.loader) || version.loaders.includes('datapack')
+			? versionLoaders.includes(instanceLoader) ||
+			  (instanceLoader === 'quilt' && versionLoaders.includes('fabric')) ||
+			  versionLoaders.includes('datapack')
 			: true)
 	)
 }
@@ -100,15 +108,7 @@ function findPreferredVersion(
 	project: Labrinth.Projects.v2.Project,
 	instance: GameInstance,
 ) {
-	const projectType = project.project_type ?? 'mod'
-
-	return (
-		versions.find(
-			(v) =>
-				v.game_versions.includes(instance.game_version) &&
-				(projectType === 'mod' ? v.loaders.includes(instance.loader) : true),
-		) ?? versions.find((v) => isVersionCompatible(v, project, instance))
-	)
+	return versions.find((v) => isVersionCompatible(v, project, instance))
 }
 
 function sortLoaders(loaders: string[]): string[] {
@@ -572,15 +572,35 @@ export function createContentInstall(opts: {
 		await projectInfoPromise
 	}
 
+	async function loadProjectVersions(
+		project: Labrinth.Projects.v2.Project,
+		cacheBehaviour?: string,
+	): Promise<Labrinth.Versions.v2.Version[]> {
+		const cached = (await get_project_versions(
+			project.id,
+			cacheBehaviour,
+		).catch(() => null)) as Labrinth.Versions.v2.Version[] | null
+		if (cached && cached.length > 0) {
+			return cached
+		}
+		if (project.versions?.length) {
+			return (await get_version_many(
+				project.versions,
+				cacheBehaviour,
+			).catch(() => [])) as Labrinth.Versions.v2.Version[]
+		}
+		return []
+	}
+
 	async function prepareNewInstance(projectId: string) {
 		const project: Labrinth.Projects.v2.Project = await get_project(projectId, 'must_revalidate')
 		if (!project || project.project_type === 'modpack') {
 			throw new Error(`Project cannot be prepared as a new instance: '${projectId}'`)
 		}
 
-		const versions = (
-			(await get_version_many(project.versions)) as Labrinth.Versions.v2.Version[]
-		).sort((a, b) => dayjs(b.date_published).valueOf() - dayjs(a.date_published).valueOf())
+		const versions = (await loadProjectVersions(project)).sort(
+			(a, b) => dayjs(b.date_published).valueOf() - dayjs(a.date_published).valueOf(),
+		)
 
 		await showModInstallModal(project, versions, () => {}, {
 			showProjectInfo: true,
@@ -843,10 +863,7 @@ export function createContentInstall(opts: {
 			if (!version) {
 				const hasHints = !!(hints?.preferredGameVersion || hints?.preferredLoader)
 				if (hasHints) {
-					const versions = (await get_version_many(
-						project.versions,
-						'must_revalidate',
-					)) as Labrinth.Versions.v2.Version[]
+					const versions = await loadProjectVersions(project, 'must_revalidate')
 					const matching = getLatestMatchingInstallVersion(versions, {
 						gameVersions: hints?.preferredGameVersion ? [hints.preferredGameVersion] : undefined,
 						loaders: hints?.preferredLoader ? [hints.preferredLoader] : undefined,
@@ -886,9 +903,7 @@ export function createContentInstall(opts: {
 			const [instanceOrNull, instanceProjects, versions] = await Promise.all([
 				get(instanceId),
 				get_projects(instanceId),
-				get_version_many(project.versions, 'must_revalidate') as Promise<
-					Labrinth.Versions.v2.Version[]
-				>,
+				loadProjectVersions(project, 'must_revalidate'),
 			])
 			if (!instanceOrNull) return
 
@@ -947,9 +962,9 @@ export function createContentInstall(opts: {
 				await showIncompatibilityWarning(instance, project, projectVersions, version, callback)
 			}
 		} else {
-			let versions = (
-				(await get_version_many(project.versions)) as Labrinth.Versions.v2.Version[]
-			).sort((a, b) => dayjs(b.date_published).valueOf() - dayjs(a.date_published).valueOf())
+			let versions = (await loadProjectVersions(project)).sort(
+				(a, b) => dayjs(b.date_published).valueOf() - dayjs(a.date_published).valueOf(),
+			)
 			if (versionId) versions = versions.filter((v) => v.id === versionId)
 			await showModInstallModal(project, versions, callback, hints)
 		}
