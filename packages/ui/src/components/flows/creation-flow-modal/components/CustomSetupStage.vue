@@ -151,14 +151,20 @@
 							: formatMessage(messages.loaderVersionLabel)
 					}}</span>
 					<Chips
-						v-if="!isPaperLike"
+						v-if="selectedLoader === 'rust'"
+						v-model="selectedLoaderVersion"
+						:items="rustVersionItems"
+						:capitalize="false"
+					/>
+					<Chips
+						v-else-if="!isPaperLike"
 						v-model="loaderVersionType"
 						:items="loaderVersionTypeItems"
 						:disabled-items="loaderVersionTypeDisabledItems"
 						:disabled-tooltip="'No such versions available'"
 						:format-label="formatLoaderVersionTypeLabel"
 					/>
-					<div v-if="isPaperLike || loaderVersionType === 'other'">
+					<div v-if="selectedLoader !== 'rust' && (isPaperLike || loaderVersionType === 'other')">
 						<Combobox
 							v-model="selectedLoaderVersion"
 							:options="loaderVersionOptions"
@@ -459,6 +465,10 @@ const gameVersionOptions = computed<ComboboxOption<string>[]>(() => {
 
 	// For loaders with per-version data, only show game versions that have builds
 	if (selectedLoader.value && selectedLoader.value !== 'vanilla') {
+		if (selectedLoader.value === 'rust') {
+			return [{ value: '26.3', label: '26.3' }]
+		}
+
 		if (selectedLoader.value === 'paper') {
 			if (!ctx.paperSupportedVersions.value) return []
 			return versions
@@ -568,6 +578,18 @@ function getLoaderVersionsForGameVersion(
 	loader: string,
 	gameVersion: string,
 ): LoaderVersionEntry[] {
+	if (loader === 'rust') {
+		const manifest = ctx.loaderVersionsCache.value['rust']
+		if (manifest && manifest.gameVersions[0]?.loaders?.length) {
+			return manifest.gameVersions[0].loaders.map((l: any, idx: number) => ({
+				id: l.id,
+				version: l.version || l.id,
+				stable: idx === 0,
+				buildNumber: idx + 1,
+			}))
+		}
+		return []
+	}
 	const apiLoader = toApiLoaderName(loader)
 	const manifest = ctx.loaderVersionsCache.value[apiLoader]
 	debug('getLoaderVersionsForGameVersion:', {
@@ -613,11 +635,20 @@ function getLoaderVersionsForGameVersion(
 	return entry?.loaders ?? []
 }
 
+const rustVersionItems = computed<string[]>(() => {
+	return loaderVersionsData.value.map((v) => v.id)
+})
+
 // Fetch version data when loader changes so game versions can be filtered
 watch(
 	() => selectedLoader.value,
 	async (loader) => {
 		if (ctx.projectInstall.value) return
+		if (loader === 'rust') {
+			selectedGameVersion.value = '26.3'
+			await fetchLoaderManifest('rust')
+			return
+		}
 		await fetchLoaderMetadata(loader)
 	},
 	{ immediate: true },
@@ -637,6 +668,15 @@ watch(
 		if (!loader || !gameVersion || loader === 'vanilla') return
 
 		loaderVersionsLoading.value = true
+
+		if (loader === 'rust') {
+			await fetchLoaderManifest('rust')
+			if (watchId !== loaderVersionWatchId) return
+			loaderVersionsData.value = getLoaderVersionsForGameVersion('rust', '26.3')
+			loaderVersionsLoading.value = false
+			autoSelectLoaderVersion()
+			return
+		}
 
 		if (loader === 'paper') {
 			await fetchPaperVersions(gameVersion)
@@ -686,6 +726,14 @@ watch(
 )
 
 function autoSelectLoaderVersion() {
+	if (selectedLoader.value === 'rust') {
+		if (loaderVersionsData.value.length > 0) {
+			if (!selectedLoaderVersion.value || !loaderVersionsData.value.some((v) => v.id === selectedLoaderVersion.value)) {
+				selectedLoaderVersion.value = loaderVersionsData.value[0].id
+			}
+		}
+		return
+	}
 	debug(
 		'autoSelectLoaderVersion: type:',
 		loaderVersionType.value,

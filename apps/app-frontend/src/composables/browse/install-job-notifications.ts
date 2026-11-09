@@ -105,6 +105,14 @@ const phaseMessages = defineMessages({
 		id: 'app.install.phase.running_loader_processors',
 		defaultMessage: 'Running loader processors',
 	},
+	downloading_horizon: {
+		id: 'app.install.phase.downloading_horizon',
+		defaultMessage: 'Downloading Horizon',
+	},
+	preparing_horizon: {
+		id: 'app.install.phase.preparing_horizon',
+		defaultMessage: 'Preparing Horizon 26.3 resources',
+	},
 	finalizing: {
 		id: 'app.install.phase.finalizing',
 		defaultMessage: 'Finalizing',
@@ -270,6 +278,20 @@ export async function useInstallJobNotifications(opts: {
 		if (job.kind === 'update_shared_instance' && job.phase === 'downloading_content') {
 			return formatMessage(messages.updatingSharedContent)
 		}
+		if (
+			job.phase === 'resolving_loader' &&
+			job.details.type === 'minecraft' &&
+			job.details.loader === 'rust'
+		) {
+			return formatMessage(phaseMessages.downloading_horizon)
+		}
+		if (
+			job.phase === 'running_loader_processors' &&
+			job.details.type === 'minecraft' &&
+			job.details.loader === 'rust'
+		) {
+			return formatMessage(phaseMessages.preparing_horizon)
+		}
 		return formatMessage(phaseMessages[job.phase])
 	}
 
@@ -386,7 +408,10 @@ export async function useInstallJobNotifications(opts: {
 		if (
 			job.phase === 'downloading_pack_file' ||
 			job.phase === 'extracting_overrides' ||
-			job.phase === 'downloading_minecraft'
+			job.phase === 'downloading_minecraft' ||
+			(job.phase === 'resolving_loader' &&
+				job.details.type === 'minecraft' &&
+				job.details.loader === 'rust')
 		) {
 			return 'bytes'
 		}

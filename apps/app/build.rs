@@ -264,6 +264,8 @@ fn main() {
                         "instance_export_mrpack",
                         "instance_get_pack_export_candidates",
                         "instance_install_curseforge_file",
+                        "instance_install_horizon_mod",
+                        "instance_fetch_horizon_mods",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,

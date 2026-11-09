@@ -86,17 +86,59 @@ pub(crate) async fn get_installed_project_ids_for_instance(
     content_set_id: Option<&str>,
     state: &State,
 ) -> crate::Result<Vec<String>> {
-    let projects =
-        get_content_projects(instance_id, content_set_id, None, state).await?;
+    let resolved = resolve_content_scope_with_instance(
+        instance_id,
+        content_set_id,
+        &state.pool,
+    )
+    .await?;
 
-    Ok(projects
+    let projects = content_projects_for_scope(
+        &resolved,
+        None,
+        state,
+        ContentFilter::All,
+    )
+    .await?;
+
+    let mut installed_ids: HashSet<String> = projects
         .into_iter()
         .filter_map(|(_, file)| {
             file.metadata.map(|metadata| metadata.project_id)
         })
-        .collect::<HashSet<_>>()
-        .into_iter()
-        .collect())
+        .collect();
+
+    if resolved.content_set.loader == ModLoader::Rust {
+        let instance_path = state.directories.instances_dir().join(&resolved.instance.path);
+        let mod_list_path = instance_path.join("horizon-mods.txt");
+        if let Ok(text) = tokio::fs::read_to_string(&mod_list_path).await {
+            for line in text.lines() {
+                if let Some(rest) = line.trim().strip_prefix("mod.") {
+                    if let Some((id, _val)) = rest.split_once(':') {
+                        installed_ids.insert(id.trim().to_string());
+                    }
+                }
+            }
+        }
+        for dir_name in &["horizon-mods"] {
+            let dir = instance_path.join(dir_name);
+            if let Ok(mut rd) = tokio::fs::read_dir(&dir).await {
+                while let Ok(Some(entry)) = rd.next_entry().await {
+                    let name = entry.file_name().to_string_lossy().to_string();
+                    let trimmed = name.trim_end_matches(".disabled");
+                    if trimmed.ends_with(".hnmod") || trimmed.ends_with(".hmod") {
+                        let stem = trimmed.trim_end_matches(".hnmod").trim_end_matches(".hmod");
+                        if let Some((id, _ver)) = stem.split_once('-') {
+                            installed_ids.insert(id.to_string());
+                        }
+                        installed_ids.insert(stem.to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(installed_ids.into_iter().collect())
 }
 
 #[derive(sqlx::FromRow)]
@@ -841,7 +883,12 @@ async fn content_files_to_content_items(
 ) -> crate::Result<Vec<ContentItem>> {
     let project_ids = files
         .iter()
-        .filter_map(|(_, file)| {
+        .filter_map(|(path, file)| {
+            if loader == ModLoader::Rust
+                && path.starts_with("horizon-mods")
+            {
+                return None;
+            }
             file.metadata
                 .as_ref()
                 .map(|metadata| metadata.project_id.clone())
@@ -849,9 +896,18 @@ async fn content_files_to_content_items(
         .collect::<HashSet<_>>();
     let version_ids = files
         .iter()
-        .filter_map(|(_, file)| {
+        .filter_map(|(path, file)| {
+            if loader == ModLoader::Rust
+                && path.starts_with("horizon-mods")
+            {
+                return None;
+            }
             file.metadata
                 .as_ref()
+                .filter(|metadata| {
+                    !metadata.version_id.is_empty()
+                        && metadata.version_id.chars().all(|c| c.is_ascii_alphanumeric())
+                })
                 .map(|metadata| metadata.version_id.clone())
         })
         .collect::<HashSet<_>>();
@@ -966,41 +1022,62 @@ async fn resolve_metadata(
             tokio::try_join!(
                 async {
                     if project_ids.is_empty() {
-                        Ok(Vec::new())
+                        Ok::<_, crate::Error>(Vec::new())
                     } else {
-                        CachedEntry::get_project_many(
+                        Ok(match CachedEntry::get_project_many(
                             &project_id_refs,
                             cache_behaviour,
                             pool,
                             fetch_semaphore,
                         )
                         .await
+                        {
+                            Ok(res) => res,
+                            Err(e) => {
+                                tracing::warn!("Failed to fetch projects metadata: {e}");
+                                Vec::new()
+                            }
+                        })
                     }
                 },
                 async {
                     if version_ids.is_empty() {
-                        Ok(Vec::new())
+                        Ok::<_, crate::Error>(Vec::new())
                     } else {
-                        CachedEntry::get_version_many(
+                        Ok(match CachedEntry::get_version_many(
                             &version_id_refs,
                             cache_behaviour,
                             pool,
                             fetch_semaphore,
                         )
                         .await
+                        {
+                            Ok(res) => res,
+                            Err(e) => {
+                                tracing::warn!("Failed to fetch versions metadata: {e}");
+                                Vec::new()
+                            }
+                        })
                     }
                 },
                 async {
                     if version_ids.is_empty() {
-                        Ok(Vec::new())
+                        Ok::<_, crate::Error>(Vec::new())
                     } else {
-                        CachedEntry::get_version_v3_many(
+                        Ok(match CachedEntry::get_version_v3_many(
                             &version_id_refs,
                             cache_behaviour,
                             pool,
                             fetch_semaphore,
                         )
                         .await
+                        {
+                            Ok(res) => res,
+                            Err(e) => {
+                                tracing::warn!("Failed to fetch versions_v3 metadata: {e}");
+                                Vec::new()
+                            }
+                        })
                     }
                 }
             )?

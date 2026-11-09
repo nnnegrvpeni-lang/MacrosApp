@@ -54,10 +54,31 @@ fn build_java_jars() {
         dunce::canonicalize(PathBuf::from(env::var_os("OUT_DIR").unwrap()))
             .unwrap();
 
+    let jar_dest = out_dir.join("java/libs/theseus.jar");
     println!(
         "cargo::rustc-env=JAVA_JARS_DIR={}",
         out_dir.join("java/libs").display()
     );
+
+    if jar_dest.exists() {
+        return;
+    }
+
+    // Try finding an already built theseus.jar from target directory to avoid slow gradle re-runs
+    if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+        let build_dir = PathBuf::from(manifest_dir).join("../../target/debug/build");
+        if let Ok(entries) = fs::read_dir(&build_dir) {
+            for entry in entries.flatten() {
+                let candidate = entry.path().join("out/java/libs/theseus.jar");
+                if candidate.exists() && candidate != jar_dest {
+                    let _ = fs::create_dir_all(out_dir.join("java/libs"));
+                    if fs::copy(&candidate, &jar_dest).is_ok() {
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
     let gradle_path = fs::canonicalize(
         #[cfg(target_os = "windows")]
@@ -73,7 +94,8 @@ fn build_java_jars() {
         .arg(build_dir_str)
         .arg("build")
         .arg("--no-daemon")
-        .arg("--console=rich")
+        .arg("--no-watch-fs")
+        .arg("--console=plain")
         .current_dir(dunce::canonicalize("java").unwrap())
         .status()
         .expect("Failed to wait on Gradle build");

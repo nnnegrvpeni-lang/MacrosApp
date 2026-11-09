@@ -83,12 +83,17 @@ pub async fn create_dir_all(
     path: impl AsRef<std::path::Path>,
 ) -> Result<(), IOError> {
     let path = path.as_ref();
-    tokio::fs::create_dir_all(path)
-        .await
-        .map_err(|e| IOError::IOPathError {
+    if path.is_dir() {
+        return Ok(());
+    }
+    match tokio::fs::create_dir_all(path).await {
+        Ok(()) => Ok(()),
+        Err(_e) if path.is_dir() => Ok(()),
+        Err(e) => Err(IOError::IOPathError {
             source: e,
             path: path.to_string_lossy().to_string(),
-        })
+        }),
+    }
 }
 
 pub async fn remove_dir_all(

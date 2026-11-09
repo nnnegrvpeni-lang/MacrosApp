@@ -289,7 +289,13 @@ export function createCreationFlowContext(
 	const { handleError } = injectNotificationManager()
 	const queryClient = useQueryClient()
 	const { formatMessage } = useVIntl()
-	const availableLoaders = options.availableLoaders ?? ['fabric', 'neoforge', 'forge', 'quilt']
+	const availableLoaders = options.availableLoaders ?? [
+		'fabric',
+		'neoforge',
+		'forge',
+		'quilt',
+		'rust',
+	]
 	const showSnapshotToggle = options.showSnapshotToggle ?? false
 	const disableClose = options.disableClose ?? false
 	const isInitialSetup = options.isInitialSetup ?? false
@@ -397,6 +403,47 @@ export function createCreationFlowContext(
 	async function fetchLoaderManifest(loader: string) {
 		const apiLoader = toApiLoaderName(loader)
 		if (loaderVersionsCache.value[apiLoader]) return
+
+		if (apiLoader === 'rust') {
+			try {
+				let versions: string[] = []
+				if (getLoaderManifest) {
+					const res = await getLoaderManifest(apiLoader)
+					const gv = (res as any)?.game_versions ?? (res as any)?.gameVersions ?? []
+					const loaders = gv[0]?.loaders ?? []
+					versions = loaders.map((l: any) => l.id).filter(Boolean)
+				}
+				if (versions.length === 0) {
+					const res = await fetch('https://api.github.com/repos/horizon-rust/horizon/releases')
+					if (res.ok) {
+						const data = await res.json()
+						const found: string[] = []
+						for (const rel of data) {
+							if (rel.draft) continue
+							const tag = (rel.tag_name || '').trim()
+							const clean = tag.replace(/^(?:launcher@|v)/, '')
+							if (/^\d+\.\d+/.test(clean) && !found.includes(clean)) {
+								found.push(clean)
+								if (found.length >= 2) break
+							}
+						}
+						versions = found
+					}
+				}
+				loaderVersionsCache.value[apiLoader] = {
+					gameVersions: [
+						{
+							id: '26.3',
+							loaders: versions.map((v) => ({ id: v, version: v })),
+						},
+					],
+				}
+				return
+			} catch (e) {
+				loaderVersionsCache.value[apiLoader] = { gameVersions: [] }
+				return
+			}
+		}
 
 		try {
 			const data = await queryClient.fetchQuery({

@@ -115,14 +115,18 @@ const tabs = computed<TabbedModalTab[]>(() => [
 		icon: MonitorIcon,
 		content: WindowSettings,
 	},
-	{
-		name: defineMessage({
-			id: 'instance.settings.tabs.java',
-			defaultMessage: 'Java and memory',
-		}),
-		icon: CoffeeIcon,
-		content: JavaSettings,
-	},
+	...(props.instance.loader === 'rust'
+		? []
+		: [
+				{
+					name: defineMessage({
+						id: 'instance.settings.tabs.java',
+						defaultMessage: 'Java and memory',
+					}),
+					icon: CoffeeIcon,
+					content: JavaSettings,
+				},
+			]),
 	{
 		name: defineMessage({
 			id: 'instance.settings.tabs.hooks',

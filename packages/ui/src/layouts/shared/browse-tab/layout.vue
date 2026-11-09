@@ -108,17 +108,20 @@ function getLoaderFieldValues(
 }
 
 function getProjectCardTags(result: Labrinth.Search.v3.ResultSearchProject, displayOnly: boolean) {
-	const tags = new Set(displayOnly ? result.display_categories : result.categories)
+	const rawCats = displayOnly ? result.display_categories : result.categories
+	const tags = new Set(Array.isArray(rawCats) ? rawCats : [])
 
-	for (const loader of result.loaders) {
-		if (loader !== 'mrpack') {
-			tags.add(loader)
+	if (Array.isArray(result.loaders)) {
+		for (const loader of result.loaders) {
+			if (loader !== 'mrpack') {
+				tags.add(loader)
+			}
 		}
-	}
 
-	if (result.loaders.includes('mrpack')) {
-		for (const loader of getLoaderFieldValues(result, 'mrpack_loaders')) {
-			tags.add(loader)
+		if (result.loaders.includes('mrpack')) {
+			for (const loader of getLoaderFieldValues(result, 'mrpack_loaders')) {
+				tags.add(loader)
+			}
 		}
 	}
 

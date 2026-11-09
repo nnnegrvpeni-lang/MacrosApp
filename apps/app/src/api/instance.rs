@@ -77,6 +77,8 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
             instance_export_mrpack,
             instance_get_pack_export_candidates,
             instance_install_curseforge_file,
+            instance_install_horizon_mod,
+            instance_fetch_horizon_mods,
         ])
         .build()
 }
@@ -783,6 +785,49 @@ pub async fn instance_install_curseforge_file(
 
     let _ = tokio::fs::remove_file(&temp_file_path).await;
     Ok(res?)
+}
+
+#[tauri::command]
+pub async fn instance_fetch_horizon_mods() -> Result<String> {
+    let client = reqwest::Client::builder()
+        .user_agent("MacrosApp/1.0")
+        .build()
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    let resp = client
+        .get("https://horizon-rust.github.io/horizon-mods/index.json")
+        .send()
+        .await
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    let text = resp
+        .text()
+        .await
+        .map_err(|e| theseus::Error::from(theseus::ErrorKind::OtherError(e.to_string())))?;
+
+    Ok(text)
+}
+
+#[tauri::command]
+pub async fn instance_install_horizon_mod(
+    instance_id: &str,
+    project_id: &str,
+    download_url: &str,
+    file_name: &str,
+    version_id: Option<String>,
+    icon_url: Option<String>,
+    title: Option<String>,
+) -> Result<String> {
+    Ok(theseus::instance::install_horizon_mod(
+        instance_id,
+        project_id,
+        download_url,
+        file_name,
+        version_id,
+        icon_url,
+        title,
+    )
+    .await?)
 }
 
 #[tauri::command]

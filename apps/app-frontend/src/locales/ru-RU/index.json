@@ -311,6 +311,12 @@
   "app.install.phase.downloading_minecraft": {
     "message": "Скачивание Minecraft"
   },
+  "app.install.phase.downloading_horizon": {
+    "message": "Скачивание Horizon"
+  },
+  "app.install.phase.preparing_horizon": {
+    "message": "Подготовка ресурсов Horizon 26.3"
+  },
   "app.install.phase.downloading_pack_file": {
     "message": "Скачивание файла сборки"
   },

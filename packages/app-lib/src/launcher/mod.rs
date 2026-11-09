@@ -29,7 +29,7 @@ use daedalus::modded::{LoaderVersion, Manifest};
 use regex::Regex;
 use serde::Deserialize;
 use std::fmt::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tokio::process::Command;
 
 mod args;
@@ -164,6 +164,17 @@ pub async fn get_loader_version_from_profile(
 ) -> crate::Result<Option<LoaderVersion>> {
     if loader == ModLoader::Vanilla {
         return Ok(None);
+    }
+
+    if loader == ModLoader::Rust {
+        let v = loader_version.ok_or_else(|| {
+            crate::ErrorKind::LauncherError("No Rust/Horizon version specified".to_string())
+        })?;
+        return Ok(Some(LoaderVersion {
+            id: v.to_string(),
+            url: String::new(),
+            stable: true,
+        }));
     }
 
     let version = loader_version.unwrap_or("latest");
@@ -360,6 +371,43 @@ pub async fn install_minecraft_with_reporter(
 
     let result = async {
     let instance_path = get_instance_full_path(&instance.path).await?;
+
+    if content_set.loader == ModLoader::Rust {
+        if let Some(reporter) = &reporter {
+            reporter
+                .update(
+                    InstallPhaseId::ResolvingLoader,
+                    None,
+                    phase_details.clone(),
+                )
+                .await?;
+        }
+
+        ensure_horizon_installed(&instance_path, &state, reporter.as_ref(), loading_bar.as_ref()).await?;
+
+        crate::state::instances::commands::set_instance_install_stage(
+            &instance.id,
+            InstanceInstallStage::Installed,
+            &state.pool,
+        )
+        .await?;
+        emit_instance(&instance.id, InstancePayloadType::Edited).await?;
+
+        if let Some(reporter) = &reporter {
+            reporter
+                .update(
+                    InstallPhaseId::Finalizing,
+                    None,
+                    phase_details.clone(),
+                )
+                .await?;
+        }
+
+        if let Some(loading_bar) = &loading_bar {
+            emit_loading(loading_bar, 1.0, Some("Finished installing"))?;
+        }
+        return Ok::<(), crate::Error>(());
+    }
     if let Some(reporter) = &reporter {
         reporter
             .update(
@@ -820,6 +868,20 @@ pub async fn launch_minecraft(
     let state = State::get().await?;
 
     let instance_path = get_instance_full_path(&instance.path).await?;
+
+    if content_set.loader == ModLoader::Rust {
+        return launch_rust_horizon(
+            &state,
+            instance,
+            &instance_path,
+            credentials,
+            &quick_play_type,
+            wrapper,
+            post_exit_hook,
+            env_args,
+        )
+        .await;
+    }
 
     let (minecraft, version_index) =
         resolve_minecraft_manifest(&content_set.game_version, &state).await?;
@@ -1362,4 +1424,562 @@ pub async fn patch_libraries_for_elyby(
 	}
 
 	false
+}
+
+async fn launch_rust_horizon(
+    state: &State,
+    instance: &crate::state::Instance,
+    instance_path: &std::path::Path,
+    credentials: &Credentials,
+    quick_play_type: &QuickPlayType,
+    wrapper: &Option<String>,
+    post_exit_hook: Option<String>,
+    env_args: &[(String, String)],
+) -> crate::Result<ProcessMetadata> {
+    let existing_processes = process::get_by_instance_id(&instance.id).await?;
+    if let Some(proc) = existing_processes.first() {
+        return Err(crate::ErrorKind::LauncherError(format!(
+            "Instance {} is already running as process {}",
+            instance.id, proc.uuid
+        ))
+        .as_error());
+    }
+
+    let binary = if instance_path.join("horizon-client.exe").exists()
+        && find_horizon_resources(instance_path, state).is_some()
+    {
+        instance_path.join("horizon-client.exe")
+    } else {
+        ensure_horizon_installed(instance_path, state, None, None).await?
+    };
+
+    let resources_dir = find_horizon_resources(instance_path, state)
+        .ok_or_else(|| {
+            crate::ErrorKind::LauncherError(
+                "Horizon 26.3 resources not found. Ensure 26.3 assets are prepared or set HORIZON_RESOURCES_PATH".to_string(),
+            )
+        })?;
+
+    let mut command = match wrapper {
+        Some(hook) => {
+            let mut cmd = shlex::split(hook)
+                .ok_or_else(|| {
+                    crate::ErrorKind::LauncherError(format!(
+                        "Invalid wrapper command: {hook}",
+                    ))
+                })?
+                .into_iter();
+            let mut command = Command::new(cmd.next().ok_or_else(|| {
+                crate::ErrorKind::LauncherError("Empty wrapper command".to_owned())
+            })?);
+            command.args(cmd);
+            command.arg(binary);
+            command
+        }
+        None => Command::new(binary),
+    };
+
+    command.current_dir(instance_path);
+    #[cfg(windows)]
+    {
+        command.creation_flags(0x08000000);
+    }
+    let player_name = if credentials.offline_profile.name.is_empty() {
+        "Player"
+    } else {
+        &credentials.offline_profile.name
+    };
+    command.arg("--name").arg(player_name);
+    command.arg("--game-dir").arg(instance_path);
+    command.arg("--resources").arg(resources_dir);
+
+    if let QuickPlayType::Server(address) = quick_play_type {
+        command.arg("--server").arg(address.to_string());
+    }
+
+    let logs_folder = state.directories.instance_logs_dir(&instance.path);
+    let keep_alive = tempfile::tempdir().map_err(IOError::from)?;
+    let rpc_server = RpcServerBuilder::new().launch().await?;
+
+    let _ = state
+        .friends_socket
+        .update_status(Some(instance.name.clone()))
+        .await;
+
+    state
+        .process_manager
+        .insert_new_process(
+            &instance.id,
+            &instance.path,
+            &instance.name,
+            command,
+            post_exit_hook,
+            env_args.to_vec(),
+            logs_folder,
+            false,
+            keep_alive,
+            rpc_server,
+            async |_process: &ProcessMetadata, _rpc_server| Ok(()),
+        )
+        .await
+}
+
+async fn download_file_streaming(
+    client: &reqwest::Client,
+    url: &str,
+    target_path: &Path,
+    phase: InstallPhaseId,
+    phase_details: &InstallPhaseDetails,
+    reporter: Option<&InstallProgressReporter>,
+    loading_bar: Option<&crate::event::LoadingBarId>,
+    label: &str,
+) -> crate::Result<()> {
+    if let Some(parent) = target_path.parent() {
+        crate::util::io::create_dir_all(parent).await?;
+    }
+
+    let mut resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to download from {url}: {e}")))?;
+
+    if !resp.status().is_success() {
+        return Err(crate::ErrorKind::OtherError(format!(
+            "Failed download from {url}: HTTP {}",
+            resp.status()
+        ))
+        .into());
+    }
+
+    let total = resp.content_length().unwrap_or(0);
+    let mut downloaded = 0u64;
+
+    use tokio::io::AsyncWriteExt;
+    let mut file = tokio::fs::File::create(target_path)
+        .await
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to create file {:?}: {e}", target_path)))?;
+
+    let mut last_report = std::time::Instant::now();
+
+    while let Some(chunk) = resp
+        .chunk()
+        .await
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Error reading download stream from {url}: {e}")))?
+    {
+        file.write_all(&chunk)
+            .await
+            .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to write chunk to {:?}: {e}", target_path)))?;
+        downloaded += chunk.len() as u64;
+
+        if last_report.elapsed() >= std::time::Duration::from_millis(150) || (total > 0 && downloaded == total) {
+            last_report = std::time::Instant::now();
+            if let Some(reporter) = reporter {
+                let prog = if total > 0 {
+                    Some(InstallProgress {
+                        current: downloaded,
+                        total,
+                        secondary: None,
+                    })
+                } else {
+                    None
+                };
+                let _ = reporter.update(phase, prog, phase_details.clone()).await;
+            }
+            if let Some(bar) = loading_bar {
+                let frac = if total > 0 {
+                    downloaded as f64 / total as f64
+                } else {
+                    0.5
+                };
+                let _ = emit_loading(bar, frac, Some(label));
+            }
+        }
+    }
+
+    file.flush()
+        .await
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to flush file {:?}: {e}", target_path)))?;
+
+    Ok(())
+}
+
+async fn ensure_horizon_installed(
+    instance_path: &Path,
+    state: &State,
+    reporter: Option<&InstallProgressReporter>,
+    loading_bar: Option<&crate::event::LoadingBarId>,
+) -> crate::Result<PathBuf> {
+    let mods_dir = instance_path.join("horizon-mods");
+    crate::util::io::create_dir_all(&mods_dir).await?;
+    crate::util::io::create_dir_all(&instance_path.join("resourcepacks")).await?;
+    crate::util::io::create_dir_all(&instance_path.join("shaderpacks")).await?;
+
+    let native_dir = instance_path.join("horizon-native-mods");
+    if native_dir.exists() {
+        let _ = tokio::fs::remove_dir_all(&native_dir).await;
+    }
+
+    let runtimes_dir = state.directories.config_dir.join("runtimes").join("horizon");
+    let cached_bin = runtimes_dir.join("horizon-client.exe");
+    let cached_prepare = runtimes_dir.join("horizon-prepare.exe");
+    let bin_path = instance_path.join("horizon-client.exe");
+
+    let phase_details = InstallPhaseDetails::Minecraft {
+        game_version: "26.3".to_string(),
+        loader: ModLoader::Rust,
+    };
+
+    // 1. Ensure Minecraft jars & prepare resources
+    ensure_horizon_resources(instance_path, state, reporter, loading_bar).await?;
+
+    // 2. Ensure Horizon binaries (client & prepare)
+    let client_bin = if bin_path.exists() {
+        bin_path
+    } else if cached_bin.exists() {
+        tracing::info!("Using cached Horizon binary: {:?}", cached_bin);
+        let _ = tokio::fs::copy(&cached_bin, &bin_path).await;
+        if cached_prepare.exists() {
+            let _ = tokio::fs::copy(&cached_prepare, &instance_path.join("horizon-prepare.exe")).await;
+        }
+        bin_path
+    } else {
+        crate::util::io::create_dir_all(&runtimes_dir).await?;
+        let download_url = "https://github.com/horizon-rust/horizon/releases/download/nightly/horizon-windows-x64.zip";
+        let zip_temp = runtimes_dir.join("horizon-download.zip");
+
+        let client = reqwest::Client::builder()
+            .user_agent("MacrosApp/1.0")
+            .build()
+            .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to build HTTP client: {e}")))?;
+
+        download_file_streaming(
+            &client,
+            download_url,
+            &zip_temp,
+            InstallPhaseId::ResolvingLoader,
+            &phase_details,
+            reporter,
+            loading_bar,
+            "Downloading Horizon...",
+        )
+        .await?;
+
+        let bytes = tokio::fs::read(&zip_temp).await.map_err(|e| {
+            crate::ErrorKind::OtherError(format!("Failed to read downloaded Horizon zip: {e}"))
+        })?;
+        let _ = tokio::fs::remove_file(&zip_temp).await;
+
+        let mut archive = zip::ZipArchive::new(std::io::Cursor::new(bytes))
+            .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to open Horizon zip: {e}")))?;
+
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i)
+                .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to read zip entry: {e}")))?;
+            let name = file.name().to_string();
+            if name.ends_with("horizon-client.exe") || name.ends_with("horizon-prepare.exe") || name.ends_with("research-lock.json") {
+                if let Some(file_name) = std::path::Path::new(&name).file_name() {
+                    let out_cached = runtimes_dir.join(file_name);
+                    let mut out_file = std::fs::File::create(&out_cached)
+                        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to create file {:?}: {e}", out_cached)))?;
+                    std::io::copy(&mut file, &mut out_file)
+                        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to write file {:?}: {e}", out_cached)))?;
+                }
+            }
+        }
+
+        if cached_bin.exists() {
+            let _ = tokio::fs::copy(&cached_bin, &bin_path).await;
+            if cached_prepare.exists() {
+                let _ = tokio::fs::copy(&cached_prepare, &instance_path.join("horizon-prepare.exe")).await;
+            }
+            bin_path
+        } else {
+            return Err(crate::ErrorKind::OtherError("horizon-client.exe was not found inside the downloaded archive".to_string()).into());
+        }
+    };
+
+    Ok(client_bin)
+}
+
+async fn ensure_horizon_resources(
+    instance_path: &Path,
+    state: &State,
+    reporter: Option<&InstallProgressReporter>,
+    loading_bar: Option<&crate::event::LoadingBarId>,
+) -> crate::Result<PathBuf> {
+    let instance_res = instance_path.join("resources");
+    if is_valid_horizon_resources(&instance_res) {
+        tracing::info!("Horizon resources already exist in instance: {:?}", instance_res);
+        return Ok(instance_res);
+    }
+
+    let runtimes_dir = state.directories.config_dir.join("runtimes").join("horizon");
+    let global_res = runtimes_dir.join("resources");
+
+    let phase_details = InstallPhaseDetails::Minecraft {
+        game_version: "26.3".to_string(),
+        loader: ModLoader::Rust,
+    };
+
+    if is_valid_horizon_resources(&global_res) {
+        tracing::info!("Using global cached Horizon 26.3 resources at {:?}", global_res);
+        if let Some(reporter) = reporter {
+            reporter
+                .update(
+                    InstallPhaseId::RunningLoaderProcessors,
+                    None,
+                    phase_details.clone(),
+                )
+                .await?;
+        }
+        if let Some(bar) = loading_bar {
+            let _ = emit_loading(bar, 0.7, Some("Linking Horizon 26.3 resources to instance..."));
+        }
+
+        link_or_copy_dir(&global_res, &instance_res).await.map_err(|e| {
+            crate::ErrorKind::OtherError(format!(
+                "Failed to copy Horizon resources to {:?}: {e}",
+                instance_res
+            ))
+        })?;
+
+        return Ok(instance_res);
+    }
+
+    // Step 1: Download Minecraft client and server jars
+    let cache_dir = runtimes_dir.join("cache");
+    crate::util::io::create_dir_all(&cache_dir).await?;
+    let client_jar = cache_dir.join("minecraft-26.3-client.jar");
+    let server_jar = cache_dir.join("minecraft-26.3-server.jar");
+
+    let client_http = reqwest::Client::builder()
+        .user_agent("MacrosApp/1.0")
+        .build()
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to build HTTP client: {e}")))?;
+
+    if !client_jar.exists()
+        || tokio::fs::metadata(&client_jar).await.map(|m| m.len()).unwrap_or(0) == 0
+    {
+        let client_url =
+            "https://piston-data.mojang.com/v1/objects/e877b6a07acd633fb3bb475002175cec036e7b87/client.jar";
+        download_file_streaming(
+            &client_http,
+            client_url,
+            &client_jar,
+            InstallPhaseId::DownloadingMinecraft,
+            &phase_details,
+            reporter,
+            loading_bar,
+            "Downloading Minecraft 26.3 client...",
+        )
+        .await?;
+    }
+
+    if !server_jar.exists()
+        || tokio::fs::metadata(&server_jar).await.map(|m| m.len()).unwrap_or(0) == 0
+    {
+        let server_url =
+            "https://piston-data.mojang.com/v1/objects/33680f5f2ac32864d6d7cf5e56a705fdb3e05f4c/server.jar";
+        download_file_streaming(
+            &client_http,
+            server_url,
+            &server_jar,
+            InstallPhaseId::DownloadingMinecraft,
+            &phase_details,
+            reporter,
+            loading_bar,
+            "Downloading Minecraft 26.3 server...",
+        )
+        .await?;
+    }
+
+    // Step 2: Ensure horizon-prepare binary exists
+    let prepare_bin = if runtimes_dir.join("horizon-prepare.exe").exists() {
+        runtimes_dir.join("horizon-prepare.exe")
+    } else if instance_path.join("horizon-prepare.exe").exists() {
+        instance_path.join("horizon-prepare.exe")
+    } else {
+        crate::util::io::create_dir_all(&runtimes_dir).await?;
+        let download_url = "https://github.com/horizon-rust/horizon/releases/download/nightly/horizon-windows-x64.zip";
+        let zip_temp = runtimes_dir.join("horizon-download.zip");
+
+        download_file_streaming(
+            &client_http,
+            download_url,
+            &zip_temp,
+            InstallPhaseId::ResolvingLoader,
+            &phase_details,
+            reporter,
+            loading_bar,
+            "Downloading Horizon...",
+        )
+        .await?;
+
+        let bytes = tokio::fs::read(&zip_temp).await.map_err(|e| {
+            crate::ErrorKind::OtherError(format!("Failed to read downloaded Horizon zip: {e}"))
+        })?;
+        let _ = tokio::fs::remove_file(&zip_temp).await;
+
+        let mut archive = zip::ZipArchive::new(std::io::Cursor::new(bytes))
+            .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to open Horizon zip: {e}")))?;
+
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i)
+                .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to read zip entry: {e}")))?;
+            let name = file.name().to_string();
+            if name.ends_with("horizon-client.exe") || name.ends_with("horizon-prepare.exe") || name.ends_with("research-lock.json") {
+                if let Some(file_name) = std::path::Path::new(&name).file_name() {
+                    let out_cached = runtimes_dir.join(file_name);
+                    let mut out_file = std::fs::File::create(&out_cached)
+                        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to create file {:?}: {e}", out_cached)))?;
+                    std::io::copy(&mut file, &mut out_file)
+                        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to write file {:?}: {e}", out_cached)))?;
+                }
+            }
+        }
+
+        runtimes_dir.join("horizon-prepare.exe")
+    };
+
+    if !prepare_bin.exists() {
+        return Err(crate::ErrorKind::OtherError(
+            "horizon-prepare.exe was not found to extract resources".to_string(),
+        )
+        .into());
+    }
+
+    // Step 3: Run horizon-prepare to extract and prepare resources
+    if let Some(reporter) = reporter {
+        reporter
+            .update(
+                InstallPhaseId::RunningLoaderProcessors,
+                None,
+                phase_details.clone(),
+            )
+            .await?;
+    }
+    if let Some(bar) = loading_bar {
+        let _ = emit_loading(bar, 0.6, Some("Preparing Horizon 26.3 resources..."));
+    }
+
+    if !global_res.exists() {
+        let _ = tokio::fs::create_dir_all(&global_res).await;
+    }
+
+    let mut prepare_cmd = tokio::process::Command::new(&prepare_bin);
+    prepare_cmd
+        .arg("--complete")
+        .arg("--client-jar")
+        .arg(&client_jar)
+        .arg("--server-jar")
+        .arg(&server_jar)
+        .arg("--root")
+        .arg(&runtimes_dir)
+        .arg("--output")
+        .arg(&global_res);
+
+    #[cfg(windows)]
+    {
+        prepare_cmd.creation_flags(0x08000000);
+    }
+
+    let output = prepare_cmd
+        .output()
+        .await
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to execute horizon-prepare: {e}")))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        tracing::error!("horizon-prepare failed: stdout={}, stderr={}", stdout, stderr);
+        return Err(crate::ErrorKind::OtherError(format!(
+            "horizon-prepare failed to extract resources: {stderr}"
+        ))
+        .into());
+    }
+
+    link_or_copy_dir(&global_res, &instance_res).await.map_err(|e| {
+        crate::ErrorKind::OtherError(format!(
+            "Failed to link/copy prepared resources to instance: {e}"
+        ))
+    })?;
+
+    Ok(instance_res)
+}
+
+fn is_valid_horizon_resources(p: &Path) -> bool {
+    p.exists()
+        && (p.join("asset-index.json").exists()
+            || p.join("assets").exists()
+            || p.join("data").exists()
+            || p.join("client-classes").exists()
+            || p.join("horizon-data.bin").exists()
+            || p.join("horizon-resources.json").exists())
+}
+
+async fn link_or_copy_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
+    if is_valid_horizon_resources(dst) {
+        return Ok(());
+    }
+
+    // Clean up any stale or broken reparse point/junction
+    if let Ok(meta) = tokio::fs::symlink_metadata(dst).await {
+        if meta.file_type().is_symlink() || !dst.exists() {
+            let _ = tokio::fs::remove_dir_all(dst).await;
+            let _ = tokio::fs::remove_file(dst).await;
+        }
+    }
+
+    if let Some(parent) = dst.parent() {
+        if !parent.exists() {
+            let _ = tokio::fs::create_dir_all(parent).await;
+        }
+    }
+
+    copy_dir_recursive(src, dst).await
+}
+
+fn copy_dir_recursive<'a>(
+    src: &'a Path,
+    dst: &'a Path,
+) -> std::pin::Pin<Box<dyn std::future::Future<Output = std::io::Result<()>> + Send + 'a>> {
+    Box::pin(async move {
+        if !dst.exists() {
+            let _ = tokio::fs::create_dir_all(dst).await;
+        }
+        let mut entries = tokio::fs::read_dir(src).await?;
+        while let Some(entry) = entries.next_entry().await? {
+            let entry_path = entry.path();
+            let dest_path = dst.join(entry.file_name());
+            let file_type = entry.file_type().await?;
+            if file_type.is_dir() {
+                copy_dir_recursive(&entry_path, &dest_path).await?;
+            } else {
+                if dest_path.exists() {
+                    continue;
+                }
+                if tokio::fs::hard_link(&entry_path, &dest_path).await.is_err() {
+                    tokio::fs::copy(&entry_path, &dest_path).await?;
+                }
+            }
+        }
+        Ok(())
+    })
+}
+
+fn find_horizon_resources(instance_path: &Path, state: &State) -> Option<PathBuf> {
+    if let Ok(env_path) = std::env::var("HORIZON_RESOURCES_PATH") {
+        let p = PathBuf::from(env_path);
+        if is_valid_horizon_resources(&p) {
+            return Some(p);
+        }
+    }
+
+    let candidates = [
+        instance_path.join("resources"),
+        state.directories.config_dir.join("runtimes").join("horizon").join("resources"),
+    ];
+
+    candidates.into_iter().find(|p| is_valid_horizon_resources(p))
 }

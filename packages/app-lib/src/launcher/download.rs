@@ -505,30 +505,32 @@ pub async fn download_version_info(
         .await?;
 
         if let Some(loader) = loader {
-            if let Some(reporter) = reporter {
-                reporter
-                    .set_context(
-                        InstallErrorContext::new(
-                            "download loader version metadata",
+            if !loader.url.is_empty() {
+                if let Some(reporter) = reporter {
+                    reporter
+                        .set_context(
+                            InstallErrorContext::new(
+                                "download loader version metadata",
+                            )
+                            .minecraft_version(version.id.clone())
+                            .urls(vec![loader.url.clone()])
+                            .target_path(path.display().to_string())
+                            .build(),
                         )
-                        .minecraft_version(version.id.clone())
-                        .urls(vec![loader.url.clone()])
-                        .target_path(path.display().to_string())
-                        .build(),
-                    )
-                    .await?;
+                        .await?;
+                }
+                let partial: d::modded::PartialVersionInfo = fetch_json(
+                    Method::GET,
+                    &loader.url,
+                    None,
+                    None,
+                    None,
+                    &st.api_semaphore,
+                    &st.pool,
+                )
+                .await?;
+                info = d::modded::merge_partial_version(partial, info);
             }
-            let partial: d::modded::PartialVersionInfo = fetch_json(
-                Method::GET,
-                &loader.url,
-                None,
-                None,
-                None,
-                &st.api_semaphore,
-                &st.pool,
-            )
-            .await?;
-            info = d::modded::merge_partial_version(partial, info);
         }
 
         info.id.clone_from(&version_id);

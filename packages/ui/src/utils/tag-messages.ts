@@ -103,6 +103,10 @@ export const loaderMessages = defineMessages({
 		id: 'tag.loader.rift',
 		defaultMessage: 'Rift',
 	},
+	rust: {
+		id: 'tag.loader.rust',
+		defaultMessage: 'Rust',
+	},
 	spigot: {
 		id: 'tag.loader.spigot',
 		defaultMessage: 'Spigot',

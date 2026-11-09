@@ -7,6 +7,10 @@ description = "The Modrinth App is a desktop application for managing your Minec
 repository = "https://github.com/modrinth/code/apps/app/"
 license = "GPL-3.0-only"
 
+[[bin]]
+name = "MacrosApp"
+path = "src/main.rs"
+
 [dependencies]
 async_zip = { workspace = true, features = ["deflate", "tokio-fs"] }
 chrono = { workspace = true }

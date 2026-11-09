@@ -47,6 +47,7 @@ import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { persistentSearchSource } from '@/composables/use-browse-source'
 import { get_project, get_search_results_v3, get_version_many } from '@/helpers/cache.js'
 import { installCurseForgeMod, searchCurseForge } from '@/helpers/curseforge'
+import { installHorizonMod, searchHorizonMods } from '@/helpers/horizon-registry'
 import {
 	get_installed_project_ids as getInstalledProjectIds,
 	getInstanceIconUrl,
@@ -163,6 +164,7 @@ const instanceQuery = useQuery(
 	})),
 )
 const instance = computed(() => instanceQuery.data.value ?? null)
+const isRustInstance = computed(() => instance.value?.loader === 'rust')
 const linkedInstanceProjectId = computed(() => instance.value?.link?.project_id ?? '')
 const linkedInstanceProjectQuery = useQuery(
 	computed(() => ({
@@ -408,8 +410,9 @@ const instanceFilters = computed(() => {
 
 	if (instance.value && projectType.value !== 'resourcepack') {
 		const isVanillaShader = projectType.value === 'shader' && instance.value.loader === 'vanilla'
+		const isRust = instance.value.loader === 'rust'
 		const gameVersion = instance.value.game_version
-		if (gameVersion && !isVanillaShader) {
+		if (gameVersion && !isVanillaShader && !isRust) {
 			filters.push({ type: 'game_version', option: gameVersion })
 		}
 
@@ -677,7 +680,8 @@ const selectableProjectTypes = computed(() => {
 			availableGameVersions.value &&
 			availableGameVersions.value.findIndex((x) => x.version === instance.value?.game_version) <=
 				availableGameVersions.value.findIndex((x) => x.version === '1.13') &&
-			!isServerInstance.value
+			!isServerInstance.value &&
+			instance.value.loader !== 'rust'
 		) {
 			dataPacks = true
 		}
@@ -896,6 +900,40 @@ function getCardActions(
 		installed?: boolean
 		installing?: boolean
 		cf_raw?: Record<string, unknown>
+	}
+
+	if (instance.value?.loader === 'rust' && currentProjectType === 'mod') {
+		const isInstalling = installingProjectIds.value.has(projectResult.project_id)
+		const isInstalled =
+			projectResult.installed ||
+			allInstalledIds.value.has(projectResult.project_id || '') ||
+			newlyInstalled.value.includes(projectResult.project_id || '')
+
+		return [
+			{
+				key: 'install',
+				label: formatMessage(
+					isInstalled ? commonMessages.installedLabel : commonMessages.installButton,
+				),
+				icon: isInstalling ? SpinnerIcon : isInstalled ? CheckIcon : PlusIcon,
+				iconClass: isInstalling ? 'animate-spin' : undefined,
+				disabled: isInstalled || isInstalling,
+				color: isInstalled ? 'green' : 'brand',
+				type: 'outlined',
+				onClick: async () => {
+					if (!instance.value) return
+					setProjectInstalling(projectResult.project_id, true)
+					try {
+						await installHorizonMod(instance.value.id, projectResult.project_id)
+						onSearchResultInstalled(projectResult.project_id)
+					} catch (e) {
+						handleError(e)
+					} finally {
+						setProjectInstalling(projectResult.project_id, false)
+					}
+				},
+			},
+		]
 	}
 
 	if (projectResult.cf_raw || projectResult.project_id?.startsWith('cf-')) {
@@ -1132,6 +1170,43 @@ async function search(requestParams: string) {
 	debugLog('searching v3', requestParams)
 	const isServer = projectType.value === 'server'
 
+	if (instance.value?.loader === 'rust' && projectType.value === 'mod') {
+		try {
+			const urlParams = new URLSearchParams(requestParams)
+			const offset = parseInt(urlParams.get('offset') ?? '0', 10) || 0
+			const limit = parseInt(urlParams.get('limit') ?? '20', 10) || 20
+			const q =
+				urlParams.get('query') ??
+				(typeof route.query.q === 'string' ? route.query.q : '')
+			const res = await searchHorizonMods(q)
+			for (const hit of res.hits) {
+				queryClient.setQueryData(['projects', 'summary', hit.project_id], hit)
+			}
+			const allInstalled = allInstalledIds.value
+			const hits = res.hits.map((h) => ({
+				...h,
+				installed:
+					allInstalled.has(h.project_id) || newlyInstalled.value.includes(h.project_id),
+			}))
+			const pagedHits = hits.slice(offset, offset + limit)
+			return {
+				projectHits: pagedHits,
+				serverHits: [],
+				total_hits: hits.length,
+				per_page: limit,
+			}
+		} catch (e) {
+			console.error('Horizon registry search failed', e)
+			handleError(e)
+			return {
+				projectHits: [],
+				serverHits: [],
+				total_hits: 0,
+				per_page: 20,
+			}
+		}
+	}
+
 	if (searchSource.value === 'curseforge' && !isServer) {
 		try {
 			const gameVersion =
@@ -1318,6 +1393,8 @@ function getProjectBrowseQuery() {
 	return {
 		...route.query,
 		b: route.fullPath,
+		...(isRustInstance.value ? { source: 'horizon' } : {}),
+		...(instance.value?.id ? { i: instance.value.id } : {}),
 	}
 }
 
@@ -1426,6 +1503,18 @@ provideBrowseManager({
 			<template #nav-right>
 				<div v-if="!isServerContext" class="flex items-center">
 					<nav
+						v-if="instance?.loader === 'rust' && projectType === 'mod'"
+						class="relative flex w-fit rounded-full bg-bg-raised p-1 text-xs sm:text-sm font-bold card-shadow border border-solid border-surface-4"
+					>
+						<div
+							class="flex flex-row items-center gap-2 px-4 py-2 rounded-full bg-button-bgSelected text-brand-contrast text-xs sm:text-sm font-bold shadow-sm"
+						>
+							<span class="h-2 w-2 rounded-full bg-white"></span>
+							<span>Horizon (playhorizon.dev)</span>
+						</div>
+					</nav>
+					<nav
+						v-else
 						class="relative flex w-fit rounded-full bg-bg-raised p-1 text-xs sm:text-sm font-bold card-shadow border border-solid border-surface-4"
 					>
 						<button

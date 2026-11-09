@@ -15,6 +15,11 @@ pub async fn get_optimal_jre_key(
                 "Tried to resolve a nonexistent instance {instance_id}!"
             ))
         })?;
+
+    if context.applied_content_set.loader == crate::state::ModLoader::Rust {
+        return Ok(None);
+    }
+
     let (minecraft, version_index) =
         crate::launcher::resolve_minecraft_manifest(
             &context.applied_content_set.game_version,

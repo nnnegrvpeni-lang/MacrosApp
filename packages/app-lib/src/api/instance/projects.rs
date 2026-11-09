@@ -2,7 +2,8 @@ use crate::event::emit::{emit_instance, emit_loading, init_loading};
 use crate::event::{InstancePayloadType, LoadingBarType};
 use crate::state::instances::adapters::sqlite::instance_rows;
 use crate::state::{
-    CacheBehaviour, CachedEntry, ContentSourceKind, ProjectType, State,
+    CacheBehaviour, CacheValue, CachedEmbeddedContentMetadata, CachedEntry,
+    ContentSourceKind, EmbeddedContentMetadata, ProjectType, State,
 };
 use crate::util::fetch;
 use modrinth_content_management::{
@@ -232,6 +233,46 @@ pub async fn add_project_from_path(
         )
         .await?;
     emit_instance(instance_id, InstancePayloadType::Edited).await?;
+
+    Ok(project_path)
+}
+
+#[tracing::instrument]
+pub async fn add_project_bytes(
+    instance_id: &str,
+    file_name: &str,
+    bytes: bytes::Bytes,
+    hash: Option<&str>,
+    project_type: Option<ProjectType>,
+    source_kind: ContentSourceKind,
+    project_id: Option<&str>,
+    version_id: Option<&str>,
+) -> crate::Result<String> {
+    let state = State::get().await?;
+    ensure_instance_content_unlocked(instance_id, &state).await?;
+    let project_path =
+        crate::state::instances::commands::add_project_bytes(
+            instance_id,
+            file_name,
+            bytes,
+            hash,
+            project_type,
+            source_kind,
+            project_id,
+            version_id,
+            &state,
+        )
+        .await?;
+    emit_instance(instance_id, InstancePayloadType::Edited).await?;
+    if let Some(pid) = project_id {
+        emit_instance(
+            instance_id,
+            InstancePayloadType::ContentInstallFinished {
+                project_ids: vec![pid.to_string()],
+            },
+        )
+        .await?;
+    }
 
     Ok(project_path)
 }
@@ -528,4 +569,109 @@ async fn get_instance_display_info(
         .ok_or_else(|| {
             crate::ErrorKind::InputError("Unknown instance".to_string()).into()
         })
+}
+
+pub async fn install_horizon_mod(
+    instance_id: &str,
+    project_id: &str,
+    download_url: &str,
+    file_name: &str,
+    version_id: Option<String>,
+    icon_url: Option<String>,
+    title: Option<String>,
+) -> crate::Result<String> {
+    let state = State::get().await?;
+    ensure_instance_content_unlocked(instance_id, &state).await?;
+
+    let client = reqwest::Client::builder()
+        .user_agent("MacrosApp/1.0")
+        .build()
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to build HTTP client: {e}")))?;
+
+    let response = client
+        .get(download_url)
+        .send()
+        .await
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to download mod: {e}")))?;
+
+    if !response.status().is_success() {
+        return Err(crate::ErrorKind::OtherError(format!(
+            "Failed to download Horizon mod (HTTP {}): {download_url}",
+            response.status()
+        )).into());
+    }
+
+    let bytes = response
+        .bytes()
+        .await
+        .map_err(|e| crate::ErrorKind::OtherError(format!("Failed to read mod bytes: {e}")))?;
+
+    let sha1 = fetch::sha1_async(bytes.clone()).await?;
+
+    let mut cached_icon_path = None;
+    if let Some(ref icon_url_str) = icon_url {
+        if let Ok(icon_resp) = client.get(icon_url_str).send().await {
+            if icon_resp.status().is_success() {
+                if let Ok(icon_bytes) = icon_resp.bytes().await {
+                    if let Ok(path) = super::icon::cache_icon(icon_bytes, &state).await {
+                        cached_icon_path = Some(path.to_string_lossy().to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    let display_title = title.clone().unwrap_or_else(|| project_id.to_string());
+    let display_version = version_id.clone().unwrap_or_else(|| "1.0.0".to_string());
+    let embedded_meta = EmbeddedContentMetadata {
+        name: Some(display_title.clone()),
+        version: Some(display_version.clone()),
+        icon_path: cached_icon_path,
+    };
+    let cache_key = format!("{sha1}-rust");
+    let entry = CacheValue::EmbeddedContentMetadata(
+        CachedEmbeddedContentMetadata {
+            cache_key,
+            hash: sha1.clone(),
+            metadata: Some(embedded_meta),
+        },
+    )
+    .get_entry();
+    let _ = CachedEntry::upsert_many(&[entry], &state.pool).await;
+
+    let res = add_project_bytes(
+        instance_id,
+        file_name,
+        bytes.clone(),
+        Some(&sha1),
+        Some(ProjectType::Mod),
+        ContentSourceKind::Local,
+        None,
+        None,
+    )
+    .await?;
+
+    if let Ok(instance_path) = super::paths::get_full_path(instance_id).await {
+        let native_dir = instance_path.join("horizon-native-mods");
+        if native_dir.exists() {
+            let _ = tokio::fs::remove_dir_all(&native_dir).await;
+        }
+
+        let mod_list_path = instance_path.join("horizon-mods.txt");
+        let line = format!("mod.{project_id}:true");
+        let content = tokio::fs::read_to_string(&mod_list_path).await.unwrap_or_default();
+        if !content.lines().any(|l| l.trim() == line) {
+            let mut new_content = content;
+            if !new_content.is_empty() && !new_content.ends_with('\n') {
+                new_content.push('\n');
+            }
+            new_content.push_str(&line);
+            new_content.push('\n');
+            let _ = tokio::fs::write(&mod_list_path, new_content).await;
+        }
+    }
+
+    let _ = emit_instance(instance_id, InstancePayloadType::Edited).await;
+
+    Ok(res)
 }

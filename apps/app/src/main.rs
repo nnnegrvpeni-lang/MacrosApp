@@ -1,7 +1,4 @@
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
-)]
+#![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 #![recursion_limit = "256"]
 
 use native_dialog::{DialogBuilder, MessageLevel};

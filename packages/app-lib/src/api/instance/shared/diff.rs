@@ -281,6 +281,7 @@ pub(super) fn shared_loader_label(
         ModLoader::Fabric => "Fabric",
         ModLoader::Quilt => "Quilt",
         ModLoader::NeoForge => "NeoForge",
+        ModLoader::Rust => "Rust",
     };
 
     match loader_version {

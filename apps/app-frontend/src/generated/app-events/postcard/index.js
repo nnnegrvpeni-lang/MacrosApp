@@ -849,6 +849,10 @@ function deserialize_MOD_LOADER(d) {
         return {
             tag: "neoforge"
         };
+    case 5:
+        return {
+            tag: "rust"
+        };
     default:
         throw "variant not implemented"
     }

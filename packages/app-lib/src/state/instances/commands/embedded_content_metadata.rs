@@ -30,6 +30,7 @@ enum ModMetadataKind {
     NeoForge,
     Forge,
     LegacyForge,
+    Horizon,
 }
 
 pub(crate) fn infer_project_type_bytes(
@@ -85,6 +86,8 @@ fn infer_project_type<R: Read + Seek>(
         || has_entry(archive, "META-INF/neoforge.mods.toml")
         || has_entry(archive, "META-INF/mods.toml")
         || has_entry(archive, "mcmod.info")
+        || has_entry(archive, "horizon-mod.toml")
+        || has_entry(archive, "horizon-native.json")
     {
         Ok(ProjectType::Mod)
     } else if has_entry(archive, "pack.mcmeta") {
@@ -137,6 +140,7 @@ fn inspect_mod<R: Read + Seek>(
             parse_toml_metadata(archive, "META-INF/mods.toml", &manifest)
         }
         ModMetadataKind::LegacyForge => parse_legacy_forge_metadata(archive),
+        ModMetadataKind::Horizon => parse_horizon_metadata(archive),
     });
     let (mut metadata, icon_path) =
         parsed.unwrap_or_else(|| (EmbeddedContentMetadata::default(), None));
@@ -162,37 +166,49 @@ fn inspect_mod<R: Read + Seek>(
     }
 }
 
-fn metadata_order(loader: Option<ModLoader>) -> [ModMetadataKind; 5] {
+fn metadata_order(loader: Option<ModLoader>) -> Vec<ModMetadataKind> {
     match loader {
-        Some(ModLoader::Fabric) => [
+        Some(ModLoader::Rust) => vec![
+            ModMetadataKind::Horizon,
+            ModMetadataKind::Fabric,
+            ModMetadataKind::Quilt,
+            ModMetadataKind::NeoForge,
+            ModMetadataKind::Forge,
+        ],
+        Some(ModLoader::Fabric) => vec![
             ModMetadataKind::Fabric,
             ModMetadataKind::Quilt,
             ModMetadataKind::NeoForge,
             ModMetadataKind::Forge,
             ModMetadataKind::LegacyForge,
+            ModMetadataKind::Horizon,
         ],
-        Some(ModLoader::Quilt) => [
+        Some(ModLoader::Quilt) => vec![
             ModMetadataKind::Quilt,
             ModMetadataKind::Fabric,
             ModMetadataKind::NeoForge,
             ModMetadataKind::Forge,
             ModMetadataKind::LegacyForge,
+            ModMetadataKind::Horizon,
         ],
-        Some(ModLoader::Forge) => [
+        Some(ModLoader::Forge) => vec![
             ModMetadataKind::Forge,
             ModMetadataKind::LegacyForge,
             ModMetadataKind::NeoForge,
             ModMetadataKind::Fabric,
             ModMetadataKind::Quilt,
+            ModMetadataKind::Horizon,
         ],
-        Some(ModLoader::NeoForge) => [
+        Some(ModLoader::NeoForge) => vec![
             ModMetadataKind::NeoForge,
             ModMetadataKind::Forge,
             ModMetadataKind::LegacyForge,
             ModMetadataKind::Fabric,
             ModMetadataKind::Quilt,
+            ModMetadataKind::Horizon,
         ],
-        Some(ModLoader::Vanilla) | None => [
+        Some(ModLoader::Vanilla) | None => vec![
+            ModMetadataKind::Horizon,
             ModMetadataKind::Fabric,
             ModMetadataKind::Quilt,
             ModMetadataKind::NeoForge,
@@ -472,6 +488,70 @@ fn read_entry<R: Read + Seek>(
     (bytes.len() as u64 <= max_bytes).then_some(bytes)
 }
 
+fn parse_horizon_metadata<R: Read + Seek>(
+    archive: &mut ZipArchive<R>,
+) -> Option<(EmbeddedContentMetadata, Option<String>)> {
+    if let Some(root) = read_json_entry(archive, "horizon-native.json") {
+        let id = root.get("id").and_then(JsonValue::as_str).unwrap_or("");
+        let version = root
+            .get("version")
+            .and_then(json_scalar_string)
+            .and_then(|value| clean_string(&value, MAX_VERSION_CHARS));
+        let name = clean_string(id, MAX_NAME_CHARS);
+        let icon = find_horizon_icon(archive, id);
+        return Some((
+            EmbeddedContentMetadata {
+                name,
+                version,
+                ..Default::default()
+            },
+            icon,
+        ));
+    }
+
+    if let Some(text) = read_text_entry(archive, "horizon-mod.toml") {
+        if let Ok(root) = toml::from_str::<TomlValue>(&text) {
+            let name = root
+                .get("name")
+                .or_else(|| root.get("id"))
+                .and_then(toml_scalar_string)
+                .and_then(|value| clean_string(&value, MAX_NAME_CHARS));
+            let version = root
+                .get("version")
+                .and_then(toml_scalar_string)
+                .and_then(|value| clean_string(&value, MAX_VERSION_CHARS));
+            let id = root.get("id").and_then(TomlValue::as_str).unwrap_or("");
+            let icon = find_horizon_icon(archive, id);
+            return Some((
+                EmbeddedContentMetadata {
+                    name,
+                    version,
+                    ..Default::default()
+                },
+                icon,
+            ));
+        }
+    }
+
+    None
+}
+
+fn find_horizon_icon<R: Read + Seek>(archive: &mut ZipArchive<R>, id: &str) -> Option<String> {
+    let icon_names = ["icon.png", "pack.png", "logo.png"];
+    for name in icon_names {
+        if has_entry(archive, name) {
+            return Some(name.to_string());
+        }
+    }
+    if !id.is_empty() {
+        let path1 = format!("assets/{id}/icon.png");
+        if has_entry(archive, &path1) {
+            return Some(path1);
+        }
+    }
+    None
+}
+
 pub(crate) async fn resolve_embedded_content_metadata(
     instance: &Instance,
     loader: ModLoader,
@@ -481,7 +561,7 @@ pub(crate) async fn resolve_embedded_content_metadata(
     let candidates = files
         .iter()
         .filter(|(_, file)| {
-            file.metadata.is_none()
+            (file.metadata.is_none() || loader == ModLoader::Rust)
                 && matches!(
                     file.project_type,
                     ProjectType::Mod

@@ -404,6 +404,8 @@ import _TagLoaderRiftIcon from './icons/tags/loaders/rift.svg?component'
 import _TagLoaderSpigotIcon from './icons/tags/loaders/spigot.svg?component'
 import _TagLoaderSpongeIcon from './icons/tags/loaders/sponge.svg?component'
 import _TagLoaderVanillaIcon from './icons/tags/loaders/vanilla.svg?component'
+import _TagLoaderRustIcon from './icons/tags/loaders/rust.svg?component'
+import _TagLoaderHorizonIcon from './icons/tags/loaders/horizon.svg?component'
 import _TagLoaderVelocityIcon from './icons/tags/loaders/velocity.svg?component'
 import _TagLoaderWaterfallIcon from './icons/tags/loaders/waterfall.svg?component'
 import _TerminalSquareIcon from './icons/terminal-square.svg?component'
@@ -848,6 +850,8 @@ export const TagLoaderRiftIcon = _TagLoaderRiftIcon
 export const TagLoaderSpigotIcon = _TagLoaderSpigotIcon
 export const TagLoaderSpongeIcon = _TagLoaderSpongeIcon
 export const TagLoaderVanillaIcon = _TagLoaderVanillaIcon
+export const TagLoaderRustIcon = _TagLoaderRustIcon
+export const TagLoaderHorizonIcon = _TagLoaderHorizonIcon
 export const TagLoaderVelocityIcon = _TagLoaderVelocityIcon
 export const TagLoaderWaterfallIcon = _TagLoaderWaterfallIcon
 export const TerminalSquareIcon = _TerminalSquareIcon
@@ -1027,6 +1031,8 @@ export const loaderIconMap: Record<string, IconComponent> = {
 	spigot: TagLoaderSpigotIcon,
 	sponge: TagLoaderSpongeIcon,
 	vanilla: TagLoaderVanillaIcon,
+	rust: TagLoaderRustIcon,
+	horizon: TagLoaderHorizonIcon,
 	velocity: TagLoaderVelocityIcon,
 	waterfall: TagLoaderWaterfallIcon,
 }

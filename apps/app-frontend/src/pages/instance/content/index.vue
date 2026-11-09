@@ -274,10 +274,22 @@ watch(
 	{ immediate: true, deep: true },
 )
 
+function getContentMatchKey(item: ContentItem): string {
+	if (item.project?.id) return item.project.id
+	if (item.file_name) {
+		const clean = item.file_name
+			.replace(/\.disabled$/, '')
+			.replace(/\.hnmod$/, '')
+			.replace(/\.hmod$/, '')
+		return clean.split('-')[0] || clean
+	}
+	return item.file_path || item.id || ''
+}
+
 watch(projects, (newProjects) => {
 	if (installingBuffer.value.length === 0) return
-	const realProjectIds = new Set(newProjects.map((p) => p.project?.id).filter(Boolean))
-	if (installingBuffer.value.every((item) => realProjectIds.has(item.project?.id))) {
+	const realKeys = new Set(newProjects.map(getContentMatchKey).filter(Boolean))
+	if (installingBuffer.value.every((item) => realKeys.has(getContentMatchKey(item)))) {
 		installingBuffer.value = []
 	}
 })
@@ -286,14 +298,14 @@ const mergedProjects = computed<ContentItem[]>(() => {
 	const active = installingItems.value.get(instance.value.id)
 	const pending = active ?? installingBuffer.value
 	if (pending.length === 0) return projects.value
-	const pendingProjectIds = new Set(pending.map((p) => p.project?.id).filter(Boolean))
+	const pendingKeys = new Set(pending.map(getContentMatchKey).filter(Boolean))
 	const displayProjects = projects.value.map((project) =>
-		project.project?.id && pendingProjectIds.has(project.project.id)
+		pendingKeys.has(getContentMatchKey(project))
 			? { ...project, installing: true }
 			: project,
 	)
-	const realProjectIds = new Set(displayProjects.map((p) => p.project?.id).filter(Boolean))
-	const placeholders = pending.filter((item) => !realProjectIds.has(item.project?.id))
+	const realKeys = new Set(displayProjects.map(getContentMatchKey).filter(Boolean))
+	const placeholders = pending.filter((item) => !realKeys.has(getContentMatchKey(item)))
 	return placeholders.length > 0 ? [...displayProjects, ...placeholders] : displayProjects
 })
 
@@ -1642,8 +1654,19 @@ provideContentManager({
 			icon_url: item.embedded_metadata?.icon_url ?? null,
 		},
 		projectLink: item.project?.id
-			? { path: `/project/${item.project.id}`, query: { i: instancePage.instanceId.value } }
-			: undefined,
+			? {
+					path: `/project/${item.project.id}`,
+					query: {
+						i: instancePage.instanceId.value,
+						...(instance.value.loader === 'rust' ? { source: 'horizon' } : {}),
+					},
+				}
+			: instance.value.loader === 'rust' && item.file_name
+				? {
+						path: `/project/${item.file_name.replace(/\.disabled$/, '').replace(/\.hnmod$/, '').replace(/\.hmod$/, '').split('-')[0]}`,
+						query: { i: instancePage.instanceId.value, source: 'horizon' },
+					}
+				: undefined,
 		version: item.version ?? {
 			id: item.file_name,
 			version_number: contentVersionLabel(item),

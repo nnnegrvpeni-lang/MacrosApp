@@ -347,6 +347,9 @@ function formatProgressLabel(
 	total: number,
 ): string {
 	if (type === 'bytes' && total > 0) {
+		if (total <= 100) {
+			return `${Math.round((current / total) * 100)}%`
+		}
 		return `${formatBytes(Math.min(current, total), 1)} / ${formatBytes(total, 1)}`
 	}
 

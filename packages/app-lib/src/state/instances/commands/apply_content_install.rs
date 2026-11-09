@@ -491,7 +491,7 @@ pub(crate) async fn add_project_from_path(
     .await
 }
 
-pub(crate) async fn add_project_bytes(
+pub async fn add_project_bytes(
     instance_id: &str,
     file_name: &str,
     bytes: Bytes,
@@ -511,13 +511,28 @@ pub(crate) async fn add_project_bytes(
 
     let _content_lock = state.lock_instance_content(instance_id).await;
     let scope = resolve_content_scope(instance_id, None, state).await?;
+    let content_set =
+        content_rows::get_content_set(&scope.content_set_id, &state.pool)
+            .await?
+            .ok_or_else(|| {
+                crate::ErrorKind::InputError(format!(
+                    "Unknown content set {}",
+                    scope.content_set_id
+                ))
+            })?;
+    let is_rust = content_set.loader == ModLoader::Rust;
     let project_type = match project_type {
         Some(project_type) => project_type,
         None => {
             super::embedded_content_metadata::infer_project_type_bytes(&bytes)?
         }
     };
-    let relative_path = format!("{}/{}", project_type.get_folder(), file_name);
+    let folder = if is_rust && project_type == ProjectType::Mod {
+        "horizon-mods"
+    } else {
+        project_type.get_folder()
+    };
+    let relative_path = format!("{folder}/{file_name}");
     let full_path =
         instance_full_path(state, &scope.instance).join(&relative_path);
     let sha1 = match hash {
@@ -571,6 +586,31 @@ pub(crate) async fn add_project_bytes(
     .await?;
     tx.commit().await?;
     super::mark_shared_instance_stale(instance_id, &state.pool).await?;
+
+    if is_rust && project_type == ProjectType::Mod {
+        let instance_base = instance_full_path(state, &scope.instance);
+        let native_folder = instance_base.join("horizon-native-mods");
+        if native_folder.exists() {
+            let _ = tokio::fs::remove_dir_all(&native_folder).await;
+        }
+
+        let mod_list_path = instance_base.join("horizon-mods.txt");
+        let stem = file_name.trim_end_matches(".disabled").trim_end_matches(".hnmod").trim_end_matches(".hmod");
+        let mod_id = project_id.unwrap_or_else(|| {
+            stem.split_once('-').map(|(id, _)| id).unwrap_or(stem)
+        });
+        let line = format!("mod.{mod_id}:true");
+        let content = tokio::fs::read_to_string(&mod_list_path).await.unwrap_or_default();
+        if !content.lines().any(|l| l.trim() == line) {
+            let mut new_content = content;
+            if !new_content.is_empty() && !new_content.ends_with('\n') {
+                new_content.push('\n');
+            }
+            new_content.push_str(&line);
+            new_content.push('\n');
+            let _ = tokio::fs::write(&mod_list_path, new_content).await;
+        }
+    }
 
     Ok(relative_path)
 }
@@ -722,6 +762,51 @@ pub(crate) async fn toggle_disable_project(
     }
     tx.commit().await?;
 
+    let is_rust = content_rows::get_content_set(&scope.content_set_id, &state.pool)
+        .await
+        .ok()
+        .flatten()
+        .map(|cs| cs.loader == ModLoader::Rust)
+        .unwrap_or(false);
+
+    if is_rust {
+        if let Some(file_name) = std::path::Path::new(&new_path).file_name() {
+            let file_name_str = file_name.to_string_lossy();
+            let mod_list_path = base.join("horizon-mods.txt");
+            if let Ok(content) = tokio::fs::read_to_string(&mod_list_path).await {
+                let clean_name = file_name_str.trim_end_matches(".disabled").trim_end_matches(".hnmod").trim_end_matches(".hmod");
+                let mod_id = clean_name.split_once('-').map(|(id, _)| id).unwrap_or(clean_name);
+
+                let target_prefix = format!("mod.{mod_id}:");
+                let target_prefix_full = format!("mod.{clean_name}:");
+                let desired_line = format!("mod.{mod_id}:{enabled}");
+
+                let mut found = false;
+                let mut lines: Vec<String> = content
+                    .lines()
+                    .map(|l| {
+                        let t = l.trim();
+                        if t.starts_with(&target_prefix) || t.starts_with(&target_prefix_full) {
+                            found = true;
+                            desired_line.clone()
+                        } else {
+                            l.to_string()
+                        }
+                    })
+                    .collect();
+
+                if !found {
+                    lines.push(desired_line);
+                }
+                let mut updated = lines.join("\n");
+                if !updated.is_empty() {
+                    updated.push('\n');
+                }
+                let _ = tokio::fs::write(&mod_list_path, updated).await;
+            }
+        }
+    }
+
     super::mark_shared_instance_stale(instance_id, &state.pool).await?;
 
     Ok(new_path)
@@ -747,6 +832,8 @@ pub(crate) async fn remove_project(
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
         Err(err) => return Err(err.into()),
     }
+    let _ = io::remove_file(base.join(format!("{project_path}.disabled"))).await;
+    let _ = io::remove_file(base.join(project_path.trim_end_matches(".disabled"))).await;
 
     if let Some(file) = file {
         let mut tx = state.pool.begin().await?;
@@ -762,7 +849,68 @@ pub(crate) async fn remove_project(
             &mut tx,
         )
         .await?;
+        let _ = content_rows::remove_instance_file_by_relative_path(
+            &scope.instance.id,
+            &format!("{project_path}.disabled"),
+            &mut tx,
+        ).await;
+        let _ = content_rows::remove_instance_file_by_relative_path(
+            &scope.instance.id,
+            project_path.trim_end_matches(".disabled"),
+            &mut tx,
+        ).await;
         tx.commit().await?;
+    }
+
+    let is_rust = content_rows::get_content_set(&scope.content_set_id, &state.pool)
+        .await
+        .ok()
+        .flatten()
+        .map(|cs| cs.loader == ModLoader::Rust)
+        .unwrap_or(false);
+
+    if is_rust {
+        if let Some(file_name) = std::path::Path::new(project_path).file_name() {
+            let file_name_str = file_name.to_string_lossy();
+            let _ = io::remove_file(base.join("horizon-native-mods").join(file_name)).await;
+            let _ = io::remove_file(base.join("horizon-mods").join(file_name)).await;
+            let _ = io::remove_file(base.join("horizon-mods").join(format!("{file_name_str}.disabled"))).await;
+            let _ = io::remove_file(base.join("horizon-mods").join(file_name_str.trim_end_matches(".disabled"))).await;
+            let _ = io::remove_file(base.join("mods").join(file_name)).await;
+
+            let native_rel = format!("horizon-native-mods/{file_name_str}");
+            let mods_rel = format!("horizon-mods/{file_name_str}");
+            let mods_rel_clean = format!("horizon-mods/{}", file_name_str.trim_end_matches(".disabled"));
+            let mods_rel_dis = format!("horizon-mods/{}.disabled", file_name_str.trim_end_matches(".disabled"));
+            if let Ok(mut tx) = state.pool.begin().await {
+                let _ = content_rows::remove_instance_file_by_relative_path(&scope.instance.id, &native_rel, &mut tx).await;
+                let _ = content_rows::remove_instance_file_by_relative_path(&scope.instance.id, &mods_rel, &mut tx).await;
+                let _ = content_rows::remove_instance_file_by_relative_path(&scope.instance.id, &mods_rel_clean, &mut tx).await;
+                let _ = content_rows::remove_instance_file_by_relative_path(&scope.instance.id, &mods_rel_dis, &mut tx).await;
+                let _ = tx.commit().await;
+            }
+
+            let mod_list_path = base.join("horizon-mods.txt");
+            if let Ok(content) = tokio::fs::read_to_string(&mod_list_path).await {
+                let clean_name = file_name_str.trim_end_matches(".disabled").trim_end_matches(".hnmod").trim_end_matches(".hmod");
+                let mod_id = clean_name.split_once('-').map(|(id, _)| id).unwrap_or(clean_name);
+
+                let prefix = format!("mod.{mod_id}:");
+                let prefix_full = format!("mod.{clean_name}:");
+                let new_lines: Vec<&str> = content
+                    .lines()
+                    .filter(|l| {
+                        let t = l.trim();
+                        !t.starts_with(&prefix) && !t.starts_with(&prefix_full) && t != format!("mod.{mod_id}") && t != format!("mod.{clean_name}")
+                    })
+                    .collect();
+                let mut new_content = new_lines.join("\n");
+                if !new_content.is_empty() {
+                    new_content.push('\n');
+                }
+                let _ = tokio::fs::write(&mod_list_path, new_content).await;
+            }
+        }
     }
 
     super::mark_shared_instance_stale(instance_id, &state.pool).await?;

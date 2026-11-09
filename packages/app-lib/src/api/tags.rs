@@ -37,12 +37,18 @@ pub async fn get_report_type_tags() -> crate::Result<Vec<String>> {
 #[tracing::instrument]
 pub async fn get_loader_tags() -> crate::Result<Vec<Loader>> {
     let state = State::get().await?;
-    let loaders =
+    let mut loaders =
         CachedEntry::get_loaders(None, &state.pool, &state.api_semaphore)
             .await?
-            .ok_or_else(|| {
-                crate::ErrorKind::NoValueFor("loader tags".to_string())
-            })?;
+            .unwrap_or_default();
+
+    if !loaders.iter().any(|l| l.name.eq_ignore_ascii_case("rust")) {
+        loaders.push(Loader {
+            name: "rust".to_string(),
+            icon: std::path::PathBuf::new(),
+            supported_project_types: vec!["mod".to_string()],
+        });
+    }
 
     Ok(loaders)
 }
@@ -51,12 +57,22 @@ pub async fn get_loader_tags() -> crate::Result<Vec<Loader>> {
 #[tracing::instrument]
 pub async fn get_game_version_tags() -> crate::Result<Vec<GameVersion>> {
     let state = State::get().await?;
-    let game_versions =
+    let mut game_versions =
         CachedEntry::get_game_versions(None, &state.pool, &state.api_semaphore)
             .await?
-            .ok_or_else(|| {
-                crate::ErrorKind::NoValueFor("game version tags".to_string())
-            })?;
+            .unwrap_or_default();
+
+    if !game_versions.iter().any(|v| v.version == "26.3") {
+        game_versions.insert(
+            0,
+            GameVersion {
+                version: "26.3".to_string(),
+                version_type: "release".to_string(),
+                date: "2026-03-01T00:00:00Z".to_string(),
+                major: false,
+            },
+        );
+    }
 
     Ok(game_versions)
 }

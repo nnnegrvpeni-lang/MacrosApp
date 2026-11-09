@@ -19,49 +19,57 @@ pub(crate) fn scan_content_files(
     let mut files = Vec::new();
 
     for project_type in ProjectType::iterator() {
-        let folder = project_type.get_folder();
-        let folder_path = instance_dir.join(folder);
+        let folders: &[&str] = match project_type {
+            ProjectType::Mod => &["mods", "horizon-mods"],
+            ProjectType::DataPack => &["datapacks"],
+            ProjectType::ResourcePack => &["resourcepacks"],
+            ProjectType::ShaderPack => &["shaderpacks"],
+        };
 
-        if !folder_path.exists() {
-            continue;
-        }
+        for &folder in folders {
+            let folder_path = instance_dir.join(folder);
 
-        for entry in std::fs::read_dir(&folder_path)
-            .map_err(|err| IOError::with_path(err, &folder_path))?
-        {
-            let path = entry.map_err(IOError::from)?.path();
-            if !path.is_file() {
+            if !folder_path.exists() {
                 continue;
             }
 
-            let Some(file_name) =
-                path.file_name().and_then(|value| value.to_str())
-            else {
-                continue;
-            };
+            for entry in std::fs::read_dir(&folder_path)
+                .map_err(|err| IOError::with_path(err, &folder_path))?
+            {
+                let path = entry.map_err(IOError::from)?.path();
+                if !path.is_file() {
+                    continue;
+                }
 
-            if !is_scannable_project_file(project_type, file_name) {
-                continue;
+                let Some(file_name) =
+                    path.file_name().and_then(|value| value.to_str())
+                else {
+                    continue;
+                };
+
+                if !is_scannable_project_file(project_type, file_name) {
+                    continue;
+                }
+
+                let metadata = path.metadata().map_err(IOError::from)?;
+                let size = metadata.len();
+                let modified_at_ns =
+                    file_modified_at_ns(&metadata).map_err(IOError::from)?;
+                let relative_path = format!("{folder}/{file_name}");
+                let hash_cache_key = file_hash_cache_key(
+                    size,
+                    modified_at_ns,
+                    &format!("{instance_path}/{relative_path}"),
+                );
+
+                files.push(ScannedContentFile {
+                    relative_path,
+                    file_name: file_name.to_string(),
+                    enabled: !file_name.ends_with(".disabled"),
+                    size,
+                    hash_cache_key,
+                });
             }
-
-            let metadata = path.metadata().map_err(IOError::from)?;
-            let size = metadata.len();
-            let modified_at_ns =
-                file_modified_at_ns(&metadata).map_err(IOError::from)?;
-            let relative_path = format!("{folder}/{file_name}");
-            let hash_cache_key = file_hash_cache_key(
-                size,
-                modified_at_ns,
-                &format!("{instance_path}/{relative_path}"),
-            );
-
-            files.push(ScannedContentFile {
-                relative_path,
-                file_name: file_name.to_string(),
-                enabled: !file_name.ends_with(".disabled"),
-                size,
-                hash_cache_key,
-            });
         }
     }
 
@@ -86,7 +94,11 @@ fn is_scannable_project_file(
     };
 
     match project_type {
-        ProjectType::Mod => extension.eq_ignore_ascii_case("jar"),
+        ProjectType::Mod => {
+            extension.eq_ignore_ascii_case("jar")
+                || extension.eq_ignore_ascii_case("hmod")
+                || extension.eq_ignore_ascii_case("hnmod")
+        }
         ProjectType::DataPack
         | ProjectType::ResourcePack
         | ProjectType::ShaderPack => {

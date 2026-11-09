@@ -322,6 +322,12 @@ import {
 	searchCurseForge,
 } from '@/helpers/curseforge'
 import {
+	fetchHorizonRegistry,
+	horizonProjectToModrinthProject,
+	horizonVersionsToModrinthVersions,
+	installHorizonMod,
+} from '@/helpers/horizon-registry'
+import {
 	get as getInstance,
 	get_projects as getInstanceProjects,
 	getInstanceIconUrl,
@@ -712,6 +718,10 @@ function handleAddServerToInstance() {
 
 function openProjectInBrowser() {
 	if (!data.value) return
+	if (data.value.loaders?.includes('rust') || instance.value?.loader === 'rust') {
+		void openUrl(data.value.source_url || 'https://playhorizon.dev/mods')
+		return
+	}
 	const type = isServerProject.value ? 'project' : data.value.project_type
 	void openUrl(`https://modrinth.com/${type}/${data.value.slug}`)
 }
@@ -724,6 +734,81 @@ function reportProject() {
 async function fetchProjectData() {
 	const requestedId = String(route.params.id ?? '')
 	projectBreadcrumbLabel.value = getProjectBreadcrumbLabel(requestedId)
+
+	// Pre-load instance if query parameter `i` is present
+	let targetInstance = null
+	if (route.query.i) {
+		targetInstance = await getInstance(route.query.i).catch(() => null)
+		if (targetInstance) {
+			instance.value = targetInstance
+			instanceProjects.value = await getInstanceProjects(route.query.i).catch(() => [])
+		}
+	}
+
+	const isHorizonContext =
+		targetInstance?.loader === 'rust' ||
+		route.query.source === 'horizon' ||
+		(typeof route.query.b === 'string' && route.query.b.includes('rust'))
+
+	if (isHorizonContext && !requestedId.startsWith('cf-')) {
+		try {
+			const horizonProjects = await fetchHorizonRegistry()
+			const hp = horizonProjects.find(
+				(p) =>
+					p.id.toLowerCase() === requestedId.toLowerCase() ||
+					p.name.toLowerCase() === requestedId.toLowerCase(),
+			)
+			if (hp) {
+				const project = horizonProjectToModrinthProject(hp)
+				data.value = project
+				projectV3.value = null
+				projectBreadcrumbLabel.value = project.title
+				versions.value = horizonVersionsToModrinthVersions(hp)
+				members.value = [
+					{
+						user: {
+							id: hp.authors?.[0] ?? 'Horizon',
+							username: hp.authors?.[0] ?? 'Horizon Dev',
+							name: hp.authors?.[0] ?? 'Horizon Dev',
+							avatar_url: hp.icon ?? null,
+						},
+						role: 'Author',
+					},
+				]
+				categories.value = await get_categories().catch(() => [])
+
+				// Check installed status
+				let installedFile = undefined
+				if (instanceProjects.value) {
+					installedFile = Object.values(instanceProjects.value).find((x) => {
+						if (x.metadata && x.metadata.project_id === hp.id) return true
+						const fname = (x.file_name || x.relative_path || '').toLowerCase()
+						const pid = hp.id.toLowerCase()
+						return fname.startsWith(pid + '-') || fname.startsWith(pid + '.')
+					})
+				}
+				installed.value = !!installedFile
+				if (installedFile) {
+					const fname = installedFile.file_name || installedFile.relative_path || ''
+					const clean = fname
+						.replace(/\.disabled$/, '')
+						.replace(/\.hnmod$/, '')
+						.replace(/\.hmod$/, '')
+					installedVersion.value =
+						clean.split('-')[1] || hp.versions?.[0]?.version || null
+				} else {
+					installedVersion.value = null
+				}
+
+				isServerProject.value = false
+				serverStatusOnline.value = false
+				organization.value = null
+				return
+			}
+		} catch (e) {
+			console.error('Failed to load Horizon project by ID', e)
+		}
+	}
 
 	if (requestedId.startsWith('cf-') || /^\d+$/.test(requestedId)) {
 		const modId = parseInt(requestedId.replace('cf-', ''), 10)
@@ -741,7 +826,7 @@ async function fetchProjectData() {
 				versions.value = curseForgeFilesToModrinthVersions(cfMod, cfFiles)
 				members.value = project.members
 				categories.value = await get_categories().catch(() => [])
-				if (route.query.i) {
+				if (route.query.i && !instance.value) {
 					;[instance.value, instanceProjects.value] = await Promise.all([
 						getInstance(route.query.i).catch(() => null),
 						getInstanceProjects(route.query.i).catch(() => []),
@@ -804,6 +889,46 @@ async function fetchProjectData() {
 		}
 	}
 
+	if (!project && !requestedId.startsWith('cf-')) {
+		try {
+			const horizonProjects = await fetchHorizonRegistry()
+			const hp = horizonProjects.find(
+				(p) => p.id === requestedId || p.name.toLowerCase() === requestedId.toLowerCase(),
+			)
+			if (hp) {
+				project = horizonProjectToModrinthProject(hp)
+				data.value = project
+				projectV3.value = null
+				projectBreadcrumbLabel.value = project.title
+				versions.value = horizonVersionsToModrinthVersions(hp)
+				members.value = [
+					{
+						user: {
+							id: hp.authors?.[0] ?? 'Horizon',
+							username: hp.authors?.[0] ?? 'Horizon Dev',
+							name: hp.authors?.[0] ?? 'Horizon Dev',
+							avatar_url: hp.icon ?? null,
+						},
+						role: 'Author',
+					},
+				]
+				categories.value = await get_categories().catch(() => [])
+				if (route.query.i) {
+					;[instance.value, instanceProjects.value] = await Promise.all([
+						getInstance(route.query.i).catch(() => null),
+						getInstanceProjects(route.query.i).catch(() => []),
+					])
+				}
+				isServerProject.value = false
+				serverStatusOnline.value = false
+				organization.value = null
+				return
+			}
+		} catch (e) {
+			console.error('Failed to load Horizon project by ID', e)
+		}
+	}
+
 	if (String(route.params.id ?? '') !== requestedId) {
 		return
 	}
@@ -843,13 +968,32 @@ async function fetchProjectData() {
 		(a, b) => dayjs(b.date_published).valueOf() - dayjs(a.date_published).valueOf(),
 	)
 
-	const installedFile = instanceProjects.value
-		? Object.values(instanceProjects.value).find(
-				(x) => x.metadata && x.metadata.project_id === data.value.id,
-			)
-		: undefined
+	let installedFile = undefined
+	if (instanceProjects.value) {
+		installedFile = Object.values(instanceProjects.value).find((x) => {
+			if (x.metadata && x.metadata.project_id === data.value.id) return true
+			if (instance.value?.loader === 'rust') {
+				const fname = (x.file_name || x.relative_path || '').toLowerCase()
+				const pid = data.value.id.toLowerCase()
+				return fname.startsWith(pid + '-') || fname.startsWith(pid + '.')
+			}
+			return false
+		})
+	}
 	installed.value = !!installedFile
-	installedVersion.value = installedFile?.metadata.version_id ?? null
+	if (installedFile) {
+		installedVersion.value =
+			installedFile?.metadata?.version_id ??
+			(instance.value?.loader === 'rust'
+				? (installedFile.file_name || installedFile.relative_path || '')
+						.replace(/\.disabled$/, '')
+						.replace(/\.hnmod$/, '')
+						.replace(/\.hmod$/, '')
+						.split('-')[1] || null
+				: null)
+	} else {
+		installedVersion.value = null
+	}
 
 	if (project.organization) {
 		organization.value = await get_organization(project.organization).catch(() => null)
@@ -999,6 +1143,24 @@ async function install(version) {
 			handleError(err)
 		} finally {
 			installing.value = false
+		}
+		return
+	}
+
+	if (
+		instance.value?.loader === 'rust' &&
+		(data.value?.loaders?.includes('rust') || versions.value?.[0]?.loaders?.includes('rust'))
+	) {
+		if (instance.value) {
+			installing.value = true
+			try {
+				await installHorizonMod(instance.value.id, data.value.id, version)
+				installed.value = true
+			} catch (e) {
+				handleError(e)
+			} finally {
+				installing.value = false
+			}
 		}
 		return
 	}

@@ -84,6 +84,7 @@ pub enum ModLoader {
     Fabric,
     Quilt,
     NeoForge,
+    Rust,
 }
 
 impl ModLoader {
@@ -94,6 +95,7 @@ impl ModLoader {
             Self::Fabric => "fabric",
             Self::Quilt => "quilt",
             Self::NeoForge => "neoforge",
+            Self::Rust => "rust",
         }
     }
 
@@ -104,6 +106,7 @@ impl ModLoader {
             Self::Fabric => "fabric",
             Self::Quilt => "quilt",
             Self::NeoForge => "neo",
+            Self::Rust => "rust",
         }
     }
 
@@ -114,6 +117,7 @@ impl ModLoader {
             "fabric" => Self::Fabric,
             "quilt" => Self::Quilt,
             "neoforge" => Self::NeoForge,
+            "rust" | "horizon" => Self::Rust,
             _ => Self::Vanilla,
         }
     }
@@ -177,7 +181,7 @@ impl ProjectType {
             .to_str()
             .unwrap_or_default()
         {
-            "mods" => Some(ProjectType::Mod),
+            "mods" | "horizon-mods" => Some(ProjectType::Mod),
             "datapacks" => Some(ProjectType::DataPack),
             "resourcepacks" => Some(ProjectType::ResourcePack),
             "shaderpacks" => Some(ProjectType::ShaderPack),
@@ -217,7 +221,7 @@ impl ProjectType {
 
     pub fn get_loaders(&self) -> &'static [&'static str] {
         match self {
-            ProjectType::Mod => &["fabric", "forge", "quilt", "neoforge"],
+            ProjectType::Mod => &["fabric", "forge", "quilt", "neoforge", "rust"],
             ProjectType::DataPack => &["datapack"],
             ProjectType::ResourcePack => &["vanilla", "canvas", "minecraft"],
             ProjectType::ShaderPack => &["iris", "optifine"],
